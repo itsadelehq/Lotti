@@ -2,7 +2,7 @@ import SwiftUI
 import CoreText
 import AppKit
 
-/// Registers the bundled Google Sans variable fonts at launch and exposes
+/// Registers the bundled Aeonik Pro fonts at launch and exposes
 /// `Font.gsBold/gsMedium/gsRegular` helpers. Falls back to system rounded
 /// fonts if registration or the family lookup fails for any reason.
 ///
@@ -11,11 +11,12 @@ import AppKit
 ///  (b) programmatic `CTFontManagerRegisterFontsForURL` here as a backup.
 enum AppFonts {
     /// Family name verified from the bundled ttf `name` table via CoreText.
-    static let familyName = "Google Sans"
+    static let familyName = "Aeonik Pro"
     /// Exact PostScript names verified via CoreText (see task notes).
-    static let psRegular = "GoogleSans-Regular"
-    static let psMedium  = "GoogleSans-Regular_Medium"
-    static let psBold    = "GoogleSans-Regular_Bold"
+    static let psRegular  = "AeonikPro-Regular"
+    static let psMedium   = "AeonikPro-Medium"
+    static let psSemibold = "AeonikPro-SemiBold"
+    static let psBold     = "AeonikPro-Bold"
 
     private static let registered: Bool = {
         // Look in the "Fonts" subdirectory first (matches ATSApplicationFontsPath),
@@ -27,7 +28,7 @@ enum AppFonts {
         if let flat = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) {
             fontURLs += flat
         }
-        fontURLs = fontURLs.filter { $0.lastPathComponent.contains("GoogleSans") }
+        // Register every bundled ttf (Aeonik Pro and any remaining Google Sans files).
         for url in fontURLs {
             var error: Unmanaged<CFError>?
             // Ignore "already registered" errors – ATSApplicationFontsPath may have
@@ -41,24 +42,24 @@ enum AppFonts {
 
     static func register() {
         _ = registered
-        // Runtime verification requested in the task – confirms the variable font
-        // faces resolve by their explicit PostScript names.
+        // Runtime verification requested in the task – confirms the faces
+        // resolve by their explicit PostScript names.
         let bold = NSFont(name: psBold, size: 12) != nil
+        let semibold = NSFont(name: psSemibold, size: 12) != nil
         let medium = NSFont(name: psMedium, size: 12) != nil
         let regular = NSFont(name: psRegular, size: 12) != nil
-        print("[AppFonts] registered=\(registered) bold(GoogleSans-Regular_Bold)=\(bold) medium=\(medium) regular=\(regular)")
+        print("[AppFonts] registered=\(registered) bold(AeonikPro-Bold)=\(bold) semibold=\(semibold) medium=\(medium) regular=\(regular)")
     }
 
     static func font(size: CGFloat, weight: Font.Weight) -> Font {
         guard registered else {
             return .system(size: size, weight: weight, design: .rounded)
         }
-        // Prefer explicit PostScript names – on this variable font, `.weight()`
-        // applied to `Font.custom(familyName)` does not reliably swap the face,
-        // so we address the named instances directly.
+        // Prefer explicit PostScript names – addresses the named instances directly.
         let ps: String
         switch weight {
-        case .bold, .heavy, .black, .semibold: ps = psBold
+        case .bold, .heavy, .black: ps = psBold
+        case .semibold: ps = psSemibold
         case .medium: ps = psMedium
         default: ps = psRegular
         }
@@ -70,4 +71,13 @@ extension Font {
     static func gsBold(_ size: CGFloat) -> Font { AppFonts.font(size: size, weight: .bold) }
     static func gsMedium(_ size: CGFloat) -> Font { AppFonts.font(size: size, weight: .medium) }
     static func gsRegular(_ size: CGFloat) -> Font { AppFonts.font(size: size, weight: .regular) }
+}
+
+/// Shared heading sizes so screen titles and section headings stay
+/// consistent app-wide. Metric/stat numbers are NOT part of this scale.
+enum AppFontSizes {
+    /// Top-level screen titles ("Insights", "Welcome back, Adele", "Settings").
+    static let screenTitle: CGFloat = 32
+    /// Section headings inside a screen ("Desktop usage", "{n} day streak").
+    static let sectionHeading: CGFloat = 23
 }
