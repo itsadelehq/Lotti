@@ -30,6 +30,7 @@
 		875131E74078B2A431A78A4B /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD31FDFC87D9F2B97E55DEFF /* AppColors.swift */; };
 		8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */; };
 		9036F14EFE22CF851369692B /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC99F49EC9AD18B4FFE974D /* TextInjector.swift */; };
+		9538601334A47874FD17CF66 /* InsightsSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6B807C9DF325287F4DBA45 /* InsightsSnapshot.swift */; };
 		98F56B7ED87620D05D38A57E /* AudioCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEC14750989831A8E604DC5 /* AudioCapture.swift */; };
 		A54FBD62A34593BA50824130 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 78FCF33BC6E9EA5B1C9B6F83 /* Fonts */; };
 		A7D1B7B50F8AFDABE1252660 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F669BDFB312AD5850CB687D /* KeychainTests.swift */; };
@@ -108,6 +109,7 @@
 		E7B6A4294E0777A7B5CE9DF1 /* DictationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationCoordinator.swift; sourceTree = "<group>"; };
 		F8A10506FA022B8009E67237 /* AppCategoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCategoryTests.swift; sourceTree = "<group>"; };
 		F8B925EDB60052BB0A9F9C1A /* PolishServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolishServiceTests.swift; sourceTree = "<group>"; };
+		FF6B807C9DF325287F4DBA45 /* InsightsSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsSnapshot.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -134,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				3C3139F3912E3A3DB7314AE3 /* AppSettings.swift */,
+				FF6B807C9DF325287F4DBA45 /* InsightsSnapshot.swift */,
 				5CF809BBE5F6E62B0D85A20A /* Keychain.swift */,
 				DB8FE104718B1971D421AB66 /* Models.swift */,
 				74BBCDFDEB1FE69B0F520D2E /* Store.swift */,
@@ -219,7 +222,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_C05DE0D5-FD99-4C30-8D91-9B8DC9EA5946" /* Resources */ = {
+		"TEMP_D77BF03A-2DE1-482D-AA14-E82302459747" /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -330,6 +333,7 @@
 				36BEAD750CEBEE8A221DE327 /* FloatingPill.swift in Sources */,
 				0FA6EDDBA5177F174DB2D2B8 /* HotkeyManager.swift in Sources */,
 				C436843912367BBA679CFC82 /* InsightsCards.swift in Sources */,
+				9538601334A47874FD17CF66 /* InsightsSnapshot.swift in Sources */,
 				45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */,
 				C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */,
 				D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */,

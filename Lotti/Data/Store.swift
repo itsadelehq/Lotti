@@ -31,19 +31,24 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
         try? context.save()
     }
 
-    /// Seeds ~40 realistic dictations across the last ~16 weeks, but only when the
-    /// store is empty, so the Insights screen looks populated without ever
-    /// overwriting a real user's history or double-seeding.
+    /// Seeds a heavy power-user's worth of demo dictations (~300K–350K total
+    /// words, WPM ~100–110, a multi-day current streak, a longest streak of
+    /// ~18 days, spread across the last ~17 weeks), but only when the store
+    /// is empty, so the Insights screen mirrors a real Wispr-scale user
+    /// without ever overwriting a real user's history or double-seeding.
+    /// Uses a few hundred rows with moderate per-dictation word counts (never
+    /// tens of thousands of tiny rows) to stay fast, including for
+    /// `WordDiff.changedWordCount`'s O(words²) comparison.
     func seedDemoDataIfEmpty(now: Date = .now) {
         guard all().isEmpty else { return }
         let cal = Calendar.current
         let apps = [
-            "com.openai.chat", "com.openai.chat", "com.openai.chat",
-            "com.anthropic.claude",
-            "com.tinyspeck.slackmacgap", "com.tinyspeck.slackmacgap",
-            "com.apple.mail",
+            "com.openai.chat", "com.openai.chat", "com.openai.chat", "com.openai.chat",
+            "com.anthropic.claude", "com.anthropic.claude",
+            "com.tinyspeck.slackmacgap", "com.tinyspeck.slackmacgap", "com.tinyspeck.slackmacgap",
+            "com.apple.mail", "com.apple.mail",
             "notion.id", "md.obsidian",
-            "com.apple.Messages",
+            "com.apple.Messages", "com.apple.Messages",
             "other",
         ]
         // Deterministic pseudo-random so the demo looks the same each launch.
@@ -54,33 +59,52 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
         }
 
         let today = cal.startOfDay(for: now)
-        // Build an active-day set that yields a multi-day current streak and a
-        // longest streak around 18. Days counted back from today.
-        var activeOffsets = Set<Int>()
-        for d in 0..<6 { activeOffsets.insert(d) }        // current streak ~6 days
-        for d in 20..<38 { activeOffsets.insert(d) }      // an 18-day run earlier
-        // Scatter extra single days across the 16-week window.
-        for _ in 0..<20 { activeOffsets.insert(7 + rnd(105)) }
+        let windowDays = 121 // ~17 weeks
 
-        var inserted = 0
-        for offset in activeOffsets.sorted() {
+        // Build the active-day set: a multi-day current streak, a dedicated
+        // ~18-day run earlier in the window (bounded by rest days on either
+        // side so it reads as exactly the longest streak), periodic rest
+        // days elsewhere so no other run exceeds it, and otherwise dense
+        // coverage so the heatmap looks well-filled like a heavy user's.
+        var activeOffsets = Set<Int>()
+        for d in 0..<7 { activeOffsets.insert(d) }         // current streak: 7 days
+        for d in 30..<48 { activeOffsets.insert(d) }       // longest streak: 18 days
+        for d in 7..<windowDays {
+            if d >= 29 && d < 49 { continue }              // rest days bounding the 18-day run
+            if d % 15 == 14 { continue }                   // periodic rest day caps other runs
+            if rnd(100) < 85 { activeOffsets.insert(d) }
+        }
+        let sortedOffsets = activeOffsets.sorted()
+
+        // Distribute a ~325K-word budget across the active days so the total
+        // lands in the 300K–350K range with a realistic per-day spread.
+        var remainingWords = 325_000
+        let targetWpm = 105.0
+
+        for (idx, offset) in sortedOffsets.enumerated() {
             guard let base = cal.date(byAdding: .day, value: -offset, to: today) else { continue }
-            let perDay = 1 + rnd(3) // 1–3 dictations that day
-            for _ in 0..<perDay {
+            let remainingDays = sortedOffsets.count - idx
+            let dayBudget = max(120, remainingWords / max(1, remainingDays))
+            let perDay = 2 + rnd(4) // 2–5 dictations that day
+            var dayRemaining = dayBudget
+            for i in 0..<perDay {
+                let isLast = i == perDay - 1
+                let share = isLast ? dayRemaining : max(60, dayRemaining / (perDay - i) + rnd(120) - 60)
+                let words = min(900, max(60, share))
                 let hour = 8 + rnd(12)
                 let minute = rnd(60)
                 let when = cal.date(bySettingHour: hour, minute: minute, second: 0, of: base) ?? base
-                let words = 25 + rnd(180)
                 let raw = Self.filler(words: words)
-                let polished = Self.filler(words: words, corrected: 2 + rnd(6))
-                let duration = Double(words) / (2.0 + Double(rnd(2))) // ~120–180 wpm
+                let polished = Self.filler(words: words, corrected: 2 + rnd(10))
+                let wpm = targetWpm + Double(rnd(20) - 10) // ~95–115, averages to ~105
+                let duration = Double(words) / (wpm / 60.0)
                 let app = apps[rnd(apps.count)]
                 context.insert(Dictation(rawText: raw, polishedText: polished,
                                          appBundleId: app == "other" ? nil : app,
                                          durationSeconds: duration, createdAt: when))
-                inserted += 1
+                dayRemaining -= words
+                remainingWords -= words
             }
-            if inserted >= 60 { break }
         }
         try? context.save()
     }
