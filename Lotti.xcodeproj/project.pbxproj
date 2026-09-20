@@ -1,0 +1,407 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943D442B049947E28355E716 /* SettingsView.swift */; };
+		2CF8DE98A5A327644B77116B /* DictationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0241079318EC426905CCC319 /* DictationView.swift */; };
+		45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A213660BC3233721CBA152 /* InsightsView.swift */; };
+		8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */; };
+		B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C53F9A37FE46E12F646367 /* RootView.swift */; };
+		D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D67AF95E75BBE6335035AA28 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E3A8352C83576325ADE7D112 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AE12C34288BCA52B5FE59FB1;
+			remoteInfo = Lotti;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0241079318EC426905CCC319 /* DictationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationView.swift; sourceTree = "<group>"; };
+		2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiTests.swift; sourceTree = "<group>"; };
+		35F495EC70D4B9FCB324C1C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		69C53F9A37FE46E12F646367 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		80C19CD875CFEE9C5CDEAFEB /* Lotti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lotti.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8CA265160279A9309851138C /* LottiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LottiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		943D442B049947E28355E716 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9DDD0D05AB8A7727B4342634 /* Lotti.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Lotti.entitlements; sourceTree = "<group>"; };
+		AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiApp.swift; sourceTree = "<group>"; };
+		B3A213660BC3233721CBA152 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1A7A888FD3150A923412FB73 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				0241079318EC426905CCC319 /* DictationView.swift */,
+				B3A213660BC3233721CBA152 /* InsightsView.swift */,
+				69C53F9A37FE46E12F646367 /* RootView.swift */,
+				943D442B049947E28355E716 /* SettingsView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		8B82FC917883961CAB013B55 = {
+			isa = PBXGroup;
+			children = (
+				A1914353D6673F249864C1B9 /* Lotti */,
+				AA5011D2AA6CDBF35A8F3717 /* LottiTests */,
+				ECF963CD0E8D9A39B09474FE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1914353D6673F249864C1B9 /* Lotti */ = {
+			isa = PBXGroup;
+			children = (
+				35F495EC70D4B9FCB324C1C0 /* Info.plist */,
+				9DDD0D05AB8A7727B4342634 /* Lotti.entitlements */,
+				AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */,
+				1A7A888FD3150A923412FB73 /* UI */,
+			);
+			path = Lotti;
+			sourceTree = "<group>";
+		};
+		AA5011D2AA6CDBF35A8F3717 /* LottiTests */ = {
+			isa = PBXGroup;
+			children = (
+				2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */,
+			);
+			path = LottiTests;
+			sourceTree = "<group>";
+		};
+		ECF963CD0E8D9A39B09474FE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				80C19CD875CFEE9C5CDEAFEB /* Lotti.app */,
+				8CA265160279A9309851138C /* LottiTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		43C47F9B0E1EF9DE67A1C5B9 /* LottiTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6DC15D3C8BCF3CC1EA23772 /* Build configuration list for PBXNativeTarget "LottiTests" */;
+			buildPhases = (
+				23FB84C49CC2F904325EAE53 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				364117A9F9DFAA5C513541C9 /* PBXTargetDependency */,
+			);
+			name = LottiTests;
+			packageProductDependencies = (
+			);
+			productName = LottiTests;
+			productReference = 8CA265160279A9309851138C /* LottiTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AE12C34288BCA52B5FE59FB1 /* Lotti */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A5A34951E1CED27DFD93D66 /* Build configuration list for PBXNativeTarget "Lotti" */;
+			buildPhases = (
+				02A83F9DEF753D81B8F29CC1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Lotti;
+			packageProductDependencies = (
+			);
+			productName = Lotti;
+			productReference = 80C19CD875CFEE9C5CDEAFEB /* Lotti.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E3A8352C83576325ADE7D112 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = B6FE4271E1B386A79A7CFE05 /* Build configuration list for PBXProject "Lotti" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 8B82FC917883961CAB013B55;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = ECF963CD0E8D9A39B09474FE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AE12C34288BCA52B5FE59FB1 /* Lotti */,
+				43C47F9B0E1EF9DE67A1C5B9 /* LottiTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		02A83F9DEF753D81B8F29CC1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CF8DE98A5A327644B77116B /* DictationView.swift in Sources */,
+				45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */,
+				D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */,
+				B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */,
+				068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23FB84C49CC2F904325EAE53 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		364117A9F9DFAA5C513541C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AE12C34288BCA52B5FE59FB1 /* Lotti */;
+			targetProxy = D67AF95E75BBE6335035AA28 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		5FD8CE2BF57621333F411A73 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Lotti/Lotti.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Lotti/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.adele.Lotti;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		65C323C4275A95C09CFA43A7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.adele.LottiTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lotti.app/Contents/MacOS/Lotti";
+			};
+			name = Release;
+		};
+		AACC53CAAA2F724C06DC0E1B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.adele.LottiTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lotti.app/Contents/MacOS/Lotti";
+			};
+			name = Debug;
+		};
+		C1FA471A0B9010BC3409DB5E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Lotti/Lotti.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Lotti/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.adele.Lotti;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D240404C87F739DAE01463FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		DBF823F82FC83F6AB4783618 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5A5A34951E1CED27DFD93D66 /* Build configuration list for PBXNativeTarget "Lotti" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1FA471A0B9010BC3409DB5E /* Debug */,
+				5FD8CE2BF57621333F411A73 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B6FE4271E1B386A79A7CFE05 /* Build configuration list for PBXProject "Lotti" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBF823F82FC83F6AB4783618 /* Debug */,
+				D240404C87F739DAE01463FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F6DC15D3C8BCF3CC1EA23772 /* Build configuration list for PBXNativeTarget "LottiTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AACC53CAAA2F724C06DC0E1B /* Debug */,
+				65C323C4275A95C09CFA43A7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E3A8352C83576325ADE7D112 /* Project object */;
+}

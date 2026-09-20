@@ -1,0 +1,25 @@
+name: Lotti
+options:
+  bundleIdPrefix: com.adele
+  deploymentTarget:
+    macOS: "15.0"
+targets:
+  Lotti:
+    type: application
+    platform: macOS
+    sources: [Lotti]
+    info:
+      path: Lotti/Info.plist
+      properties:
+        NSMicrophoneUsageDescription: "Lotti needs your microphone to transcribe speech."
+        LSUIElement: false
+    entitlements:
+      path: Lotti/Lotti.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.device.audio-input: true
+  LottiTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [LottiTests]
+    dependencies: [target: Lotti]
