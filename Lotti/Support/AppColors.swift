@@ -18,6 +18,7 @@ extension Color {
     static let appTextPrimary = Color(hex: 0x1A1A1A)
     static let appTextSecondary = Color(hex: 0x8A8A82)
     static let appTeal = Color(hex: 0x0E5A4F)
+    static let appMarkBlack = Color(hex: 0x111111)
     static let appTealDeep = Color(hex: 0x0B463D)
     static let appGreenChipBg = Color(hex: 0xD8F0DF)
     static let appGreenChipText = Color(hex: 0x1B7A4B)
