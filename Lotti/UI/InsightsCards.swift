@@ -191,7 +191,7 @@ struct DesktopUsageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Desktop usage").font(.gsBold(28)).foregroundStyle(Color.appTextPrimary)
+                Text("Desktop usage").font(.gsBold(AppFontSizes.sectionHeading)).foregroundStyle(Color.appTextPrimary)
                 Spacer()
                 HStack(spacing: 6) {
                     Text("TOTAL APPS USED").font(.gsMedium(11)).foregroundStyle(Color.appTextSecondary).tracking(0.8)

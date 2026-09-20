@@ -58,7 +58,7 @@ struct StreakHeatmapCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
-                Text("\(currentStreak) day streak").font(.gsBold(28)).foregroundStyle(Color.appTextPrimary)
+                Text("\(currentStreak) day streak").font(.gsBold(AppFontSizes.sectionHeading)).foregroundStyle(Color.appTextPrimary)
                 Spacer()
                 HStack(spacing: 6) {
                     Text("LONGEST STREAK").font(.gsMedium(11)).foregroundStyle(Color.appTextSecondary).tracking(0.8)
@@ -77,6 +77,8 @@ struct StreakHeatmapCard: View {
                         Text(label)
                             .font(.gsMedium(10))
                             .foregroundStyle(Color.appTextSecondary)
+                            .lineLimit(1)
+                            .fixedSize()
                             .frame(width: cell + gap, alignment: .leading)
                     }
                 }

@@ -23,7 +23,7 @@ struct DictationView: View {
     private var mainColumn: some View {
         VStack(alignment: .leading, spacing: 22) {
             Text("Welcome back, Adele")
-                .font(.gsBold(36))
+                .font(.gsBold(AppFontSizes.screenTitle))
                 .foregroundStyle(Color.appTextPrimary)
 
             if !bannerDismissed {

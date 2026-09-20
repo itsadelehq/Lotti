@@ -28,10 +28,9 @@ struct InsightsView: View {
     private var header: some View {
         HStack(alignment: .center) {
             Text("Insights")
-                .font(.gsBold(40))
+                .font(.gsBold(AppFontSizes.screenTitle))
                 .foregroundStyle(Color.appTextPrimary)
             Spacer()
-            ShareBadge()
         }
     }
 
@@ -56,49 +55,5 @@ struct InsightsView: View {
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.appDivider).frame(height: 1)
         }
-    }
-}
-
-/// Circular rotating "SHARE • SHARE •" badge with a centered up-arrow icon,
-/// teal outline (decorative, matches reference).
-private struct ShareBadge: View {
-    @State private var angle: Double = 0
-    private let text = "SHARE • SHARE • SHARE • "
-
-    var body: some View {
-        ZStack {
-            Circle().stroke(Color.appTeal, lineWidth: 1.5).frame(width: 62, height: 62)
-            CircularText(text: text, radius: 26)
-                .foregroundStyle(Color.appTeal)
-                .rotationEffect(.degrees(angle))
-            Image(systemName: "square.and.arrow.up")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.appTeal)
-        }
-        .frame(width: 62, height: 62)
-        .onAppear {
-            withAnimation(.linear(duration: 12).repeatForever(autoreverses: false)) {
-                angle = 360
-            }
-        }
-    }
-}
-
-private struct CircularText: View {
-    let text: String
-    let radius: CGFloat
-
-    var body: some View {
-        let chars = Array(text)
-        ZStack {
-            ForEach(0..<chars.count, id: \.self) { i in
-                let step = 360.0 / Double(chars.count)
-                Text(String(chars[i]))
-                    .font(.gsBold(9))
-                    .offset(y: -radius)
-                    .rotationEffect(.degrees(step * Double(i)))
-            }
-        }
-        .frame(width: radius * 2, height: radius * 2)
     }
 }
