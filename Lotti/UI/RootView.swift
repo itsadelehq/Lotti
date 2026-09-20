@@ -69,6 +69,7 @@ struct RootView: View {
             .background(Color.appBg)
         }
         .background(Color.appBg)
+        .background(WindowAccessor())
         .onAppear { AppFonts.register() }
     }
 

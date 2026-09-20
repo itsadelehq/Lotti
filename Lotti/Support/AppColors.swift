@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 extension Color {
     init(hex: UInt32, alpha: Double = 1) {
@@ -10,6 +11,7 @@ extension Color {
 
     static let appBg = Color(hex: 0xF5F4F1)
     static let appSidebarBg = Color(hex: 0xF5F4F1)
+    static let appBgNS = NSColor(red: 0xF5 / 255, green: 0xF4 / 255, blue: 0xF1 / 255, alpha: 1)
     static let appCard = Color.white
     static let appCardMuted = Color(hex: 0xF0EFEB)
     static let appTextPrimary = Color(hex: 0x1A1A1A)

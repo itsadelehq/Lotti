@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943D442B049947E28355E716 /* SettingsView.swift */; };
 		0FA6EDDBA5177F174DB2D2B8 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33A2FC07913F16B6B92D78EF /* HotkeyManager.swift */; };
+		1151528D990A5EA3C16BAD90 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCCA6BA0F677179C5A65A7BE /* WindowAccessor.swift */; };
 		192C20E7DF58DE32219719B3 /* WordDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2949CB969F845B8031CB748B /* WordDiff.swift */; };
 		1C0F3104A8A2AF6780617013 /* PolishServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B925EDB60052BB0A9F9C1A /* PolishServiceTests.swift */; };
 		23CFAC71DF62B39F9009F7D1 /* UsageTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EE9937A9988044C955DDB2 /* UsageTab.swift */; };
@@ -100,6 +101,7 @@
 		CD31FDFC87D9F2B97E55DEFF /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		D8BB3B56987B8889620B4882 /* TriggerKeyRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerKeyRecorder.swift; sourceTree = "<group>"; };
 		DB8FE104718B1971D421AB66 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		DCCA6BA0F677179C5A65A7BE /* WindowAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowAccessor.swift; sourceTree = "<group>"; };
 		E490FABB9D2D270DC82282FC /* PolishService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolishService.swift; sourceTree = "<group>"; };
 		E7B6A4294E0777A7B5CE9DF1 /* DictationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationCoordinator.swift; sourceTree = "<group>"; };
 		F8A10506FA022B8009E67237 /* AppCategoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCategoryTests.swift; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 				453FFE5939AEA92D8778F8B6 /* AppCategory.swift */,
 				CD31FDFC87D9F2B97E55DEFF /* AppColors.swift */,
 				23028739B2B0D40011535B26 /* AppFonts.swift */,
+				DCCA6BA0F677179C5A65A7BE /* WindowAccessor.swift */,
 				2949CB969F845B8031CB748B /* WordDiff.swift */,
 			);
 			path = Support;
@@ -213,7 +216,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_D6881F35-8076-4D1E-B06C-369873052C90" /* Resources */ = {
+		"TEMP_3698A695-0376-44ED-AFFE-D800D1D25C54" /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -335,6 +338,7 @@
 				6700A0066D572C6F6B8818AC /* TriggerKeyRecorder.swift in Sources */,
 				23CFAC71DF62B39F9009F7D1 /* UsageTab.swift in Sources */,
 				7C6B3D73B7EBAE88250ED299 /* VoiceTab.swift in Sources */,
+				1151528D990A5EA3C16BAD90 /* WindowAccessor.swift in Sources */,
 				192C20E7DF58DE32219719B3 /* WordDiff.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
