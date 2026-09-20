@@ -17,12 +17,30 @@ struct SplitViewDividerHider: NSViewRepresentable {
         var node: NSView? = view
         while let n = node {
             if let split = n as? NSSplitView {
-                // A thin divider on matching cream backgrounds reads as no seam.
                 split.dividerStyle = .thin
+                Self.makeDividerColorMatchBackground(on: split)
                 break
             }
             node = n.superview
         }
+    }
+
+    /// `dividerStyle = .thin` alone still paints a 1pt hairline in the
+    /// system's default divider color, which shows as a hard seam between the
+    /// cream sidebar and the white panel. Since NavigationSplitView owns the
+    /// actual NSSplitView instance (and its concrete runtime class), we can't
+    /// subclass it ourselves — instead we swap just the `dividerColor` getter
+    /// implementation on that runtime class to always return the cream
+    /// background color, so the divider blends in and reads as no seam at all.
+    private static var patchedClasses = Set<ObjectIdentifier>()
+    private static func makeDividerColorMatchBackground(on split: NSSplitView) {
+        let cls: AnyClass = type(of: split)
+        let key = ObjectIdentifier(cls)
+        guard !patchedClasses.contains(key) else { return }
+        guard let method = class_getInstanceMethod(cls, #selector(getter: NSSplitView.dividerColor)) else { return }
+        patchedClasses.insert(key)
+        let block: @convention(block) (NSSplitView) -> NSColor = { _ in Color.appBgNS }
+        method_setImplementation(method, imp_implementationWithBlock(block))
     }
 }
 
