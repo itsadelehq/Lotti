@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		037D1EB194F45B59E4B09769 /* GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1CBF2D105D3379662C150AC /* GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf */; };
 		068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943D442B049947E28355E716 /* SettingsView.swift */; };
 		0FA6EDDBA5177F174DB2D2B8 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33A2FC07913F16B6B92D78EF /* HotkeyManager.swift */; };
 		192C20E7DF58DE32219719B3 /* WordDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2949CB969F845B8031CB748B /* WordDiff.swift */; };
@@ -30,11 +29,11 @@
 		8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */; };
 		9036F14EFE22CF851369692B /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC99F49EC9AD18B4FFE974D /* TextInjector.swift */; };
 		98F56B7ED87620D05D38A57E /* AudioCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEC14750989831A8E604DC5 /* AudioCapture.swift */; };
+		A54FBD62A34593BA50824130 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 78FCF33BC6E9EA5B1C9B6F83 /* Fonts */; };
 		A7D1B7B50F8AFDABE1252660 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F669BDFB312AD5850CB687D /* KeychainTests.swift */; };
 		ABC31EB4A83B309141D2C66A /* BestsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173A38F0E8C52B9A9CD6316E /* BestsTab.swift */; };
 		AC01AC1D8374095EB00CD12C /* CoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208AFDCEEEE814D1815DD97A /* CoordinatorTests.swift */; };
 		B058643CFA9B8C310F19255F /* AppCategoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A10506FA022B8009E67237 /* AppCategoryTests.swift */; };
-		B195CD978CE67AD2D2D40AC4 /* GoogleSans-VariableFont_GRAD,opsz,wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8AFC8DE006A8802AF7FB45F4 /* GoogleSans-VariableFont_GRAD,opsz,wght.ttf */; };
 		B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C53F9A37FE46E12F646367 /* RootView.swift */; };
 		BACB67F9E6A4761AECCC09FF /* AppFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23028739B2B0D40011535B26 /* AppFonts.swift */; };
 		C436843912367BBA679CFC82 /* InsightsCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0EB2143FD50C5E7069ACD2 /* InsightsCards.swift */; };
@@ -86,9 +85,9 @@
 		69C53F9A37FE46E12F646367 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		6D14D92AD149D845A589AD9A /* WordDiffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDiffTests.swift; sourceTree = "<group>"; };
 		74BBCDFDEB1FE69B0F520D2E /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		78FCF33BC6E9EA5B1C9B6F83 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = Lotti/Resources/Fonts; sourceTree = SOURCE_ROOT; };
 		7B20FD7B205CCE9025E714E9 /* Sounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sounds.swift; sourceTree = "<group>"; };
 		80C19CD875CFEE9C5CDEAFEB /* Lotti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lotti.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8AFC8DE006A8802AF7FB45F4 /* GoogleSans-VariableFont_GRAD,opsz,wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GoogleSans-VariableFont_GRAD,opsz,wght.ttf"; sourceTree = "<group>"; };
 		8CA265160279A9309851138C /* LottiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LottiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FC3C506558E8F247E1361E6 /* DeepgramMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramMessageTests.swift; sourceTree = "<group>"; };
 		943D442B049947E28355E716 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -97,7 +96,6 @@
 		AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiApp.swift; sourceTree = "<group>"; };
 		ACC99F49EC9AD18B4FFE974D /* TextInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInjector.swift; sourceTree = "<group>"; };
 		B3A213660BC3233721CBA152 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
-		C1CBF2D105D3379662C150AC /* GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf"; sourceTree = "<group>"; };
 		C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramEngine.swift; sourceTree = "<group>"; };
 		CD31FDFC87D9F2B97E55DEFF /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		D8BB3B56987B8889620B4882 /* TriggerKeyRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerKeyRecorder.swift; sourceTree = "<group>"; };
@@ -139,17 +137,10 @@
 			path = Data;
 			sourceTree = "<group>";
 		};
-		443BBCCA54AC20FFDEAF0C93 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				A4903BCA0A960AA294C79831 /* Fonts */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		8B82FC917883961CAB013B55 = {
 			isa = PBXGroup;
 			children = (
+				78FCF33BC6E9EA5B1C9B6F83 /* Fonts */,
 				A1914353D6673F249864C1B9 /* Lotti */,
 				AA5011D2AA6CDBF35A8F3717 /* LottiTests */,
 				ECF963CD0E8D9A39B09474FE /* Products */,
@@ -175,20 +166,10 @@
 				AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */,
 				BC4DED996121ED58EEA1768C /* Core */,
 				1D298039F717716FB51A388C /* Data */,
-				443BBCCA54AC20FFDEAF0C93 /* Resources */,
 				9D9F21724D7136A3EDF8120A /* Support */,
 				1A7A888FD3150A923412FB73 /* UI */,
 			);
 			path = Lotti;
-			sourceTree = "<group>";
-		};
-		A4903BCA0A960AA294C79831 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				C1CBF2D105D3379662C150AC /* GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf */,
-				8AFC8DE006A8802AF7FB45F4 /* GoogleSans-VariableFont_GRAD,opsz,wght.ttf */,
-			);
-			path = Fonts;
 			sourceTree = "<group>";
 		};
 		AA5011D2AA6CDBF35A8F3717 /* LottiTests */ = {
@@ -230,6 +211,13 @@
 				8CA265160279A9309851138C /* LottiTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		"TEMP_D6881F35-8076-4D1E-B06C-369873052C90" /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -307,8 +295,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				037D1EB194F45B59E4B09769 /* GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf in Resources */,
-				B195CD978CE67AD2D2D40AC4 /* GoogleSans-VariableFont_GRAD,opsz,wght.ttf in Resources */,
+				A54FBD62A34593BA50824130 /* Fonts in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

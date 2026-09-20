@@ -11,11 +11,15 @@ targets:
       - path: Lotti
         excludes:
           - "Resources/**/*.svg"
+          - "Resources/Fonts"
+      - path: Lotti/Resources/Fonts
+        type: folder
     info:
       path: Lotti/Info.plist
       properties:
         NSMicrophoneUsageDescription: "Lotti needs your microphone to transcribe speech."
         LSUIElement: false
+        ATSApplicationFontsPath: Fonts
     entitlements:
       path: Lotti/Lotti.entitlements
       properties:
