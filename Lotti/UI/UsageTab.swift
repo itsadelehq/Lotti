@@ -25,7 +25,7 @@ struct UsageTab: View {
             }
             HStack(alignment: .top, spacing: 16) {
                 DesktopUsageCard(categoryTotals: categoryTotals)
-                StreakHeatmapCard(items: items, longestStreak: stats.longestStreak)
+                StreakHeatmapCard(items: items, longestStreak: stats.longestStreak, currentStreak: stats.currentStreak)
             }
         }
     }

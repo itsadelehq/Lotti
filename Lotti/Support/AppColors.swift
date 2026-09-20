@@ -25,6 +25,19 @@ extension Color {
     static let appHairline = Color.black.opacity(0.06)
     static let appDivider = Color.black.opacity(0.08)
 
+    // Insights-specific tokens (reference screenshot).
+    static let appInsightCard = Color(hex: 0xEFEEE9)   // warm grey card fill
+    static let appGaugeTrack = Color(hex: 0xE4E3DD)    // gauge / bar track
+
+    /// Heatmap scale mixing teal + warm grey (empty→max).
+    static let heatmapMixed: [Color] = [
+        Color(hex: 0xE4E3DD), // empty / none (warm grey)
+        Color(hex: 0xCFE8D8), // low
+        Color(hex: 0x7FC9A3), // med
+        Color(hex: 0x2E9E73), // high
+        Color(hex: 0x0E5A4F), // max
+    ]
+
     static let heatmapScale: [Color] = [
         Color(hex: 0xEBEAE4),
         Color(hex: 0xCDE8D6),
@@ -54,5 +67,26 @@ struct AppCard: ViewModifier {
 extension View {
     func appCardStyle(padding: CGFloat = 20) -> some View {
         modifier(AppCard(padding: padding))
+    }
+}
+
+/// Insights card: warm-grey fill, radius 20, generous padding, subtle shadow,
+/// no heavy border (matches the reference screenshot).
+struct InsightCard: ViewModifier {
+    var padding: CGFloat = 24
+    func body(content: Content) -> some View {
+        content
+            .padding(padding)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color.appInsightCard)
+            )
+            .shadow(color: .black.opacity(0.03), radius: 10, y: 3)
+    }
+}
+
+extension View {
+    func insightCardStyle(padding: CGFloat = 24) -> some View {
+        modifier(InsightCard(padding: padding))
     }
 }

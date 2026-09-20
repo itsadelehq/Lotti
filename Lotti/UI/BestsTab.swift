@@ -37,6 +37,6 @@ struct BestsTab: View {
             Text(label).font(.gsMedium(11)).foregroundStyle(Color.appTextSecondary).tracking(0.6)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .appCardStyle()
+        .insightCardStyle()
     }
 }
