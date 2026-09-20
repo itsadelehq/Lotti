@@ -1,4 +1,30 @@
 import SwiftUI
+import AppKit
+
+/// Walks up to the enclosing `NSSplitView` that `NavigationSplitView` is built
+/// on and suppresses the divider between the sidebar and the detail pane, so the
+/// cream sidebar meets the cream gap with no hairline seam.
+struct SplitViewDividerHider: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let v = NSView(frame: .zero)
+        DispatchQueue.main.async { hideDivider(from: v) }
+        return v
+    }
+    func updateNSView(_ nsView: NSView, context: Context) {
+        DispatchQueue.main.async { hideDivider(from: nsView) }
+    }
+    private func hideDivider(from view: NSView) {
+        var node: NSView? = view
+        while let n = node {
+            if let split = n as? NSSplitView {
+                // A thin divider on matching cream backgrounds reads as no seam.
+                split.dividerStyle = .thin
+                break
+            }
+            node = n.superview
+        }
+    }
+}
 
 enum Section: String, CaseIterable, Identifiable {
     case dictation, notetaker, insights, dictionary, style, scratchpad, settings
@@ -34,25 +60,27 @@ struct RootView: View {
                         sidebarRow(s)
                     }
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 14)
 
                 Spacer(minLength: 0)
 
-                Divider().padding(.horizontal, 12)
                 VStack(spacing: 2) {
                     sidebarRow(.settings)
-                        .padding(.horizontal, 8)
-                    HStack {
-                        Label("Help", systemImage: "questionmark.circle")
-                            .font(.gsRegular(13))
-                            .foregroundStyle(Color.appTextSecondary)
+                    HStack(spacing: 12) {
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: 20))
+                            .frame(width: 20)
+                        Text("Help")
+                            .font(.gsMedium(17))
                         Spacer()
                     }
+                    .foregroundStyle(Color(hex: 0x3A3A38))
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.vertical, 8)
                 }
+                .padding(.horizontal, 14)
                 .padding(.top, 4)
-                .padding(.bottom, 10)
+                .padding(.bottom, 12)
             }
             .background(Color.appSidebarBg)
             .frame(minWidth: 230, idealWidth: 230)
@@ -71,11 +99,20 @@ struct RootView: View {
                     .fill(Color.appPanel)
             )
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            // Subtle shadow so the white panel floats against the cream sidebar
+            // without reading as a hard border line where they meet.
+            .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 2)
+            // Cream gap on every side, including the leading edge, so there is a
+            // clean band of #F5F4F1 between the sidebar and the white panel.
             .padding(.top, 10)
+            .padding(.leading, 10)
             .padding(.trailing, 10)
             .padding(.bottom, 10)
+            .background(Color.appBg)
         }
+        .navigationSplitViewStyle(.balanced)
         .background(Color.appBg)
+        .background(SplitViewDividerHider())
         .background(WindowAccessor())
         .onAppear { AppFonts.register() }
     }
