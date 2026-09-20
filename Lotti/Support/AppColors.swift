@@ -13,6 +13,7 @@ extension Color {
     static let appSidebarBg = Color(hex: 0xF5F4F1)
     static let appBgNS = NSColor(red: 0xF5 / 255, green: 0xF4 / 255, blue: 0xF1 / 255, alpha: 1)
     static let appCard = Color.white
+    static let appPanel = Color.white
     static let appCardMuted = Color(hex: 0xF0EFEB)
     static let appTextPrimary = Color(hex: 0x1A1A1A)
     static let appTextSecondary = Color(hex: 0x8A8A82)

@@ -18,7 +18,6 @@ struct DictationView: View {
             }
             .padding(28)
         }
-        .background(Color.appBg)
     }
 
     private var mainColumn: some View {

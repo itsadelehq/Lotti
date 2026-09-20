@@ -25,7 +25,6 @@ struct SettingsView: View {
             .padding(28)
             .frame(maxWidth: 560, alignment: .leading)
         }
-        .background(Color.appBg)
         .task { await refreshPermissions() }
     }
 

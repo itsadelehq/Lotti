@@ -66,7 +66,14 @@ struct RootView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.appBg)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color.appPanel)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .padding(.top, 10)
+            .padding(.trailing, 10)
+            .padding(.bottom, 10)
         }
         .background(Color.appBg)
         .background(WindowAccessor())

@@ -23,7 +23,6 @@ struct InsightsView: View {
             .padding(28)
             .frame(maxWidth: 980, alignment: .leading)
         }
-        .background(Color.appBg)
     }
 
     private var header: some View {
