@@ -15,6 +15,7 @@
 		2CF8DE98A5A327644B77116B /* DictationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0241079318EC426905CCC319 /* DictationView.swift */; };
 		323DA1FC086E6B2379A3500A /* HotkeyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C50841637032667A6FA39B /* HotkeyStateTests.swift */; };
 		33004F3D19A26E5A72AAF7C6 /* WordDiffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D14D92AD149D845A589AD9A /* WordDiffTests.swift */; };
+		36BEAD750CEBEE8A221DE327 /* FloatingPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 341771C19EE19C93092C6E8E /* FloatingPill.swift */; };
 		3D73D4AA3AC57D9A3B1A32A9 /* DeepgramMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC3C506558E8F247E1361E6 /* DeepgramMessageTests.swift */; };
 		45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A213660BC3233721CBA152 /* InsightsView.swift */; };
 		5B5B660050A62EBBF623DB1E /* DeepgramEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */; };
@@ -53,6 +54,7 @@
 		2E4EE0A78C1C64E405C067C1 /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
 		31C50841637032667A6FA39B /* HotkeyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyStateTests.swift; sourceTree = "<group>"; };
 		33A2FC07913F16B6B92D78EF /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		341771C19EE19C93092C6E8E /* FloatingPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPill.swift; sourceTree = "<group>"; };
 		35F495EC70D4B9FCB324C1C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		453FFE5939AEA92D8778F8B6 /* AppCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCategory.swift; sourceTree = "<group>"; };
 		540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngine.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				0241079318EC426905CCC319 /* DictationView.swift */,
+				341771C19EE19C93092C6E8E /* FloatingPill.swift */,
 				B3A213660BC3233721CBA152 /* InsightsView.swift */,
 				69C53F9A37FE46E12F646367 /* RootView.swift */,
 				943D442B049947E28355E716 /* SettingsView.swift */,
@@ -249,6 +252,7 @@
 				98F56B7ED87620D05D38A57E /* AudioCapture.swift in Sources */,
 				5B5B660050A62EBBF623DB1E /* DeepgramEngine.swift in Sources */,
 				2CF8DE98A5A327644B77116B /* DictationView.swift in Sources */,
+				36BEAD750CEBEE8A221DE327 /* FloatingPill.swift in Sources */,
 				0FA6EDDBA5177F174DB2D2B8 /* HotkeyManager.swift in Sources */,
 				45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */,
 				C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */,
