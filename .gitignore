@@ -5,3 +5,6 @@ build/
 *.hmap
 *.ipa
 xcuserdata/
+
+default.profraw
+*.profraw
