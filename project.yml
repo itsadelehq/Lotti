@@ -28,6 +28,9 @@ targets:
     settings:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: NKB254W4BR
+        CODE_SIGN_IDENTITY: "Apple Development"
   LottiTests:
     type: bundle.unit-test
     platform: macOS

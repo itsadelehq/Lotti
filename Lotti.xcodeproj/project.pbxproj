@@ -219,7 +219,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_A7E16B2B-81D2-4B1A-A605-A68CB87D53D9" /* Resources */ = {
+		"TEMP_8C5BA25C-F933-41A9-BE7E-78D8FE925C47" /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -274,6 +274,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					AE12C34288BCA52B5FE59FB1 = {
+						DevelopmentTeam = NKB254W4BR;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = B6FE4271E1B386A79A7CFE05 /* Build configuration list for PBXProject "Lotti" */;
@@ -379,7 +383,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Lotti/Lotti.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = NKB254W4BR;
 				INFOPLIST_FILE = Lotti/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -429,7 +436,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Lotti/Lotti.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = NKB254W4BR;
 				INFOPLIST_FILE = Lotti/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
