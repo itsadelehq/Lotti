@@ -7,7 +7,10 @@ targets:
   Lotti:
     type: application
     platform: macOS
-    sources: [Lotti]
+    sources:
+      - path: Lotti
+        excludes:
+          - "Resources/**/*.svg"
     info:
       path: Lotti/Info.plist
       properties:
