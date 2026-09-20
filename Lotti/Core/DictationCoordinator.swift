@@ -32,8 +32,12 @@ import Foundation
         Task { try? await e.start() }
         if inject {
             let cap = AudioCapture(); audio = cap
-            cap.onPCM = { [weak self] d in self?.engine?.send(d) }
-            cap.onLevel = { [weak self] l in self?.pill?.update(level: l) }
+            cap.onPCM = { [weak self] d in
+                Task { @MainActor in self?.engine?.send(d) }
+            }
+            cap.onLevel = { [weak self] l in
+                Task { @MainActor in self?.pill?.update(level: l) }
+            }
             try? cap.start()
         }
     }
