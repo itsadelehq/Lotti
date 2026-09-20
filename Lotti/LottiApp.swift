@@ -10,7 +10,9 @@ struct LottiApp: App {
     private let pill = FloatingPillController()
 
     init() {
+        AppFonts.register()
         let store = Store()
+        store.seedDemoDataIfEmpty()
         _store = StateObject(wrappedValue: store)
         let coord = DictationCoordinator(
             store: store,
