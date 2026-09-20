@@ -4,10 +4,13 @@ import AppKit
 struct DictationView: View {
     @EnvironmentObject var store: Store
     @State private var bannerDismissed = false
-    @State private var voiceProfileDismissed = false
 
-    private var items: [Dictation] { store.all() }
-    private var stats: Stats { store.stats(now: .now) }
+    // Cached once (and refreshed only when the feed size changes) instead of
+    // being recomputed as `body` computed properties on every SwiftUI render
+    // pass, so switching to/from this screen is instant.
+    @State private var stats = Stats(totalWords: 0, wpm: 0, currentStreak: 0, longestStreak: 0)
+    @State private var dayGroups: [DayGroup] = []
+    @State private var cachedItemCount = -1
 
     /// Groups the (already newest-first) feed by calendar day, preserving order.
     private struct DayGroup: Identifiable {
@@ -16,7 +19,7 @@ struct DictationView: View {
         let items: [Dictation]
     }
 
-    private var dayGroups: [DayGroup] {
+    private static func dayGroups(for items: [Dictation]) -> [DayGroup] {
         let cal = Calendar.current
         var order: [Date] = []
         var buckets: [Date: [Dictation]] = [:]
@@ -26,8 +29,16 @@ struct DictationView: View {
             buckets[day, default: []].append(item)
         }
         return order.map { day in
-            DayGroup(id: day, title: Self.header(for: day, cal: cal), items: buckets[day] ?? [])
+            DayGroup(id: day, title: header(for: day, cal: cal), items: buckets[day] ?? [])
         }
+    }
+
+    private func refreshIfNeeded() {
+        let items = store.all()
+        guard items.count != cachedItemCount else { return }
+        cachedItemCount = items.count
+        dayGroups = Self.dayGroups(for: items)
+        stats = store.stats(now: .now)
     }
 
     private static func header(for day: Date, cal: Calendar) -> String {
@@ -48,6 +59,7 @@ struct DictationView: View {
             }
             .padding(28)
         }
+        .task { refreshIfNeeded() }
     }
 
     private var mainColumn: some View {
@@ -102,7 +114,7 @@ struct DictationView: View {
 
     private var feed: some View {
         VStack(alignment: .leading, spacing: 18) {
-            if items.isEmpty {
+            if dayGroups.isEmpty {
                 sectionHeader("TODAY")
                 Text("No dictations yet today.")
                     .font(.gsRegular(14))
@@ -143,17 +155,11 @@ struct DictationView: View {
 
     private var rightRail: some View {
         VStack(alignment: .leading, spacing: 18) {
-            VStack(alignment: .leading, spacing: 18) {
-                statRow(value: "\(stats.totalWords)", label: "total words")
-                statRow(value: "\(stats.wpm)", label: "wpm")
-                statRow(value: "\(stats.currentStreak)", label: "day streak")
-            }
-            .appCardStyle()
-
-            if !voiceProfileDismissed {
-                voiceProfileCard
-            }
+            statRow(value: "\(stats.totalWords)", label: "total words")
+            statRow(value: "\(stats.wpm)", label: "wpm")
+            statRow(value: "\(stats.currentStreak)", label: "day streak")
         }
+        .appCardStyle()
     }
 
     private func statRow(value: String, label: String) -> some View {
@@ -164,40 +170,6 @@ struct DictationView: View {
             Text(label)
                 .font(.gsRegular(13))
                 .foregroundStyle(Color.appTextSecondary)
-        }
-    }
-
-    private var voiceProfileCard: some View {
-        ZStack(alignment: .topTrailing) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Voice Profile Unlocked!")
-                    .font(.gsBold(15))
-                    .foregroundStyle(Color.appTextPrimary)
-                Text("Discover your unique insights")
-                    .font(.gsRegular(13))
-                    .foregroundStyle(Color.appTextSecondary)
-                Button("Create report") {}
-                    .buttonStyle(.plain)
-                    .font(.gsMedium(13))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Capsule().fill(Color.appOrange))
-                    .padding(.top, 4)
-            }
-            .appCardStyle()
-
-            Button {
-                voiceProfileDismissed = true
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.appTextSecondary)
-                    .padding(6)
-                    .background(Circle().fill(Color.appCardMuted))
-            }
-            .buttonStyle(.plain)
-            .padding(12)
         }
     }
 }

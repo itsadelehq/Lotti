@@ -4,13 +4,15 @@ import CoreGraphics
 @main
 struct LottiApp: App {
     @AppStorage("triggerKeyCode") private var triggerKeyCode: Int = 0x36
-    @StateObject private var store = Store()
+    @StateObject private var store: Store
     private let coordinator: DictationCoordinator
     private let hotkey = HotkeyManager()
     private let pill = FloatingPillController()
 
     init() {
         AppFonts.register()
+        // Seeded exactly once here, at app launch — never inside a view's
+        // body/onAppear, which would re-run on every navigation.
         let store = Store()
         store.seedDemoDataIfEmpty()
         _store = StateObject(wrappedValue: store)

@@ -8,20 +8,31 @@ enum InsightsTab: String, CaseIterable, Identifiable {
 struct InsightsView: View {
     @EnvironmentObject var store: Store
     @State private var tab: InsightsTab = .usage
+    // Computed once when the screen first appears (not on every render), so
+    // switching to/from Insights and between its tabs is instant. See
+    // `InsightsSnapshot`.
+    @State private var snapshot: InsightsSnapshot?
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 header
                 segmentedTabs
-                switch tab {
-                case .usage: UsageTab(store: store)
-                case .voice: VoiceTab(store: store)
-                case .bests: BestsTab(store: store)
+                if let snapshot {
+                    switch tab {
+                    case .usage: UsageTab(snapshot: snapshot)
+                    case .voice: VoiceTab(snapshot: snapshot)
+                    case .bests: BestsTab(snapshot: snapshot)
+                    }
                 }
             }
             .padding(28)
             .frame(maxWidth: 980, alignment: .leading)
+        }
+        .task {
+            if snapshot == nil {
+                snapshot = InsightsSnapshot.compute(from: store, now: .now)
+            }
         }
     }
 
