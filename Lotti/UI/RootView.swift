@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum Section: String, CaseIterable, Identifiable {
-    case dictation, notetaker, insights, dictionary, snippets, style, transforms, scratchpad, settings
+    case dictation, notetaker, insights, dictionary, style, scratchpad, settings
     var id: String { rawValue }
     var title: String { rawValue.capitalized }
     var isActive: Bool { self == .dictation || self == .insights || self == .settings }
@@ -9,8 +9,7 @@ enum Section: String, CaseIterable, Identifiable {
         switch self {
         case .dictation: "mic"; case .notetaker: "record.circle"
         case .insights: "chart.bar"; case .dictionary: "character.book.closed"
-        case .snippets: "scissors"; case .style: "textformat"
-        case .transforms: "wand.and.stars"; case .scratchpad: "note.text"
+        case .style: "textformat"; case .scratchpad: "note.text"
         case .settings: "gearshape"
         }
     }
@@ -19,7 +18,7 @@ enum Section: String, CaseIterable, Identifiable {
 struct RootView: View {
     @State private var selection: Section = .dictation
     private let mainSections: [Section] = [
-        .dictation, .notetaker, .insights, .dictionary, .snippets, .style, .transforms, .scratchpad,
+        .dictation, .notetaker, .insights, .dictionary, .style, .scratchpad,
     ]
 
     var body: some View {
@@ -30,19 +29,19 @@ struct RootView: View {
                     .padding(.top, 18)
                     .padding(.bottom, 14)
 
-                List(selection: $selection) {
+                VStack(spacing: 2) {
                     ForEach(mainSections) { s in
-                        sidebarRow(s).tag(s)
+                        sidebarRow(s)
                     }
                 }
-                .listStyle(.sidebar)
-                .scrollContentBackground(.hidden)
+                .padding(.horizontal, 8)
 
                 Spacer(minLength: 0)
 
                 Divider().padding(.horizontal, 12)
                 VStack(spacing: 2) {
-                    sidebarRow(.settings).tag(Section.settings)
+                    sidebarRow(.settings)
+                        .padding(.horizontal, 8)
                     HStack {
                         Label("Help", systemImage: "questionmark.circle")
                             .font(.gsRegular(13))
@@ -52,6 +51,7 @@ struct RootView: View {
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                 }
+                .padding(.top, 4)
                 .padding(.bottom, 10)
             }
             .background(Color.appSidebarBg)
@@ -82,25 +82,23 @@ struct RootView: View {
 
     @ViewBuilder
     private func sidebarRow(_ s: Section) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             Image(systemName: s.systemImage)
-                .frame(width: 18)
+                .font(.system(size: 20))
+                .frame(width: 20)
             Text(s.title)
-                .font(.gsMedium(13))
+                .font(.gsMedium(17))
             Spacer()
         }
-        .foregroundStyle(selection == s ? Color.appTextPrimary : Color.appTextSecondary)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
+        .foregroundStyle(selection == s ? Color.appTextPrimary : Color(hex: 0x3A3A38))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(minHeight: 42)
         .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(selection == s ? Color(hex: 0xECEBE6) : .clear)
         )
         .contentShape(Rectangle())
-        .padding(.horizontal, 8)
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))
         .onTapGesture { selection = s }
     }
 }
