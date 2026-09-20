@@ -8,11 +8,25 @@
 
 /* Begin PBXBuildFile section */
 		068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943D442B049947E28355E716 /* SettingsView.swift */; };
+		192C20E7DF58DE32219719B3 /* WordDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2949CB969F845B8031CB748B /* WordDiff.swift */; };
+		1C0F3104A8A2AF6780617013 /* PolishServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8B925EDB60052BB0A9F9C1A /* PolishServiceTests.swift */; };
+		2C268393D69844A2BED44563 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BBCDFDEB1FE69B0F520D2E /* Store.swift */; };
 		2CF8DE98A5A327644B77116B /* DictationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0241079318EC426905CCC319 /* DictationView.swift */; };
+		33004F3D19A26E5A72AAF7C6 /* WordDiffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D14D92AD149D845A589AD9A /* WordDiffTests.swift */; };
+		3D73D4AA3AC57D9A3B1A32A9 /* DeepgramMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC3C506558E8F247E1361E6 /* DeepgramMessageTests.swift */; };
 		45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A213660BC3233721CBA152 /* InsightsView.swift */; };
+		5B5B660050A62EBBF623DB1E /* DeepgramEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */; };
+		81DE1D959CB55C40A9F3C75F /* TranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */; };
 		8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */; };
+		A7D1B7B50F8AFDABE1252660 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F669BDFB312AD5850CB687D /* KeychainTests.swift */; };
+		B058643CFA9B8C310F19255F /* AppCategoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A10506FA022B8009E67237 /* AppCategoryTests.swift */; };
 		B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C53F9A37FE46E12F646367 /* RootView.swift */; };
+		C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF809BBE5F6E62B0D85A20A /* Keychain.swift */; };
 		D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */; };
+		D7197D56255575DDA1CE2765 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8FE104718B1971D421AB66 /* Models.swift */; };
+		D925758FF229FADCDA7B2AB0 /* AppCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453FFE5939AEA92D8778F8B6 /* AppCategory.swift */; };
+		DFB5AF0ABC172CB202C75E62 /* PolishService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E490FABB9D2D270DC82282FC /* PolishService.swift */; };
+		E04AFF884375D50942289923 /* StoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051B63897005FDF2F04CF88D /* StoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,15 +41,29 @@
 
 /* Begin PBXFileReference section */
 		0241079318EC426905CCC319 /* DictationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationView.swift; sourceTree = "<group>"; };
+		051B63897005FDF2F04CF88D /* StoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreTests.swift; sourceTree = "<group>"; };
+		2949CB969F845B8031CB748B /* WordDiff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDiff.swift; sourceTree = "<group>"; };
 		2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiTests.swift; sourceTree = "<group>"; };
 		35F495EC70D4B9FCB324C1C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		453FFE5939AEA92D8778F8B6 /* AppCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCategory.swift; sourceTree = "<group>"; };
+		540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngine.swift; sourceTree = "<group>"; };
+		5CF809BBE5F6E62B0D85A20A /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		5F669BDFB312AD5850CB687D /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
 		69C53F9A37FE46E12F646367 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		6D14D92AD149D845A589AD9A /* WordDiffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDiffTests.swift; sourceTree = "<group>"; };
+		74BBCDFDEB1FE69B0F520D2E /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		80C19CD875CFEE9C5CDEAFEB /* Lotti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lotti.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CA265160279A9309851138C /* LottiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LottiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FC3C506558E8F247E1361E6 /* DeepgramMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramMessageTests.swift; sourceTree = "<group>"; };
 		943D442B049947E28355E716 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9DDD0D05AB8A7727B4342634 /* Lotti.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Lotti.entitlements; sourceTree = "<group>"; };
 		AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiApp.swift; sourceTree = "<group>"; };
 		B3A213660BC3233721CBA152 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramEngine.swift; sourceTree = "<group>"; };
+		DB8FE104718B1971D421AB66 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		E490FABB9D2D270DC82282FC /* PolishService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolishService.swift; sourceTree = "<group>"; };
+		F8A10506FA022B8009E67237 /* AppCategoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCategoryTests.swift; sourceTree = "<group>"; };
+		F8B925EDB60052BB0A9F9C1A /* PolishServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolishServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -50,6 +78,16 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
+		1D298039F717716FB51A388C /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				5CF809BBE5F6E62B0D85A20A /* Keychain.swift */,
+				DB8FE104718B1971D421AB66 /* Models.swift */,
+				74BBCDFDEB1FE69B0F520D2E /* Store.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		8B82FC917883961CAB013B55 = {
 			isa = PBXGroup;
 			children = (
@@ -59,12 +97,24 @@
 			);
 			sourceTree = "<group>";
 		};
+		9D9F21724D7136A3EDF8120A /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				453FFE5939AEA92D8778F8B6 /* AppCategory.swift */,
+				2949CB969F845B8031CB748B /* WordDiff.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
 		A1914353D6673F249864C1B9 /* Lotti */ = {
 			isa = PBXGroup;
 			children = (
 				35F495EC70D4B9FCB324C1C0 /* Info.plist */,
 				9DDD0D05AB8A7727B4342634 /* Lotti.entitlements */,
 				AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */,
+				BC4DED996121ED58EEA1768C /* Core */,
+				1D298039F717716FB51A388C /* Data */,
+				9D9F21724D7136A3EDF8120A /* Support */,
 				1A7A888FD3150A923412FB73 /* UI */,
 			);
 			path = Lotti;
@@ -73,9 +123,25 @@
 		AA5011D2AA6CDBF35A8F3717 /* LottiTests */ = {
 			isa = PBXGroup;
 			children = (
+				F8A10506FA022B8009E67237 /* AppCategoryTests.swift */,
+				8FC3C506558E8F247E1361E6 /* DeepgramMessageTests.swift */,
+				5F669BDFB312AD5850CB687D /* KeychainTests.swift */,
 				2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */,
+				F8B925EDB60052BB0A9F9C1A /* PolishServiceTests.swift */,
+				051B63897005FDF2F04CF88D /* StoreTests.swift */,
+				6D14D92AD149D845A589AD9A /* WordDiffTests.swift */,
 			);
 			path = LottiTests;
+			sourceTree = "<group>";
+		};
+		BC4DED996121ED58EEA1768C /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */,
+				E490FABB9D2D270DC82282FC /* PolishService.swift */,
+				540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */,
+			);
+			path = Core;
 			sourceTree = "<group>";
 		};
 		ECF963CD0E8D9A39B09474FE /* Products */ = {
@@ -161,11 +227,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D925758FF229FADCDA7B2AB0 /* AppCategory.swift in Sources */,
+				5B5B660050A62EBBF623DB1E /* DeepgramEngine.swift in Sources */,
 				2CF8DE98A5A327644B77116B /* DictationView.swift in Sources */,
 				45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */,
+				C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */,
 				D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */,
+				D7197D56255575DDA1CE2765 /* Models.swift in Sources */,
+				DFB5AF0ABC172CB202C75E62 /* PolishService.swift in Sources */,
 				B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */,
 				068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */,
+				2C268393D69844A2BED44563 /* Store.swift in Sources */,
+				81DE1D959CB55C40A9F3C75F /* TranscriptionEngine.swift in Sources */,
+				192C20E7DF58DE32219719B3 /* WordDiff.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,7 +247,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B058643CFA9B8C310F19255F /* AppCategoryTests.swift in Sources */,
+				3D73D4AA3AC57D9A3B1A32A9 /* DeepgramMessageTests.swift in Sources */,
+				A7D1B7B50F8AFDABE1252660 /* KeychainTests.swift in Sources */,
 				8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */,
+				1C0F3104A8A2AF6780617013 /* PolishServiceTests.swift in Sources */,
+				E04AFF884375D50942289923 /* StoreTests.swift in Sources */,
+				33004F3D19A26E5A72AAF7C6 /* WordDiffTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,6 +289,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -225,6 +306,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

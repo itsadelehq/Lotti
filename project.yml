@@ -23,3 +23,6 @@ targets:
     platform: macOS
     sources: [LottiTests]
     dependencies: [target: Lotti]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
