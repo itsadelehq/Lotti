@@ -17,11 +17,15 @@
 		45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A213660BC3233721CBA152 /* InsightsView.swift */; };
 		5B5B660050A62EBBF623DB1E /* DeepgramEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */; };
 		81DE1D959CB55C40A9F3C75F /* TranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */; };
+		856BEC65611E55AD5BC66952 /* Sounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B20FD7B205CCE9025E714E9 /* Sounds.swift */; };
 		8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */; };
+		9036F14EFE22CF851369692B /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC99F49EC9AD18B4FFE974D /* TextInjector.swift */; };
+		98F56B7ED87620D05D38A57E /* AudioCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEC14750989831A8E604DC5 /* AudioCapture.swift */; };
 		A7D1B7B50F8AFDABE1252660 /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F669BDFB312AD5850CB687D /* KeychainTests.swift */; };
 		B058643CFA9B8C310F19255F /* AppCategoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A10506FA022B8009E67237 /* AppCategoryTests.swift */; };
 		B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C53F9A37FE46E12F646367 /* RootView.swift */; };
 		C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF809BBE5F6E62B0D85A20A /* Keychain.swift */; };
+		C6F6B92164F7A9112E962C73 /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4EE0A78C1C64E405C067C1 /* Permissions.swift */; };
 		D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */; };
 		D7197D56255575DDA1CE2765 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8FE104718B1971D421AB66 /* Models.swift */; };
 		D925758FF229FADCDA7B2AB0 /* AppCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453FFE5939AEA92D8778F8B6 /* AppCategory.swift */; };
@@ -44,6 +48,7 @@
 		051B63897005FDF2F04CF88D /* StoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreTests.swift; sourceTree = "<group>"; };
 		2949CB969F845B8031CB748B /* WordDiff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDiff.swift; sourceTree = "<group>"; };
 		2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiTests.swift; sourceTree = "<group>"; };
+		2E4EE0A78C1C64E405C067C1 /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
 		35F495EC70D4B9FCB324C1C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		453FFE5939AEA92D8778F8B6 /* AppCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCategory.swift; sourceTree = "<group>"; };
 		540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionEngine.swift; sourceTree = "<group>"; };
@@ -52,12 +57,15 @@
 		69C53F9A37FE46E12F646367 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		6D14D92AD149D845A589AD9A /* WordDiffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDiffTests.swift; sourceTree = "<group>"; };
 		74BBCDFDEB1FE69B0F520D2E /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		7B20FD7B205CCE9025E714E9 /* Sounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sounds.swift; sourceTree = "<group>"; };
 		80C19CD875CFEE9C5CDEAFEB /* Lotti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lotti.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CA265160279A9309851138C /* LottiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LottiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FC3C506558E8F247E1361E6 /* DeepgramMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramMessageTests.swift; sourceTree = "<group>"; };
 		943D442B049947E28355E716 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9CEC14750989831A8E604DC5 /* AudioCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCapture.swift; sourceTree = "<group>"; };
 		9DDD0D05AB8A7727B4342634 /* Lotti.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Lotti.entitlements; sourceTree = "<group>"; };
 		AB76BBDCFA4205359C6DBA21 /* LottiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiApp.swift; sourceTree = "<group>"; };
+		ACC99F49EC9AD18B4FFE974D /* TextInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInjector.swift; sourceTree = "<group>"; };
 		B3A213660BC3233721CBA152 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramEngine.swift; sourceTree = "<group>"; };
 		DB8FE104718B1971D421AB66 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -137,8 +145,12 @@
 		BC4DED996121ED58EEA1768C /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				9CEC14750989831A8E604DC5 /* AudioCapture.swift */,
 				C38F3CC80EB92BC581C97AA4 /* DeepgramEngine.swift */,
+				2E4EE0A78C1C64E405C067C1 /* Permissions.swift */,
 				E490FABB9D2D270DC82282FC /* PolishService.swift */,
+				7B20FD7B205CCE9025E714E9 /* Sounds.swift */,
+				ACC99F49EC9AD18B4FFE974D /* TextInjector.swift */,
 				540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */,
 			);
 			path = Core;
@@ -228,16 +240,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				D925758FF229FADCDA7B2AB0 /* AppCategory.swift in Sources */,
+				98F56B7ED87620D05D38A57E /* AudioCapture.swift in Sources */,
 				5B5B660050A62EBBF623DB1E /* DeepgramEngine.swift in Sources */,
 				2CF8DE98A5A327644B77116B /* DictationView.swift in Sources */,
 				45B35548EF0D94AFA87674F5 /* InsightsView.swift in Sources */,
 				C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */,
 				D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */,
 				D7197D56255575DDA1CE2765 /* Models.swift in Sources */,
+				C6F6B92164F7A9112E962C73 /* Permissions.swift in Sources */,
 				DFB5AF0ABC172CB202C75E62 /* PolishService.swift in Sources */,
 				B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */,
 				068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */,
+				856BEC65611E55AD5BC66952 /* Sounds.swift in Sources */,
 				2C268393D69844A2BED44563 /* Store.swift in Sources */,
+				9036F14EFE22CF851369692B /* TextInjector.swift in Sources */,
 				81DE1D959CB55C40A9F3C75F /* TranscriptionEngine.swift in Sources */,
 				192C20E7DF58DE32219719B3 /* WordDiff.swift in Sources */,
 			);
