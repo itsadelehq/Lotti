@@ -16,9 +16,22 @@ enum DeepgramParser {
 }
 
 final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
-    var onTranscript: ((String, Bool) -> Void)?
+    // All access to `task` and `onTranscriptHandler` is confined to `queue`,
+    // a serial DispatchQueue, so they are never read/written concurrently even
+    // though URLSession invokes the `receive()` completion on an arbitrary
+    // queue. `@unchecked Sendable` is retained only because URLSessionWebSocketTask
+    // itself requires the enclosing type to cross isolation boundaries; the
+    // queue below is the real synchronization that makes that safe.
+    private let queue = DispatchQueue(label: "lotti.deepgram")
     private var task: URLSessionWebSocketTask?
+    private var onTranscriptHandler: ((String, Bool) -> Void)?
     private let apiKey: String
+
+    var onTranscript: ((String, Bool) -> Void)? {
+        get { queue.sync { onTranscriptHandler } }
+        set { queue.sync { onTranscriptHandler = newValue } }
+    }
+
     init(apiKey: String) { self.apiKey = apiKey }
 
     func start() async throws {
@@ -32,26 +45,35 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
         ]
         var req = URLRequest(url: comps.url!)
         req.setValue("Token \(apiKey)", forHTTPHeaderField: "Authorization")
-        task = URLSession.shared.webSocketTask(with: req)
-        task?.resume()
+        let newTask = URLSession.shared.webSocketTask(with: req)
+        queue.sync { task = newTask }
+        newTask.resume()
         receive()
     }
     private func receive() {
-        task?.receive { [weak self] result in
+        let currentTask = queue.sync { task }
+        currentTask?.receive { [weak self] result in
             guard let self else { return }
-            if case .success(let msg) = result {
-                if case .string(let s) = msg, let d = s.data(using: .utf8),
-                   let parsed = DeepgramParser.transcript(from: d) {
-                    self.onTranscript?(parsed.text, parsed.isFinal)
+            self.queue.async {
+                if case .success(let msg) = result {
+                    if case .string(let s) = msg, let d = s.data(using: .utf8),
+                       let parsed = DeepgramParser.transcript(from: d) {
+                        self.onTranscriptHandler?(parsed.text, parsed.isFinal)
+                    }
                 }
+            }
+            if case .success = result {
                 self.receive()
             }
         }
     }
-    func send(_ pcm: Data) { task?.send(.data(pcm)) { _ in } }
+    func send(_ pcm: Data) {
+        queue.sync { task }?.send(.data(pcm)) { _ in }
+    }
     func finish() async {
         // Deepgram closes on a zero-length frame + CloseStream message
-        task?.send(.string(#"{"type":"CloseStream"}"#)) { _ in }
-        task?.cancel(with: .goingAway, reason: nil)
+        let currentTask = queue.sync { task }
+        currentTask?.send(.string(#"{"type":"CloseStream"}"#)) { _ in }
+        currentTask?.cancel(with: .goingAway, reason: nil)
     }
 }
