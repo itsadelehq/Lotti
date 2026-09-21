@@ -3,7 +3,10 @@ import AppKit
 
 struct DictationView: View {
     @EnvironmentObject var store: Store
-    @State private var bannerDismissed = false
+    // Persists across navigation: stores the date-key ("2026-09-21") of the
+    // day the banner was dismissed, so it stays hidden for the rest of that
+    // calendar day but reappears (with a new quote) on the next day.
+    @AppStorage("quoteBannerDismissedDay") private var quoteBannerDismissedDay = ""
 
     // Cached once (and refreshed only when the feed size changes) instead of
     // being recomputed as `body` computed properties on every SwiftUI render
@@ -84,45 +87,53 @@ struct DictationView: View {
                 .font(.gsBold(25))
                 .foregroundStyle(Color.figTextPrimary)
 
-            if !bannerDismissed {
-                promoBanner
+            if quoteBannerDismissedDay != Self.todayKey {
+                quoteBanner
             }
 
             feed
         }
     }
 
-    // MARK: - Promo banner
+    // MARK: - Daily motivational quote banner
 
-    private var promoBanner: some View {
+    /// Date key like "2026-09-21", used both for the once-per-day quote
+    /// index and for the dismissal persistence check above.
+    private static var todayKey: String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: .now)
+    }
+
+    /// Deterministic by calendar day: day-of-year mod the quote count, so the
+    /// same quote shows all day and rotates the next day.
+    private static var todaysQuote: MotivationalQuote {
+        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: .now) ?? 0
+        let index = dayOfYear % motivationalQuotes.count
+        return motivationalQuotes[index]
+    }
+
+    private var quoteBanner: some View {
         ZStack(alignment: .topTrailing) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Working around other people?")
-                    .font(.gsBold(25))
+                Spacer()
+                Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
+                    .font(.loraRegular(24))
+                    .italic()
                     .foregroundStyle(.white)
-                Text("With the right setup, you can Flow without disrupting your neighbours")
-                    .font(.gsRegular(14))
-                    .foregroundStyle(.white.opacity(0.85))
                     .fixedSize(horizontal: false, vertical: true)
-                Button {
-                } label: {
-                    Text("Show me how")
-                        .font(.gsBold(13))
-                        .foregroundStyle(.black)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 9)
-                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.figCardFill))
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 4)
+                Text("— \(Self.todaysQuote.author)")
+                    .font(.gsRegular(13))
+                    .foregroundStyle(.white.opacity(0.8))
+                Spacer()
             }
             .padding(28)
             .frame(maxWidth: .infinity, minHeight: 181, alignment: .topLeading)
-            .background(bannerBackground)
+            .background(quoteBannerBackground)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             Button {
-                bannerDismissed = true
+                quoteBannerDismissedDay = Self.todayKey
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 11, weight: .bold))
@@ -135,19 +146,22 @@ struct DictationView: View {
         }
     }
 
-    /// Approximates the Figma's tinted-image look: a maroon base with a dark-teal
-    /// overlay, blended as a diagonal gradient (no external image needed).
-    private var bannerBackground: some View {
+    /// Rich dark gradient + procedural grain, structured so a real photo can
+    /// later drop straight in: if a "QuoteBanner" image asset exists it is
+    /// used as-is; otherwise this gradient+grain placeholder renders instead.
+    private var quoteBannerBackground: some View {
         ZStack {
-            Color(hex: 0x803A45).opacity(0.5)
-            LinearGradient(
-                colors: [
-                    Color(hex: 0x0A2630).opacity(0.85),
-                    Color(hex: 0x803A45).opacity(0.5),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing)
-            Color(hex: 0x0A2630).opacity(0.55)
+            if let nsImage = NSImage(named: "QuoteBanner") {
+                Image(nsImage: nsImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                LinearGradient(
+                    colors: [Color(hex: 0x1B1B2E), Color(hex: 0x12121A)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing)
+                GrainOverlay()
+            }
         }
     }
 
@@ -260,6 +274,79 @@ struct DictationView: View {
     }
 }
 
+/// A short, punchy motivational quote paired with its author.
+struct MotivationalQuote {
+    let text: String
+    let author: String
+}
+
+/// ~30 built-in quotes; the banner picks one deterministically per calendar day.
+let motivationalQuotes: [MotivationalQuote] = [
+    .init(text: "Done is better than perfect.", author: "Sheryl Sandberg"),
+    .init(text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe"),
+    .init(text: "The secret of getting ahead is getting started.", author: "Mark Twain"),
+    .init(text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln"),
+    .init(text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar"),
+    .init(text: "Small daily improvements are the key to staggering long-term results.", author: "James Clear"),
+    .init(text: "Focus on being productive instead of busy.", author: "Tim Ferriss"),
+    .init(text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney"),
+    .init(text: "Action is the foundational key to all success.", author: "Pablo Picasso"),
+    .init(text: "Well done is better than well said.", author: "Benjamin Franklin"),
+    .init(text: "What you do today can improve all your tomorrows.", author: "Ralph Marston"),
+    .init(text: "Motivation is what gets you started. Habit is what keeps you going.", author: "Jim Ryun"),
+    .init(text: "It always seems impossible until it's done.", author: "Nelson Mandela"),
+    .init(text: "The future depends on what you do today.", author: "Mahatma Gandhi"),
+    .init(text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci"),
+    .init(text: "Quality is not an act, it is a habit.", author: "Aristotle"),
+    .init(text: "Either you run the day, or the day runs you.", author: "Jim Rohn"),
+    .init(text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky"),
+    .init(text: "Progress, not perfection.", author: "Unknown"),
+    .init(text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb"),
+    .init(text: "Do the one thing you think you cannot do.", author: "Eleanor Roosevelt"),
+    .init(text: "A year from now you may wish you had started today.", author: "Karen Lamb"),
+    .init(text: "Energy and persistence conquer all things.", author: "Benjamin Franklin"),
+    .init(text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson"),
+    .init(text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier"),
+    .init(text: "You are never too old to set another goal or dream a new dream.", author: "C.S. Lewis"),
+    .init(text: "Write it down. Say it out loud. Make it real.", author: "Unknown"),
+    .init(text: "Clarity comes from engagement, not thought.", author: "Marie Forleo"),
+    .init(text: "Your voice is your instrument — use it deliberately.", author: "Unknown"),
+    .init(text: "Momentum builds one honest sentence at a time.", author: "Unknown"),
+]
+
+/// Low-opacity procedural noise that sits over the gradient so the banner
+/// reads as a grainy photograph rather than a flat fill, even before a real
+/// texture image is dropped in.
+private struct GrainOverlay: View {
+    var body: some View {
+        Canvas { context, size in
+            var generator = SeededGenerator(seed: 42)
+            let speckCount = Int(size.width * size.height / 12)
+            for _ in 0..<speckCount {
+                let x = CGFloat.random(in: 0..<size.width, using: &generator)
+                let y = CGFloat.random(in: 0..<size.height, using: &generator)
+                let opacity = Double.random(in: 0.02...0.08, using: &generator)
+                let rect = CGRect(x: x, y: y, width: 1, height: 1)
+                context.fill(Path(rect), with: .color(.white.opacity(opacity)))
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+/// Deterministic RNG so the grain pattern is stable across redraws instead of
+/// re-randomizing (and visibly shimmering) on every SwiftUI update pass.
+private struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+    init(seed: UInt64) { state = seed &+ 0x9E3779B97F4A7C15 }
+    mutating func next() -> UInt64 {
+        state ^= state << 13
+        state ^= state >> 7
+        state ^= state << 17
+        return state
+    }
+}
+
 /// A single dictation row that reveals a trailing action cluster on hover.
 private struct FeedRow: View {
     let item: Dictation
@@ -281,8 +368,7 @@ private struct FeedRow: View {
                 .lineSpacing(5)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
-            actions
-                .opacity(hovering ? 1 : 0)
+                .padding(.trailing, 8)
         }
         .padding(.vertical, 17)
         .padding(.horizontal, 15)
@@ -291,6 +377,12 @@ private struct FeedRow: View {
                 .fill(hovering ? Color(hex: 0xF0EFEB) : Color.clear)
         )
         .contentShape(Rectangle())
+        .overlay(alignment: .topTrailing) {
+            actions
+                .opacity(hovering ? 1 : 0)
+                .padding(.top, 13)
+                .padding(.trailing, 11)
+        }
         .onHover { hovering = $0 }
         .animation(.easeOut(duration: 0.12), value: hovering)
     }
