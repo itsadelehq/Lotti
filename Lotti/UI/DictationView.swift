@@ -136,25 +136,28 @@ struct DictationView: View {
                 // the light pink/blue waterPlane preset) are much lighter
                 // than the original orange/lilac default.
                 LinearGradient(
-                    colors: [.black.opacity(0.5), .black.opacity(0.15)],
+                    colors: [.black.opacity(0.6), .black.opacity(0.3)],
                     startPoint: .leading,
                     endPoint: .trailing)
 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 8) {
                     Spacer()
                     Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
                         .font(.instrumentSerifItalic(30))
                         .foregroundStyle(.white)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("— \(Self.todaysQuote.author)")
-                        .font(.gsRegular(13))
-                        .foregroundStyle(.white.opacity(0.8))
+                    if !Self.todaysQuote.author.isEmpty {
+                        Text("— \(Self.todaysQuote.author)")
+                            .font(.gsRegular(13))
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
                     Spacer()
                 }
-                .padding(28)
-                .frame(maxWidth: .infinity, minHeight: 181, alignment: .topLeading)
+                .padding(.horizontal, 28)
+                .padding(.vertical, 18)
+                .frame(maxWidth: .infinity, minHeight: 148, alignment: .topLeading)
             }
-            .frame(maxWidth: .infinity, minHeight: 181, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: 148, alignment: .topLeading)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             Button {
@@ -308,7 +311,7 @@ struct DictationView: View {
 /// A short, punchy motivational quote paired with its author.
 struct MotivationalQuote {
     let text: String
-    let author: String
+    var author: String = ""
 }
 
 /// One ShaderGradient color/type configuration for the quote banner
@@ -367,6 +370,9 @@ let motivationalQuotes: [MotivationalQuote] = [
     .init(text: "Clarity comes from engagement, not thought.", author: "Marie Forleo"),
     .init(text: "Your voice is your instrument — use it deliberately.", author: "Unknown"),
     .init(text: "Momentum builds one honest sentence at a time.", author: "Unknown"),
+    .init(text: "You have to be aggressive for the life that you want."),
+    .init(text: "Become the person you want to become."),
+    .init(text: "The cost of discipline is that every day looks the same; the cost of indiscipline is that every year looks the same."),
 ]
 
 /// Low-opacity procedural noise that sits over the gradient so the banner
