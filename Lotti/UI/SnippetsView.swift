@@ -9,6 +9,7 @@ struct SnippetsView: View {
 
     @State private var items: [Snippet] = []
     @State private var hoveredRow: UUID?
+    @State private var activeTab: Tab = .all
 
     // Add/Edit modal state.
     @State private var showEditor = false
@@ -16,16 +17,21 @@ struct SnippetsView: View {
     @State private var draftName = ""
     @State private var draftExpansion = ""
 
-    private let darkButton = Color(hex: 0x1A1A1A)
+    private enum Tab: String, CaseIterable {
+        case all = "All"
+        case personal = "Personal"
+    }
+
+    private let darkButton = Color(red: 0.13, green: 0.13, blue: 0.13)
 
     var body: some View {
         ZStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     header
-                    if items.isEmpty {
-                        promoCard
-                    } else {
+                    tabsRow
+                    promoCard
+                    if !items.isEmpty {
                         list
                     }
                 }
@@ -47,7 +53,7 @@ struct SnippetsView: View {
     private var header: some View {
         HStack(alignment: .center) {
             Text("Snippets")
-                .font(.gsBold(30))
+                .font(.gsBold(24))
                 .foregroundStyle(Color.figTextPrimary)
             Spacer()
             addButton(title: "Add new") { beginAdd() }
@@ -60,11 +66,11 @@ struct SnippetsView: View {
                 Image(systemName: "plus")
                     .font(.system(size: 12, weight: .semibold))
                 Text(title)
-                    .font(.gsMedium(13))
+                    .font(.gsMedium(14))
             }
             .foregroundStyle(.white)
-            .padding(.horizontal, 14)
-            .frame(height: 34)
+            .padding(.horizontal, 17)
+            .padding(.vertical, 11)
             .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(darkButton))
         }
         .buttonStyle(.plain)
@@ -73,46 +79,95 @@ struct SnippetsView: View {
         }
     }
 
-    // MARK: - Empty state promo card
+    // MARK: - Tabs
+
+    private var tabsRow: some View {
+        HStack(spacing: 24) {
+            ForEach(Tab.allCases, id: \.self) { tab in
+                tabButton(tab)
+            }
+            Spacer()
+        }
+    }
+
+    private func tabButton(_ tab: Tab) -> some View {
+        let isActive = activeTab == tab
+        return Button(action: { activeTab = tab }) {
+            VStack(spacing: 8) {
+                Text(tab.rawValue)
+                    .font(.gsMedium(14))
+                    .foregroundStyle(isActive ? Color.figTextPrimary : Color.figTextGrey)
+                Rectangle()
+                    .fill(isActive ? Color.figTextPrimary : Color.clear)
+                    .frame(height: 2)
+            }
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+        }
+    }
+
+    // MARK: - Empty state / hero promo card
 
     private var promoCard: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("The stuff you shouldn't have to re-type.")
-                    .font(.gsBold(22))
-                    .foregroundStyle(.white)
-                Text("Save text you say often — a link, an intro, a prompt — then say the snippet name to drop it in instantly.")
-                    .font(.gsRegular(14))
-                    .foregroundStyle(.white.opacity(0.72))
-                    .fixedSize(horizontal: false, vertical: true)
+        ZStack(alignment: .topLeading) {
+            // Two soft blurred orbs, upper-right, for a warm grainy glow.
+            ZStack {
+                Circle()
+                    .fill(Color(red: 0.64, green: 0.60, blue: 0.45))
+                    .frame(width: 380, height: 380)
+                    .blur(radius: 80)
+                    .offset(x: 220, y: -140)
+                Circle()
+                    .fill(Color(red: 0.77, green: 0.73, blue: 0.62))
+                    .frame(width: 180, height: 180)
+                    .blur(radius: 55)
+                    .offset(x: 260, y: -60)
             }
+            .frame(maxWidth: .infinity, alignment: .trailing)
 
-            VStack(alignment: .leading, spacing: 8) {
-                exampleChip(name: "my LinkedIn", expansion: "https://linkedin.com/in/adele")
-                exampleChip(name: "intro email", expansion: "Hey, would love to…")
-            }
-
-            Button(action: { beginAdd() }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .semibold))
-                    Text("Add new snippet")
-                        .font(.gsMedium(13))
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("The stuff you shouldn\u{2019}t have to re-type.")
+                        .font(.gsBold(22))
+                        .foregroundStyle(Color(red: 0.95, green: 0.94, blue: 0.92))
+                    Text("Save phrases you use frequently — a link, an intro, a prompt — then say the snippet name to drop it in instantly.")
+                        .font(.gsRegular(15))
+                        .foregroundStyle(Color(red: 0.95, green: 0.94, blue: 0.92).opacity(0.8))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: 440, alignment: .leading)
                 }
-                .foregroundStyle(Color(hex: 0x1A1A1A))
-                .padding(.horizontal, 14)
-                .frame(height: 34)
-                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.white))
+
+                VStack(alignment: .leading, spacing: 8) {
+                    exampleChip(name: "my LinkedIn", expansion: "https://linkedin.com/in/adele")
+                    exampleChip(name: "intro email", expansion: "Hey, would love to…")
+                    exampleChip(name: "meeting link", expansion: "https://cal.com/adele/30min")
+                }
+
+                Button(action: { beginAdd() }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text("Add new snippet")
+                            .font(.gsMedium(13))
+                    }
+                    .foregroundStyle(Color(red: 0.13, green: 0.13, blue: 0.13))
+                    .padding(.horizontal, 14)
+                    .frame(height: 34)
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color(red: 0.95, green: 0.94, blue: 0.92)))
+                }
+                .buttonStyle(.plain)
+                .onHover { hovering in
+                    if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                }
+                .padding(.top, 2)
             }
-            .buttonStyle(.plain)
-            .onHover { hovering in
-                if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-            }
-            .padding(.top, 2)
+            .padding(28)
         }
-        .padding(28)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(hex: 0x1A1A1A)))
+        .frame(maxWidth: .infinity, minHeight: 220, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(red: 0.20, green: 0.20, blue: 0.18)))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func exampleChip(name: String, expansion: String) -> some View {
@@ -196,16 +251,16 @@ struct SnippetsView: View {
 
     private var editorModal: some View {
         ZStack {
-            Color.black.opacity(0.30)
+            Color(red: 0.14, green: 0.14, blue: 0.14).opacity(0.32)
                 .ignoresSafeArea()
                 .contentShape(Rectangle())
                 .onTapGesture { showEditor = false }
 
             editorCard
-                .frame(width: 460)
-                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .shadow(color: .black.opacity(0.19), radius: 30, y: 16)
+                .frame(width: 691)
+                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .shadow(color: .black.opacity(0.16), radius: 24, y: 10)
         }
     }
 
@@ -216,7 +271,7 @@ struct SnippetsView: View {
 
         return VStack(alignment: .leading, spacing: 18) {
             Text(editing == nil ? "Add snippet" : "Edit snippet")
-                .font(.gsBold(20))
+                .font(.gsSemibold(17))
                 .foregroundStyle(Color.figTextPrimary)
 
             VStack(alignment: .leading, spacing: 6) {
@@ -229,39 +284,48 @@ struct SnippetsView: View {
                     .foregroundStyle(Color.figTextPrimary)
                     .padding(.horizontal, 12)
                     .frame(height: 38)
-                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.figCardFill))
-                    .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Color.figBorder, lineWidth: 0.5))
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color(red: 0.988, green: 0.988, blue: 0.984)))
+                    .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Color.figBorder, lineWidth: 1))
             }
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("Expansion")
                     .font(.gsMedium(12))
                     .foregroundStyle(Color.figTextGrey)
-                ZStack(alignment: .topLeading) {
-                    if draftExpansion.isEmpty {
-                        Text("What should it expand to?")
+
+                VStack(spacing: 0) {
+                    formattingToolbar
+                    Rectangle().fill(Color.figBorder).frame(height: 0.5)
+
+                    ZStack(alignment: .topLeading) {
+                        if draftExpansion.isEmpty {
+                            Text("What should it expand to?")
+                                .font(.gsRegular(14))
+                                .foregroundStyle(Color.figTextGrey.opacity(0.7))
+                                .padding(.horizontal, 12)
+                                .padding(.top, 10)
+                                .allowsHitTesting(false)
+                        }
+                        TextEditor(text: $draftExpansion)
                             .font(.gsRegular(14))
-                            .foregroundStyle(Color.figTextGrey.opacity(0.7))
-                            .padding(.horizontal, 12)
-                            .padding(.top, 10)
-                            .allowsHitTesting(false)
+                            .foregroundStyle(Color.figTextPrimary)
+                            .scrollContentBackground(.hidden)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .frame(height: 140)
                     }
-                    TextEditor(text: $draftExpansion)
-                        .font(.gsRegular(14))
-                        .foregroundStyle(Color.figTextPrimary)
-                        .scrollContentBackground(.hidden)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .frame(height: 120)
+
+                    HStack {
+                        Spacer()
+                        Text("\(draftExpansion.count)/4000")
+                            .font(.gsRegular(11))
+                            .foregroundStyle(Color.figTextGrey.opacity(0.8))
+                            .padding(.horizontal, 10)
+                            .padding(.bottom, 8)
+                    }
                 }
-                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.figCardFill))
-                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Color.figBorder, lineWidth: 0.5))
-                HStack {
-                    Spacer()
-                    Text("\(draftExpansion.count)/4000")
-                        .font(.gsRegular(11))
-                        .foregroundStyle(Color.figTextGrey.opacity(0.8))
-                }
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.white))
+                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Color.figBorder, lineWidth: 1))
             }
 
             HStack(spacing: 10) {
@@ -272,8 +336,7 @@ struct SnippetsView: View {
                         .foregroundStyle(Color.figTextPrimary)
                         .padding(.horizontal, 16)
                         .frame(height: 34)
-                        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.figCardFill))
-                        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Color.figBorder, lineWidth: 0.5))
+                        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color(red: 0.94, green: 0.937, blue: 0.918)))
                 }
                 .buttonStyle(.plain)
 
@@ -291,6 +354,28 @@ struct SnippetsView: View {
             }
         }
         .padding(24)
+    }
+
+    /// Non-functional formatting toolbar placeholders (B / I / bullets / link),
+    /// matching the Figma expansion-editor chrome.
+    private var formattingToolbar: some View {
+        HStack(spacing: 4) {
+            toolbarIcon("bold")
+            toolbarIcon("italic")
+            toolbarIcon("list.bullet")
+            toolbarIcon("link")
+            Spacer()
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+    }
+
+    private func toolbarIcon(_ system: String) -> some View {
+        Image(systemName: system)
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(Color.figTextGrey)
+            .frame(width: 26, height: 26)
+            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.clear))
     }
 
     // MARK: - Actions
