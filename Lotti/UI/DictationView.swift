@@ -82,7 +82,7 @@ struct DictationView: View {
         ZStack(alignment: .topTrailing) {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Working around other people?")
-                    .font(.loraRegular(25))
+                    .font(.gsBold(25))
                     .foregroundStyle(.white)
                 Text("With the right setup, you can Flow without disrupting your neighbours")
                     .font(.gsRegular(14))
@@ -220,7 +220,7 @@ struct DictationView: View {
     private func statRow(value: String, label: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text(value)
-                .font(.loraRegular(27))
+                .font(.gsBold(27))
                 .foregroundStyle(Color.figTextPrimary)
             Text(label)
                 .font(.gsRegular(14))
