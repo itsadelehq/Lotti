@@ -21,7 +21,14 @@ struct LottiApp: App {
             makeEngine: {
                 DeepgramEngine(apiKey: Keychain.get("deepgram_api_key") ?? "")
             },
-            polish: Keychain.get("anthropic_api_key").map { PolishService(apiKey: $0) },
+            // Read the Anthropic key lazily, at dictation time, so a key entered
+            // in Settings works on the next dictation without relaunching.
+            makePolish: {
+                Keychain.get("anthropic_api_key").map { PolishService(apiKey: $0) }
+            },
+            deepgramKeyPresent: {
+                !(Keychain.get("deepgram_api_key") ?? "").isEmpty
+            },
             pill: pill
         )
         coordinator = coord
@@ -41,7 +48,33 @@ struct LottiApp: App {
     }
 
     var body: some Scene {
-        WindowGroup { RootView().environmentObject(store) }
-            .windowStyle(.hiddenTitleBar)
+        WindowGroup {
+            RootView()
+                .environmentObject(store)
+                .task { await onLaunch() }
+        }
+        .windowStyle(.hiddenTitleBar)
+    }
+
+    /// Runs once when the main window appears: requests permissions (so macOS
+    /// shows the prompts) and logs a diagnostics snapshot for the first run.
+    @MainActor private func onLaunch() async {
+        // Accessibility — required for BOTH the global hotkey tap and ⌘V paste.
+        // prompt:true makes macOS show the prompt / open the Privacy pane.
+        let ax = Permissions.accessibilityTrusted(prompt: true)
+        // Microphone — requestAccess shows the mic prompt if undetermined.
+        let mic = await Permissions.requestMicrophone()
+
+        let deepgram = !(Keychain.get("deepgram_api_key") ?? "").isEmpty
+        let anthropic = !(Keychain.get("anthropic_api_key") ?? "").isEmpty
+        AppLog.log("Launch diagnostics —")
+        AppLog.log("  microphone authorized: \(mic)")
+        AppLog.log("  accessibility trusted: \(ax)")
+        AppLog.log("  hotkey tap active: \(hotkey.isActive)")
+        AppLog.log("  Deepgram key: \(deepgram ? "present" : "missing")")
+        AppLog.log("  Anthropic key: \(anthropic ? "present" : "missing")")
+        if !ax {
+            AppLog.log("  ↳ Accessibility not yet granted — grant it, and the hotkey will go live WITHOUT a relaunch.")
+        }
     }
 }

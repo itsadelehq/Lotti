@@ -15,7 +15,7 @@ final class CoordinatorTests: XCTestCase {
         let store = Store(inMemory: true)
         let fake = FakeEngine()
         let coord = DictationCoordinator(store: store,
-            makeEngine: { fake }, polish: nil, inject: false)
+            makeEngine: { fake }, makePolish: { nil }, inject: false)
         coord.begin()
         try? await Task.sleep(nanoseconds: 50_000_000)
         fake.emit("hello", final: true)
@@ -27,7 +27,7 @@ final class CoordinatorTests: XCTestCase {
         let store = Store(inMemory: true)
         let fake = FakeEngine()
         let coord = DictationCoordinator(store: store,
-            makeEngine: { fake }, polish: nil, inject: false)
+            makeEngine: { fake }, makePolish: { nil }, inject: false)
         coord.begin()
         fake.emit("discard me", final: true)
         await coord.end(cancelled: true)
