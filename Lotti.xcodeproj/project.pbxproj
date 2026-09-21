@@ -30,6 +30,7 @@
 		81DE1D959CB55C40A9F3C75F /* TranscriptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540550E6997EE4BE0A151EB9 /* TranscriptionEngine.swift */; };
 		856BEC65611E55AD5BC66952 /* Sounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B20FD7B205CCE9025E714E9 /* Sounds.swift */; };
 		875131E74078B2A431A78A4B /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD31FDFC87D9F2B97E55DEFF /* AppColors.swift */; };
+		88F1BFE8F9779D80AB09D1A5 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C01A20E176F731548479452 /* NoteEditorView.swift */; };
 		8DB7F2E7EA83CA84889BB95A /* LottiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */; };
 		9036F14EFE22CF851369692B /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC99F49EC9AD18B4FFE974D /* TextInjector.swift */; };
 		9538601334A47874FD17CF66 /* InsightsSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6B807C9DF325287F4DBA45 /* InsightsSnapshot.swift */; };
@@ -42,6 +43,7 @@
 		B058643CFA9B8C310F19255F /* AppCategoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A10506FA022B8009E67237 /* AppCategoryTests.swift */; };
 		B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C53F9A37FE46E12F646367 /* RootView.swift */; };
 		BACB67F9E6A4761AECCC09FF /* AppFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23028739B2B0D40011535B26 /* AppFonts.swift */; };
+		BE0163484498E4ED66059BE4 /* ScratchpadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C1FBF4341259BFBBDF159D4 /* ScratchpadView.swift */; };
 		C436843912367BBA679CFC82 /* InsightsCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0EB2143FD50C5E7069ACD2 /* InsightsCards.swift */; };
 		C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF809BBE5F6E62B0D85A20A /* Keychain.swift */; };
 		C6F6B92164F7A9112E962C73 /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4EE0A78C1C64E405C067C1 /* Permissions.swift */; };
@@ -52,6 +54,7 @@
 		D925758FF229FADCDA7B2AB0 /* AppCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 453FFE5939AEA92D8778F8B6 /* AppCategory.swift */; };
 		DFB5AF0ABC172CB202C75E62 /* PolishService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E490FABB9D2D270DC82282FC /* PolishService.swift */; };
 		E04AFF884375D50942289923 /* StoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051B63897005FDF2F04CF88D /* StoreTests.swift */; };
+		EA96A1CDB749AA51F3E63DBA /* NotetakerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2822BC876B181D9C02CDB251 /* NotetakerView.swift */; };
 		ECF76BB03E3F810671903FA3 /* BrandMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070BA69BF987449D61BA3BD1 /* BrandMark.swift */; };
 		EEEFA7161D085503EF05A3F4 /* StreakHeatmapCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE5FD5C9D8695F2C192EE14 /* StreakHeatmapCard.swift */; };
 /* End PBXBuildFile section */
@@ -74,6 +77,7 @@
 		208AFDCEEEE814D1815DD97A /* CoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorTests.swift; sourceTree = "<group>"; };
 		22EE9937A9988044C955DDB2 /* UsageTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageTab.swift; sourceTree = "<group>"; };
 		23028739B2B0D40011535B26 /* AppFonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFonts.swift; sourceTree = "<group>"; };
+		2822BC876B181D9C02CDB251 /* NotetakerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotetakerView.swift; sourceTree = "<group>"; };
 		285233037A432F4CDE74B134 /* VoiceTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceTab.swift; sourceTree = "<group>"; };
 		2949CB969F845B8031CB748B /* WordDiff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDiff.swift; sourceTree = "<group>"; };
 		2B2B7253B9C709EFFC1F5128 /* LottiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottiTests.swift; sourceTree = "<group>"; };
@@ -91,11 +95,13 @@
 		5DE5FD5C9D8695F2C192EE14 /* StreakHeatmapCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakHeatmapCard.swift; sourceTree = "<group>"; };
 		5F669BDFB312AD5850CB687D /* KeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
 		69C53F9A37FE46E12F646367 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		6C01A20E176F731548479452 /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
 		6D14D92AD149D845A589AD9A /* WordDiffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDiffTests.swift; sourceTree = "<group>"; };
 		74BBCDFDEB1FE69B0F520D2E /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		78FCF33BC6E9EA5B1C9B6F83 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = Lotti/Resources/Fonts; sourceTree = SOURCE_ROOT; };
 		7B20FD7B205CCE9025E714E9 /* Sounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sounds.swift; sourceTree = "<group>"; };
 		80C19CD875CFEE9C5CDEAFEB /* Lotti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lotti.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C1FBF4341259BFBBDF159D4 /* ScratchpadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScratchpadView.swift; sourceTree = "<group>"; };
 		8CA265160279A9309851138C /* LottiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LottiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FC3C506558E8F247E1361E6 /* DeepgramMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramMessageTests.swift; sourceTree = "<group>"; };
 		943D442B049947E28355E716 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -130,7 +136,10 @@
 				341771C19EE19C93092C6E8E /* FloatingPill.swift */,
 				2C0EB2143FD50C5E7069ACD2 /* InsightsCards.swift */,
 				B3A213660BC3233721CBA152 /* InsightsView.swift */,
+				6C01A20E176F731548479452 /* NoteEditorView.swift */,
+				2822BC876B181D9C02CDB251 /* NotetakerView.swift */,
 				69C53F9A37FE46E12F646367 /* RootView.swift */,
+				8C1FBF4341259BFBBDF159D4 /* ScratchpadView.swift */,
 				943D442B049947E28355E716 /* SettingsView.swift */,
 				94AC0341AAE3A58869982451 /* ShaderGradientView.swift */,
 				E55283CF116D177724F0F441 /* SnippetsView.swift */,
@@ -353,9 +362,12 @@
 				C4B960A7FA84940DA3522E83 /* Keychain.swift in Sources */,
 				D27D59DA6E418ADC8BED0856 /* LottiApp.swift in Sources */,
 				D7197D56255575DDA1CE2765 /* Models.swift in Sources */,
+				88F1BFE8F9779D80AB09D1A5 /* NoteEditorView.swift in Sources */,
+				EA96A1CDB749AA51F3E63DBA /* NotetakerView.swift in Sources */,
 				C6F6B92164F7A9112E962C73 /* Permissions.swift in Sources */,
 				DFB5AF0ABC172CB202C75E62 /* PolishService.swift in Sources */,
 				B6D24B7F70205BFB1B35D4DC /* RootView.swift in Sources */,
+				BE0163484498E4ED66059BE4 /* ScratchpadView.swift in Sources */,
 				068E7CA951E604DD2E797F39 /* SettingsView.swift in Sources */,
 				57858B86E89F1CFA2891140D /* ShaderGradientView.swift in Sources */,
 				CA206DF6F2974A815606A631 /* SnippetsView.swift in Sources */,
