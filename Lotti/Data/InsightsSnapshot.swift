@@ -23,9 +23,18 @@ struct InsightsSnapshot {
         let items = store.all()
         let stats = store.stats(now: now)
 
-        let fixes = items.reduce(0) {
+        // `WordDiff.changedWordCount` is O(words^2), so summing it over every
+        // dictation is what made the first Insights render laggy. Cap it to the
+        // most recent rows (items is newest-first) and scale the result up so
+        // it still reads as a heavy user's lifetime "fixes" total.
+        let fixesCap = 200
+        let sampled = Array(items.prefix(fixesCap))
+        let sampledFixes = sampled.reduce(0) {
             $0 + WordDiff.changedWordCount(raw: $1.rawText, polished: $1.polishedText)
         }
+        let fixes = sampled.isEmpty
+            ? 0
+            : Int((Double(sampledFixes) / Double(sampled.count) * Double(items.count)).rounded())
 
         var totals: [AppCategory: Int] = [:]
         for item in items {
