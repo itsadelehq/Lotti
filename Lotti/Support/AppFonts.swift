@@ -41,6 +41,7 @@ enum AppFonts {
     }()
 
     static func register() {
+        setbuf(stdout, nil) // flush the verification prints immediately
         _ = registered
         // Runtime verification requested in the task – confirms the faces
         // resolve by their explicit PostScript names.
@@ -49,6 +50,39 @@ enum AppFonts {
         let medium = NSFont(name: psMedium, size: 12) != nil
         let regular = NSFont(name: psRegular, size: 12) != nil
         print("[AppFonts] registered=\(registered) bold(AeonikPro-Bold)=\(bold) semibold=\(semibold) medium=\(medium) regular=\(regular)")
+        // Lora (serif) verification – confirms the bundled variable font's named
+        // instances resolve by their CoreText PostScript names.
+        let loraReg = NSFont(name: loraPSRegular, size: 12) != nil
+        let loraMed = NSFont(name: loraPSMedium, size: 12) != nil
+        let loraSemi = NSFont(name: loraPSSemibold, size: 12) != nil
+        let loraBld = NSFont(name: loraPSBold, size: 12) != nil
+        print("[AppFonts] Lora regular(Lora-Regular)=\(loraReg) medium=\(loraMed) semibold=\(loraSemi) bold=\(loraBld)")
+    }
+
+    // MARK: - Lora (serif)
+    /// Family + CoreText-verified PostScript names for the bundled Lora variable
+    /// font. The named instances resolve as `Lora-Regular`, `Lora-Regular_Medium`,
+    /// etc. (verified via `NSFontManager.availableMembers`).
+    static let loraFamily      = "Lora"
+    static let loraPSRegular   = "Lora-Regular"
+    static let loraPSMedium    = "Lora-Regular_Medium"
+    static let loraPSSemibold  = "Lora-Regular_SemiBold"
+    static let loraPSBold      = "Lora-Regular_Bold"
+
+    static func lora(size: CGFloat, weight: Font.Weight) -> Font {
+        let ps: String
+        switch weight {
+        case .bold, .heavy, .black: ps = loraPSBold
+        case .semibold: ps = loraPSSemibold
+        case .medium: ps = loraPSMedium
+        default: ps = loraPSRegular
+        }
+        // Only use the custom face if it actually resolved; otherwise fall back
+        // to the system serif so text never disappears.
+        guard NSFont(name: ps, size: size) != nil else {
+            return .system(size: size, weight: weight, design: .serif)
+        }
+        return .custom(ps, size: size)
     }
 
     static func font(size: CGFloat, weight: Font.Weight) -> Font {
@@ -69,8 +103,14 @@ enum AppFonts {
 
 extension Font {
     static func gsBold(_ size: CGFloat) -> Font { AppFonts.font(size: size, weight: .bold) }
+    static func gsSemibold(_ size: CGFloat) -> Font { AppFonts.font(size: size, weight: .semibold) }
     static func gsMedium(_ size: CGFloat) -> Font { AppFonts.font(size: size, weight: .medium) }
     static func gsRegular(_ size: CGFloat) -> Font { AppFonts.font(size: size, weight: .regular) }
+
+    static func loraRegular(_ size: CGFloat) -> Font { AppFonts.lora(size: size, weight: .regular) }
+    static func loraMedium(_ size: CGFloat) -> Font { AppFonts.lora(size: size, weight: .medium) }
+    static func loraSemiBold(_ size: CGFloat) -> Font { AppFonts.lora(size: size, weight: .semibold) }
+    static func loraBold(_ size: CGFloat) -> Font { AppFonts.lora(size: size, weight: .bold) }
 }
 
 /// Shared heading sizes so screen titles and section headings stay
