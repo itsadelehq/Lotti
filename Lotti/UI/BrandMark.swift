@@ -36,14 +36,15 @@ struct BrandHeader: View {
         HStack(spacing: 8) {
             BrandMark(size: 16, color: .appMarkBlack)
             Text("Lotti")
-                .font(.gsBold(19))
-                .foregroundStyle(Color.appTextPrimary)
+                .font(.gsBold(18))
+                .foregroundStyle(Color.figTextPrimary)
             Text("Pro")
-                .font(.gsMedium(11))
-                .foregroundStyle(Color.appProText)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .background(Capsule().fill(Color.appProBg))
+                .font(.gsBold(12))
+                .foregroundStyle(.black)
+                .padding(.horizontal, 9)
+                .padding(.vertical, 5)
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.figProPillBg))
+            Spacer(minLength: 0)
         }
     }
 }

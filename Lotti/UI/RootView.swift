@@ -69,40 +69,37 @@ struct RootView: View {
         NavigationSplitView {
             VStack(alignment: .leading, spacing: 0) {
                 BrandHeader()
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 12)
                     .padding(.top, 18)
-                    .padding(.bottom, 14)
+                    .padding(.bottom, 16)
 
                 VStack(spacing: 2) {
                     ForEach(mainSections) { s in
                         sidebarRow(s)
                     }
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 8)
 
                 Spacer(minLength: 0)
 
-                VStack(spacing: 2) {
-                    sidebarRow(.settings)
-                    HStack(spacing: 12) {
-                        Image(systemName: "questionmark.circle")
-                            .font(.system(size: 20))
-                            .frame(width: 20)
-                        Text("Help")
-                            .font(.gsMedium(17))
-                        Spacer()
-                    }
-                    .foregroundStyle(Color(hex: 0x3A3A38))
+                // Hairline divider before the utility rows.
+                Rectangle()
+                    .fill(Color.figBorder)
+                    .frame(height: 0.5)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
+
+                VStack(spacing: 2) {
+                    sidebarRow(.settings)
+                    navRow(icon: "questionmark.circle", title: "Help", isActive: false) {}
                 }
-                .padding(.horizontal, 14)
-                .padding(.top, 4)
+                .padding(.horizontal, 8)
                 .padding(.bottom, 12)
             }
             .scrollContentBackground(.hidden)
             .background(Color.clear)
-            .frame(minWidth: 230, idealWidth: 230)
+            .frame(minWidth: 208, idealWidth: 208, maxWidth: 208)
+            .navigationSplitViewColumnWidth(208)
         } detail: {
             Group {
                 switch selection {
@@ -114,15 +111,16 @@ struct RootView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(Color.appPanel)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            // Subtle shadow so the white panel floats against the cream sidebar
-            // without reading as a hard border line where they meet.
-            .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(Color.figBorder, lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             // Cream gap on every side, including the leading edge, so there is a
-            // clean band of #F5F4F1 between the sidebar and the white panel.
+            // clean band of #F5F4F1 between the (seamless) sidebar and the panel.
             .padding(.top, 10)
             .padding(.leading, 10)
             .padding(.trailing, 10)
@@ -138,23 +136,32 @@ struct RootView: View {
 
     @ViewBuilder
     private func sidebarRow(_ s: Section) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: s.systemImage)
-                .font(.system(size: 20))
-                .frame(width: 20)
-            Text(s.title)
-                .font(.gsMedium(17))
-            Spacer()
+        navRow(icon: s.systemImage, title: s.title, isActive: selection == s) {
+            selection = s
         }
-        .foregroundStyle(selection == s ? Color.appTextPrimary : Color(hex: 0x3A3A38))
+    }
+
+    /// Shared 40pt nav row: 18pt icon + label with 10pt gap, 12pt horizontal
+    /// padding, radius 6. Active rows use semibold weight over the #EDEDE8 pill;
+    /// inactive rows are medium weight over a transparent background.
+    @ViewBuilder
+    private func navRow(icon: String, title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 15))
+                .frame(width: 18)
+            Text(title)
+                .font(isActive ? .gsSemibold(14) : .gsMedium(14))
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(isActive ? Color.figTextPrimary : Color.figTextGrey)
         .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .frame(minHeight: 42)
+        .frame(height: 40)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(selection == s ? Color(hex: 0xECEBE6) : .clear)
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(isActive ? Color.figNavActiveBg : .clear)
         )
         .contentShape(Rectangle())
-        .onTapGesture { selection = s }
+        .onTapGesture(perform: action)
     }
 }
