@@ -43,6 +43,7 @@ struct SettingsView: View {
 
     @State private var micAuthorized = false
     @State private var axTrusted = false
+    @AppStorage("onboardingComplete") private var onboardingComplete = false
 
     private let topGroup: [Pane] = [.general, .system, .notetaker, .keys, .permissions]
     private let accountGroup: [Pane] = [.account, .dataPrivacy]
@@ -421,6 +422,14 @@ struct SettingsView: View {
                             )
                     }
                     .buttonStyle(.plain)
+                }
+                hairline
+                settingRow(label: "Re-run onboarding",
+                           sub: "Show the first-run setup flow again") {
+                    changeButton("Reset onboarding") {
+                        onClose()
+                        onboardingComplete = false
+                    }
                 }
             }
             Text("All your dictations are stored locally on this Mac.")
