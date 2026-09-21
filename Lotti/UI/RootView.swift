@@ -44,6 +44,39 @@ struct SplitViewDividerHider: NSViewRepresentable {
     }
 }
 
+/// Walks up to the enclosing `NSVisualEffectView` that AppKit inserts behind
+/// the `NavigationSplitView` sidebar column (the "sidebar material" vibrancy
+/// surface) and neutralises it so it renders as flat cream instead of a
+/// distinct translucent tone. `.scrollContentBackground(.hidden)` and
+/// `.background(.clear)` only affect the SwiftUI List content — they can't
+/// reach this AppKit-owned effect view, so we patch it directly.
+struct SidebarMaterialRemover: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let v = NSView(frame: .zero)
+        DispatchQueue.main.async { neutralize(from: v) }
+        return v
+    }
+    func updateNSView(_ nsView: NSView, context: Context) {
+        DispatchQueue.main.async { neutralize(from: nsView) }
+    }
+    private func neutralize(from view: NSView) {
+        var node: NSView? = view
+        while let n = node {
+            if let effect = n as? NSVisualEffectView {
+                effect.state = .inactive
+                effect.material = .windowBackground
+                effect.isEmphasized = false
+                effect.blendingMode = .withinWindow
+                effect.wantsLayer = true
+                effect.layer?.backgroundColor = NSColor(
+                    calibratedRed: 0xF5 / 255, green: 0xF4 / 255, blue: 0xF1 / 255, alpha: 1
+                ).cgColor
+            }
+            node = n.superview
+        }
+    }
+}
+
 enum Section: String, CaseIterable, Identifiable {
     case dictation, notetaker, insights, dictionary, style, scratchpad, settings
     var id: String { rawValue }
@@ -97,7 +130,8 @@ struct RootView: View {
                 .padding(.bottom, 12)
             }
             .scrollContentBackground(.hidden)
-            .background(Color.clear)
+            .background(Color.appBg)
+            .background(SidebarMaterialRemover())
             .frame(minWidth: 208, idealWidth: 208, maxWidth: 208)
             .navigationSplitViewColumnWidth(208)
         } detail: {
