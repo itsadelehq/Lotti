@@ -14,10 +14,29 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
 
     init(inMemory: Bool = false) {
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
-        container = try! ModelContainer(for: Dictation.self, configurations: config)
+        container = try! ModelContainer(for: Dictation.self, Snippet.self, configurations: config)
     }
     func add(_ d: Dictation) { context.insert(d); try? context.save(); revision += 1 }
     func delete(_ d: Dictation) { context.delete(d); try? context.save(); revision += 1 }
+
+    // MARK: - Snippets (voice text-expansion shortcuts)
+
+    /// All snippets, oldest first (by creation time).
+    func snippets() -> [Snippet] {
+        (try? context.fetch(FetchDescriptor<Snippet>(
+            sortBy: [SortDescriptor(\.createdAt, order: .forward)]))) ?? []
+    }
+    func addSnippet(name: String, expansion: String) {
+        context.insert(Snippet(name: name, expansion: expansion))
+        try? context.save(); revision += 1
+    }
+    func updateSnippet(_ s: Snippet, name: String, expansion: String) {
+        s.name = name; s.expansion = expansion
+        try? context.save(); revision += 1
+    }
+    func deleteSnippet(_ s: Snippet) {
+        context.delete(s); try? context.save(); revision += 1
+    }
     func all() -> [Dictation] {
         (try? context.fetch(FetchDescriptor<Dictation>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]))) ?? []
