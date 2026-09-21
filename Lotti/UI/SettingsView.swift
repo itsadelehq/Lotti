@@ -1,102 +1,172 @@
 import SwiftUI
 import AppKit
 
+/// Settings, rebuilt as a centered modal card (presented by `RootView`).
+///
+/// This view renders only the *contents* of the card — a left sub-navigation
+/// column over `#F7F5F2` and a white right content pane. `RootView` supplies
+/// the surrounding white rounded card, its shadow, the dimmed scrim, and the
+/// centering. `onClose` dismisses the modal (used by the top-right close
+/// control; scrim taps are handled by `RootView`).
 struct SettingsView: View {
     enum Pane: String, CaseIterable, Identifiable {
         case general = "General"
         case system = "System"
-        case permissions = "Permissions"
+        case notetaker = "Notetaker"
         case keys = "Keys"
-        case about = "About"
+        case account = "Account"
+        case dataPrivacy = "Data & Privacy"
         var id: String { rawValue }
+
+        var systemImage: String {
+            switch self {
+            case .general: "gearshape"
+            case .system: "macwindow"
+            case .notetaker: "record.circle"
+            case .keys: "key"
+            case .account: "person.crop.circle"
+            case .dataPrivacy: "lock.shield"
+            }
+        }
     }
 
+    var onClose: () -> Void = {}
+
+    @EnvironmentObject var store: Store
     @StateObject private var settings = AppSettings()
     @State private var pane: Pane = .general
     @State private var isRecordingKey = false
-    @State private var micAuthorized = false
-    @State private var axTrusted = false
+    @State private var hoveredNav: String?
+    @State private var showClearConfirm = false
+
+    private let topGroup: [Pane] = [.general, .system, .notetaker, .keys]
+    private let accountGroup: [Pane] = [.account, .dataPrivacy]
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             subNav
-                .frame(width: 230)
-            Divider().overlay(Color.appDivider)
+                .frame(width: 209)
+                .frame(maxHeight: .infinity)
+                .background(Color.figCardFill)
+                .overlay(alignment: .trailing) {
+                    Rectangle().fill(Color.figBorder).frame(width: 0.5)
+                }
             detail
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(Color.white)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .task { await refreshPermissions() }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: Left sub-navigation
+    // MARK: - Left sub-navigation
 
     private var subNav: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("SETTINGS")
-                .font(.gsMedium(11))
-                .tracking(1.2)
-                .foregroundStyle(Color.appTextSecondary)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 6)
+        VStack(alignment: .leading, spacing: 2) {
+            groupLabel("SETTINGS")
+            ForEach(topGroup) { navRow($0) }
 
-            ForEach(Pane.allCases) { p in
-                subNavRow(p)
-            }
+            Rectangle()
+                .fill(Color.figBorder)
+                .frame(height: 0.5)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 4)
+
+            groupLabel("ACCOUNT")
+            ForEach(accountGroup) { navRow($0) }
+
             Spacer(minLength: 0)
+
+            Text("Lotti v0.1")
+                .font(.gsRegular(11))
+                .foregroundStyle(Color.figTextGrey)
+                .padding(.horizontal, 8)
+                .padding(.bottom, 4)
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 28)
-        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(.horizontal, 12)
+        .padding(.top, 22)
+        .padding(.bottom, 14)
     }
 
-    private func subNavRow(_ p: Pane) -> some View {
-        HStack {
+    private func groupLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.gsMedium(11))
+            .tracking(1.1)
+            .foregroundStyle(Color.figTextGrey)
+            .padding(.horizontal, 8)
+            .padding(.top, 4)
+            .padding(.bottom, 4)
+    }
+
+    private func navRow(_ p: Pane) -> some View {
+        let isActive = pane == p
+        let isHovered = hoveredNav == p.id
+        return HStack(spacing: 9) {
+            Image(systemName: p.systemImage)
+                .font(.system(size: 13.5))
+                .frame(width: 18)
             Text(p.rawValue)
-                .font(.gsMedium(15))
-            Spacer()
+                .font(.gsMedium(14.5))
+            Spacer(minLength: 0)
         }
-        .foregroundStyle(pane == p ? Color.appTextPrimary : Color(hex: 0x3A3A38))
-        .padding(.horizontal, 12)
-        .padding(.vertical, 9)
+        .foregroundStyle(isActive ? Color.figTextPrimary : Color.figTextGrey)
+        .padding(.horizontal, 10)
+        .frame(height: 36)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(pane == p ? Color(hex: 0xECEBE6) : .clear)
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(isActive ? Color.figNavActiveBg : (isHovered ? Color.figNavHoverBg : .clear))
         )
         .contentShape(Rectangle())
         .onTapGesture { pane = p }
-    }
-
-    // MARK: Right detail
-
-    private var detail: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text(pane.rawValue)
-                    .font(.gsBold(30))
-                    .foregroundStyle(Color.appTextPrimary)
-
-                switch pane {
-                case .general: generalCard
-                case .system: systemCard
-                case .permissions: permissionsCard
-                case .keys: keysCard
-                case .about: aboutCard
-                }
-            }
-            .padding(28)
-            .frame(maxWidth: 640, alignment: .leading)
+        .onHover { hovering in
+            hoveredNav = hovering ? p.id : (hoveredNav == p.id ? nil : hoveredNav)
         }
     }
 
-    // MARK: Cards
+    // MARK: - Right content
 
-    private var generalCard: some View {
-        settingsCard {
+    private var detail: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text(pane.rawValue)
+                    .font(.loraMedium(27))
+                    .foregroundStyle(Color.figTextPrimary)
+
+                switch pane {
+                case .general: generalContent
+                case .system: systemContent
+                case .notetaker: notetakerContent
+                case .keys: keysContent
+                case .account: accountContent
+                case .dataPrivacy: dataPrivacyContent
+                }
+            }
+            .padding(.horizontal, 32)
+            .padding(.top, 30)
+            .padding(.bottom, 32)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .overlay(alignment: .topTrailing) {
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.figTextGrey)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.figCardFill))
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 16)
+            .padding(.trailing, 16)
+        }
+    }
+
+    // MARK: - General
+
+    private var generalContent: some View {
+        card {
             settingRow(label: "Shortcuts",
                        sub: "Hold \(KeyCodeNaming.name(for: settings.triggerKeyCode)) and speak") {
                 ZStack {
-                    ghostButton(isRecordingKey ? "Press a key…" : "Change") {
+                    changeButton(isRecordingKey ? "Press a key…" : "Change") {
                         isRecordingKey = true
                     }
                     TriggerKeyRecorder(isRecording: $isRecordingKey) { code in
@@ -108,155 +178,263 @@ struct SettingsView: View {
             }
             hairline
             settingRow(label: "Microphone", sub: "Auto-detect (System Default)") {
-                ghostButton("Change") {}
+                changeButton("Change") {}
             }
             hairline
             settingRow(label: "Dictation Language", sub: "English") {
-                ghostButton("Change") {}
-            }
-        }
-    }
-
-    private var systemCard: some View {
-        settingsCard {
-            settingRow(label: "Transcription engine", sub: "Deepgram") {
-                Text("Active")
-                    .font(.gsMedium(12))
-                    .foregroundStyle(Color.appTeal)
+                changeButton("Change") {}
             }
             hairline
-            settingRow(label: "On-device (Parakeet)", sub: "Coming soon") {
-                Text("Coming soon")
-                    .font(.gsMedium(12))
-                    .foregroundStyle(Color.appTextSecondary)
-            }
-            .opacity(0.5)
-            hairline
-            settingRow(label: "Polish with AI", sub: "Clean up dictated text automatically") {
-                Toggle("", isOn: $settings.polishEnabled)
-                    .labelsHidden()
-                    .toggleStyle(.switch)
-                    .tint(Color.appTeal)
-            }
-        }
-    }
-
-    private var permissionsCard: some View {
-        settingsCard {
-            settingRow(label: "Microphone",
-                       sub: micAuthorized ? "Granted" : "Not granted") {
-                if micAuthorized {
-                    statusBadge(true)
-                } else {
-                    ghostButton("Request") {
-                        Task { micAuthorized = await Permissions.requestMicrophone() }
-                    }
+            settingRow(label: "App Language", sub: "Interface language") {
+                Picker("", selection: $settings.appLanguage) {
+                    Text("English").tag("English")
                 }
-            }
-            hairline
-            settingRow(label: "Accessibility",
-                       sub: axTrusted ? "Granted" : "Not granted") {
-                if axTrusted {
-                    statusBadge(true)
-                } else {
-                    ghostButton("Open Settings") {
-                        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
-                    }
-                }
-            }
-            hairline
-            settingRow(label: "Re-check permissions",
-                       sub: "Refresh the current status") {
-                ghostButton("Re-check") { Task { await refreshPermissions() } }
+                .labelsHidden()
+                .frame(width: 130)
             }
         }
     }
 
-    private var keysCard: some View {
-        settingsCard {
-            KeyRow(title: "Deepgram API key", account: "deepgram_api_key")
-            hairline
-            KeyRow(title: "Anthropic API key", account: "anthropic_api_key")
+    // MARK: - System
+
+    private var systemContent: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            card {
+                toggleRow(label: "Launch app at login",
+                          sub: "Open Lotti automatically when you sign in",
+                          isOn: $settings.launchAtLogin)
+                hairline
+                toggleRow(label: "Show floating pill while dictating",
+                          sub: "A small pill appears while you speak",
+                          isOn: $settings.showFloatingPill)
+                hairline
+                toggleRow(label: "Show app in Dock",
+                          sub: "Keep the Lotti icon in your Dock",
+                          isOn: $settings.showInDock)
+            }
+            sectionHeading("Sound")
+            card {
+                toggleRow(label: "Dictation & notification sounds",
+                          sub: "Play sounds for dictation and alerts",
+                          isOn: $settings.soundsEnabled)
+                hairline
+                toggleRow(label: "Mute music while dictating",
+                          sub: "Pause other audio while you speak",
+                          isOn: $settings.muteMusicWhileDictating)
+            }
         }
     }
 
-    private var aboutCard: some View {
-        settingsCard {
-            settingRow(label: "Lotti", sub: "Voice dictation, polished.") {
-                Text("Lotti v0.1")
-                    .font(.gsMedium(12))
-                    .foregroundStyle(Color.appTextSecondary)
-            }
-            hairline
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Speak naturally and Lotti transcribes and polishes your words into clean text, anywhere on your Mac.")
+    // MARK: - Notetaker
+
+    private var notetakerContent: some View {
+        card {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Notetaker settings coming soon.")
+                    .font(.gsMedium(15))
+                    .foregroundStyle(Color.figTextPrimary)
+                Text("Meeting capture and note-taking controls will appear here.")
                     .font(.gsRegular(13))
-                    .foregroundStyle(Color.appTextSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundStyle(Color.figTextGrey)
             }
-            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 14)
         }
     }
 
-    // MARK: Reusable pieces
+    // MARK: - Keys
 
-    private func settingsCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    private var keysContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            card {
+                KeyRow(title: "Deepgram API key", account: "deepgram_api_key")
+                hairline
+                KeyRow(title: "Anthropic API key", account: "anthropic_api_key")
+                hairline
+                settingRow(label: "Transcription engine", sub: "Deepgram") {
+                    Text("Active")
+                        .font(.gsMedium(12))
+                        .foregroundStyle(Color.appTeal)
+                }
+                hairline
+                settingRow(label: "On-device (Parakeet)", sub: "Coming soon") {
+                    Text("Coming soon")
+                        .font(.gsMedium(12))
+                        .foregroundStyle(Color.figTextGrey)
+                }
+                .opacity(0.5)
+                hairline
+                toggleRow(label: "Polish with AI",
+                          sub: "Clean up dictated text automatically",
+                          isOn: $settings.polishEnabled)
+            }
+            Text("Your keys are stored securely in your Mac's Keychain and never leave your device.")
+                .font(.gsRegular(12))
+                .foregroundStyle(Color.figTextGrey)
+                .padding(.horizontal, 4)
+        }
+    }
+
+    // MARK: - Account
+
+    private var accountContent: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            card {
+                settingRow(label: "Profile picture", sub: "Shown across Lotti") {
+                    Circle()
+                        .fill(Color.figNavActiveBg)
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(Color.figTextGrey)
+                        )
+                }
+                hairline
+                settingRow(label: "First name", sub: "How we address you") {
+                    TextField("First name", text: $settings.firstName)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 200)
+                }
+                hairline
+                settingRow(label: "Last name", sub: "Optional") {
+                    TextField("Last name", text: $settings.lastName)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 200)
+                }
+                hairline
+                settingRow(label: "Email", sub: "Your account email") {
+                    Text(settings.accountEmail)
+                        .font(.gsRegular(13))
+                        .foregroundStyle(Color.figTextGrey)
+                }
+            }
+            HStack(spacing: 12) {
+                Button(action: {}) {
+                    Text("Save")
+                        .font(.gsMedium(13))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                .fill(Color.appTeal)
+                        )
+                }
+                .buttonStyle(.plain)
+                Spacer()
+                Button("Sign out") {}
+                    .buttonStyle(.plain)
+                    .font(.gsMedium(13))
+                    .foregroundStyle(Color.figTextGrey)
+                Button("Delete account") {}
+                    .buttonStyle(.plain)
+                    .font(.gsMedium(13))
+                    .foregroundStyle(Color.red.opacity(0.8))
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    // MARK: - Data & Privacy
+
+    private var dataPrivacyContent: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            card {
+                settingRow(label: "Clear all dictation data",
+                           sub: "Permanently remove every stored dictation") {
+                    Button(action: { showClearConfirm = true }) {
+                        Text("Clear")
+                            .font(.gsMedium(13))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 7)
+                            .background(
+                                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                    .fill(Color.red.opacity(0.85))
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            Text("All your dictations are stored locally on this Mac.")
+                .font(.gsRegular(12))
+                .foregroundStyle(Color.figTextGrey)
+                .padding(.horizontal, 4)
+        }
+        .alert("Clear all dictation data?", isPresented: $showClearConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Clear", role: .destructive) { store.clearAll() }
+        } message: {
+            Text("This permanently removes every stored dictation from this Mac. This cannot be undone.")
+        }
+    }
+
+    // MARK: - Reusable pieces
+
+    private func card<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 0) { content() }
             .padding(.horizontal, 18)
-            .padding(.vertical, 6)
+            .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color.appInsightCard)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.figCardFill)
             )
     }
 
+    private func sectionHeading(_ text: String) -> some View {
+        Text(text)
+            .font(.gsSemibold(13))
+            .foregroundStyle(Color.figTextGrey)
+            .padding(.horizontal, 4)
+    }
+
     private func settingRow<Control: View>(label: String, sub: String,
-                                            @ViewBuilder control: () -> Control) -> some View {
+                                           @ViewBuilder control: () -> Control) -> some View {
         HStack(alignment: .center, spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(.gsMedium(15))
-                    .foregroundStyle(Color.appTextPrimary)
+                    .font(.gsSemibold(14.5))
+                    .foregroundStyle(Color.figTextPrimary)
                 Text(sub)
                     .font(.gsRegular(13))
-                    .foregroundStyle(Color.appTextSecondary)
+                    .foregroundStyle(Color.figTextGrey)
             }
             Spacer(minLength: 12)
             control()
         }
-        .padding(.vertical, 14)
+        .padding(.vertical, 13)
+    }
+
+    private func toggleRow(label: String, sub: String, isOn: Binding<Bool>) -> some View {
+        settingRow(label: label, sub: sub) {
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .tint(Color.appTeal)
+        }
     }
 
     private var hairline: some View {
         Rectangle()
-            .fill(Color.appDivider)
-            .frame(height: 1)
+            .fill(Color.figBorder)
+            .frame(height: 0.5)
     }
 
-    private func ghostButton(_ title: String, action: @escaping () -> Void) -> some View {
+    private func changeButton(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
                 .font(.gsMedium(13))
-                .foregroundStyle(Color.appTextPrimary)
+                .foregroundStyle(Color.figTextPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 7)
                 .background(
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.figNavActiveBg)
                 )
         }
         .buttonStyle(.plain)
-    }
-
-    private func statusBadge(_ ok: Bool) -> some View {
-        Image(systemName: ok ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
-            .foregroundStyle(ok ? Color.appTeal : .orange)
-    }
-
-    private func refreshPermissions() async {
-        micAuthorized = await Permissions.microphoneAuthorized()
-        axTrusted = Permissions.accessibilityTrusted(prompt: false)
     }
 }
 
@@ -274,11 +452,11 @@ private struct KeyRow: View {
         HStack(alignment: .center, spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.gsMedium(15))
-                    .foregroundStyle(Color.appTextPrimary)
+                    .font(.gsSemibold(14.5))
+                    .foregroundStyle(Color.figTextPrimary)
                 Text(hasKey && !editing ? "•••••• Saved" : "Stored securely in your Keychain")
                     .font(.gsRegular(13))
-                    .foregroundStyle(Color.appTextSecondary)
+                    .foregroundStyle(Color.figTextGrey)
             }
             Spacer(minLength: 12)
 
@@ -289,12 +467,12 @@ private struct KeyRow: View {
                 } label: {
                     Text("Replace")
                         .font(.gsMedium(13))
-                        .foregroundStyle(Color.appTextPrimary)
+                        .foregroundStyle(Color.figTextPrimary)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)
                         .background(
-                            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                                .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(Color.figNavActiveBg)
                         )
                 }
                 .buttonStyle(.plain)
@@ -306,7 +484,7 @@ private struct KeyRow: View {
                 Button("Save", action: commit)
             }
         }
-        .padding(.vertical, 14)
+        .padding(.vertical, 13)
         .onAppear { hasKey = Keychain.get(account) != nil }
     }
 
