@@ -11,6 +11,7 @@ struct DictationView: View {
     @State private var stats = Stats(totalWords: 0, wpm: 0, currentStreak: 0, longestStreak: 0)
     @State private var dayGroups: [DayGroup] = []
     @State private var cachedItemCount = -1
+    @State private var cachedRevision = -1
 
     /// Groups the (already newest-first) feed by calendar day, preserving order.
     private struct DayGroup: Identifiable {
@@ -41,9 +42,13 @@ struct DictationView: View {
     private func refreshIfNeeded() {
         // Cheap COUNT query first, so navigating to Dictation doesn't fetch
         // and materialise ~1700 objects just to check whether anything changed.
+        // Keyed on `store.revision` (not just count) so an edit/delete that
+        // doesn't change the count — or a save that happens while this view is
+        // already on screen — still triggers a refresh.
         let count = store.count()
-        guard count != cachedItemCount else { return }
+        guard count != cachedItemCount || store.revision != cachedRevision else { return }
         cachedItemCount = count
+        cachedRevision = store.revision
         let all = store.all()
         // `all` is already newest-first; take only the most recent rows so the
         // feed renders a bounded number of views.
@@ -70,6 +75,7 @@ struct DictationView: View {
             .padding(32)
         }
         .task { refreshIfNeeded() }
+        .onChange(of: store.revision) { _, _ in refreshIfNeeded() }
     }
 
     private var mainColumn: some View {
@@ -152,7 +158,7 @@ struct DictationView: View {
             if dayGroups.isEmpty {
                 sectionHeader("TODAY")
                 feedContainer {
-                    Text("No dictations yet today.")
+                    Text("No dictations yet — hold your key and speak to get started.")
                         .font(.gsRegular(14))
                         .foregroundStyle(Color.figTextGrey)
                         .frame(maxWidth: .infinity, alignment: .leading)

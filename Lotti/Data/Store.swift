@@ -7,12 +7,17 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
     let container: ModelContainer
     var context: ModelContext { container.mainContext }
 
+    /// Bumped after every mutation so observing views (which cache their own
+    /// derived data in `@State`) can detect a change and refresh, without
+    /// having to fetch/diff the full dictation list themselves.
+    @Published private(set) var revision: Int = 0
+
     init(inMemory: Bool = false) {
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
         container = try! ModelContainer(for: Dictation.self, configurations: config)
     }
-    func add(_ d: Dictation) { context.insert(d); try? context.save() }
-    func delete(_ d: Dictation) { context.delete(d); try? context.save() }
+    func add(_ d: Dictation) { context.insert(d); try? context.save(); revision += 1 }
+    func delete(_ d: Dictation) { context.delete(d); try? context.save(); revision += 1 }
     func all() -> [Dictation] {
         (try? context.fetch(FetchDescriptor<Dictation>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]))) ?? []
@@ -35,6 +40,7 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
     func clearAll() {
         for d in all() { context.delete(d) }
         try? context.save()
+        revision += 1
     }
 
     /// Seeds a heavy power-user's worth of demo dictations (~300K–350K total

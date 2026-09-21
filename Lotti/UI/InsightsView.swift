@@ -34,6 +34,9 @@ struct InsightsView: View {
                 snapshot = InsightsSnapshot.compute(from: store, now: .now)
             }
         }
+        .onChange(of: store.revision) { _, _ in
+            snapshot = InsightsSnapshot.compute(from: store, now: .now)
+        }
     }
 
     private var header: some View {

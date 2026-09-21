@@ -11,10 +11,10 @@ struct LottiApp: App {
 
     init() {
         AppFonts.register()
-        // Seeded exactly once here, at app launch — never inside a view's
-        // body/onAppear, which would re-run on every navigation.
+        // Real data only: the store starts empty and only ever contains the
+        // user's actual dictations. `seedDemoDataIfEmpty` is intentionally not
+        // called here — it's kept on `Store` for a possible future demo toggle.
         let store = Store()
-        store.seedDemoDataIfEmpty()
         _store = StateObject(wrappedValue: store)
         let coord = DictationCoordinator(
             store: store,
