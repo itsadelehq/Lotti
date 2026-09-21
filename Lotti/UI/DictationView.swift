@@ -280,6 +280,7 @@ private struct FeedRow: View {
                 .foregroundStyle(Color.figTextPrimary)
                 .lineSpacing(5)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
             actions
                 .opacity(hovering ? 1 : 0)
         }
