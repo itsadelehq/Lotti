@@ -6,8 +6,9 @@ struct StreakHeatmapCard: View {
     var currentStreak: Int = 0
 
     private let weeks = 17
-    private let cell: CGFloat = 13
-    private let gap: CGFloat = 3
+    private let cell: CGFloat = 16
+    private let gap: CGFloat = 6
+    private let labelGrey = Color(hex: 0x707070)
 
     private var wordsPerDay: [Date: Int] {
         let cal = Calendar.current
@@ -41,11 +42,16 @@ struct StreakHeatmapCard: View {
     }
 
     private func colorFor(_ date: Date) -> Color {
-        // Days in the future render as empty warm-grey.
-        if date > Calendar.current.startOfDay(for: .now) { return .heatmapMixed[0] }
+        // Future / no-data days render in a faint warm off-white.
+        if date > Calendar.current.startOfDay(for: .now) { return .figHeatFuture }
         let n = wordsPerDay[date] ?? 0
+        // Occasional light-purple accent cells among active days, for variety.
+        if n > 0 {
+            let day = Calendar.current.component(.day, from: date)
+            if day % 11 == 0 { return .figLilac }
+        }
         switch n {
-        case 0: return .heatmapMixed[0]
+        case 0: return .figHeatEmpty
         case 1..<60: return .heatmapMixed[1]
         case 60..<160: return .heatmapMixed[2]
         case 160..<340: return .heatmapMixed[3]
@@ -76,7 +82,7 @@ struct StreakHeatmapCard: View {
                     ForEach(Array(monthLabels.enumerated()), id: \.offset) { _, label in
                         Text(label)
                             .font(.gsMedium(10))
-                            .foregroundStyle(Color.appTextSecondary)
+                            .foregroundStyle(labelGrey)
                             .lineLimit(1)
                             .fixedSize()
                             .frame(width: cell + gap, alignment: .leading)
@@ -91,14 +97,14 @@ struct StreakHeatmapCard: View {
                     ForEach(0..<7, id: \.self) { r in
                         Text(dayLabels[r])
                             .font(.gsRegular(9))
-                            .foregroundStyle(Color.appTextSecondary)
+                            .foregroundStyle(labelGrey)
                             .frame(width: 26, height: cell, alignment: .leading)
                     }
                 }
                 ForEach(Array(columns.enumerated()), id: \.offset) { _, col in
                     VStack(spacing: gap) {
                         ForEach(col, id: \.self) { day in
-                            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                            RoundedRectangle(cornerRadius: 2, style: .continuous)
                                 .fill(colorFor(day))
                                 .frame(width: cell, height: cell)
                         }

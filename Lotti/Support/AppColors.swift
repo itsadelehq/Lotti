@@ -40,24 +40,26 @@ extension Color {
     static let figProPillBg   = Color(hex: 0xEBD6FF)
 
     // Insights-specific tokens (reference screenshot).
-    static let appInsightCard = Color(hex: 0xEFEEE9)   // warm grey card fill
+    static let appInsightCard = Color(hex: 0xF7F5F2)   // card fill (Figma)
     static let appGaugeTrack = Color(hex: 0xE4E3DD)    // gauge / bar track
 
-    /// Heatmap scale mixing teal + warm grey (empty→max).
-    static let heatmapMixed: [Color] = [
-        Color(hex: 0xE4E3DD), // empty / none (warm grey)
-        Color(hex: 0xCFE8D8), // low
-        Color(hex: 0x7FC9A3), // med
-        Color(hex: 0x2E9E73), // high
-        Color(hex: 0x0E5A4F), // max
-    ]
+    // Periwinkle / light-purple Insights palette (from Figma).
+    static let figPeriwinkleStrong = Color(hex: 0x2640FF) // top usage bar
+    static let figPeriwinkleMed    = Color(hex: 0x6E7DFF) // gauge arc / heatmap high
+    static let figPeriwinkleLight  = Color(hex: 0x8FB0FF) // lower usage bars
+    static let figPeriwinkleFaint  = Color(hex: 0xB8BCFF) // heatmap low
+    static let figLilac            = Color(hex: 0xEBD6FF) // accent cells
+    static let figHeatEmpty        = Color(hex: 0xC9C7BF) // empty heatmap cell
+    static let figHeatFuture       = Color(hex: 0xF0F0EB) // future / no-data cell
+    static let figChipYellow       = Color(hex: 0xFFEB9C) // "% this month" chip
 
-    static let heatmapScale: [Color] = [
-        Color(hex: 0xEBEAE4),
-        Color(hex: 0xCDE8D6),
-        Color(hex: 0x8FD3AB),
-        Color(hex: 0x3FAE77),
-        Color(hex: 0x0E5A4F),
+    /// Heatmap intensity scale: periwinkle with warm-grey empties.
+    static let heatmapMixed: [Color] = [
+        Color(hex: 0xC9C7BF), // empty / none (warm grey)
+        Color(hex: 0xB8BCFF), // low (light periwinkle)
+        Color(hex: 0x9199FF), // med
+        Color(hex: 0x6E7DFF), // high (strong periwinkle)
+        Color(hex: 0x2640FF), // max
     ]
 }
 
@@ -92,8 +94,12 @@ struct InsightCard: ViewModifier {
         content
             .padding(padding)
             .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(Color.appInsightCard)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color.figBorder, lineWidth: 1)
             )
             .shadow(color: .black.opacity(0.03), radius: 10, y: 3)
     }

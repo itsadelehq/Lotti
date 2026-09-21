@@ -54,7 +54,7 @@ struct InsightsView: View {
                         .font(active ? .gsBold(15) : .gsMedium(15))
                         .foregroundStyle(active ? Color.appTextPrimary : Color.appTextSecondary)
                     Rectangle()
-                        .fill(active ? Color.appTeal : .clear)
+                        .fill(active ? Color.appTextPrimary : .clear)
                         .frame(height: 2)
                 }
                 .fixedSize()

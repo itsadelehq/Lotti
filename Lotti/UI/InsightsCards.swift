@@ -62,7 +62,7 @@ struct HalfGauge: View {
                 GaugeArc(fraction: 1)
                     .stroke(Color.appGaugeTrack, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                 GaugeArc(fraction: min(1, fraction))
-                    .stroke(Color.appTeal, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                    .stroke(Color.figPeriwinkleMed, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                 // Small grey knob at the arc end.
                 Circle()
                     .fill(Color(hex: 0xBFBEB6))
@@ -101,7 +101,7 @@ struct FixesCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(bigNumber(fixes)).font(.gsBold(46)).foregroundStyle(Color.appTextPrimary)
-            CardLabel(text: "FIXES MADE BY FLOW")
+            CardLabel(text: "FIXES MADE BY LOTTI")
             VStack(alignment: .leading, spacing: 10) {
                 subRow(value: fixes, label: "words corrected")
                 subRow(value: dictionaryFixes, label: "dictionary fixes")
@@ -138,9 +138,9 @@ struct TotalWordsCard: View {
                     Image(systemName: "arrow.up.right").font(.system(size: 9, weight: .bold))
                     Text("195% this month").font(.gsMedium(11))
                 }
-                .foregroundStyle(Color.appGreenChipText)
+                .foregroundStyle(.black)
                 .padding(.horizontal, 9).padding(.vertical, 5)
-                .background(Capsule().fill(Color.appGreenChipBg))
+                .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.figChipYellow))
             }
             CardLabel(text: "TOTAL WORDS DICTATED")
             HStack {
@@ -191,7 +191,7 @@ struct DesktopUsageCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Desktop usage").font(.gsBold(AppFontSizes.sectionHeading)).foregroundStyle(Color.appTextPrimary)
+                Text("Desktop usage").font(.gsSemibold(26)).foregroundStyle(Color.appTextPrimary)
                 Spacer()
                 HStack(spacing: 6) {
                     Text("TOTAL APPS USED").font(.gsMedium(11)).foregroundStyle(Color.appTextSecondary).tracking(0.8)
@@ -226,13 +226,13 @@ struct DesktopUsageCard: View {
                 .overlay(
                     Image(systemName: icon(for: cat))
                         .font(.system(size: 14))
-                        .foregroundStyle(Color.appTeal)
+                        .foregroundStyle(Color.figPeriwinkleMed)
                 )
             if isTop {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color.appGaugeTrack)
-                        Capsule().fill(Color.appTeal)
+                        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.appGaugeTrack)
+                        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.figPeriwinkleStrong)
                             .frame(width: max(60, geo.size.width * widthFraction))
                             .overlay(alignment: .leading) {
                                 Text("\(pct)%")
@@ -242,7 +242,7 @@ struct DesktopUsageCard: View {
                             }
                     }
                 }
-                .frame(height: 34)
+                .frame(height: 28)
                 Text("\(bigNumber(words)) \(noun(for: cat))")
                     .font(.gsMedium(11))
                     .foregroundStyle(Color.appTextSecondary)
@@ -253,7 +253,7 @@ struct DesktopUsageCard: View {
                     .font(.gsBold(12))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12).padding(.vertical, 7)
-                    .background(Capsule().fill(Color.appTeal))
+                    .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.figPeriwinkleLight))
                 Text("\(bigNumber(words)) \(noun(for: cat))")
                     .font(.gsMedium(11))
                     .foregroundStyle(Color.appTextSecondary)
