@@ -24,6 +24,7 @@ enum Section: String, CaseIterable, Identifiable {
 /// flat `#F5F4F1` surface, so there is no material, no seam, and screen
 /// switching is a synchronous `@State` change (instant).
 struct RootView: View {
+    @AppStorage("onboardingComplete") private var onboardingComplete = false
     @State private var selection: Section = .dictation
     @State private var hoveredSection: String?
     @State private var showSettings = false
@@ -32,6 +33,20 @@ struct RootView: View {
     ]
 
     var body: some View {
+        // First run (or after a "Reset onboarding"): show the full-window
+        // onboarding flow INSTEAD of the main sidebar/app. When it finishes it
+        // flips `onboardingComplete`, and the main app appears with no relaunch.
+        if !onboardingComplete {
+            OnboardingView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(WindowAccessor())
+                .onAppear { AppFonts.register() }
+        } else {
+            mainApp
+        }
+    }
+
+    private var mainApp: some View {
         ZStack {
             HStack(spacing: 0) {
                 sidebar
