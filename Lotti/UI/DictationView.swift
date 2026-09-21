@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import WebKit
 
 struct DictationView: View {
     @EnvironmentObject var store: Store
@@ -115,20 +116,33 @@ struct DictationView: View {
 
     private var quoteBanner: some View {
         ZStack(alignment: .topTrailing) {
-            VStack(alignment: .leading, spacing: 12) {
-                Spacer()
-                Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
-                    .font(.instrumentSerifItalic(30))
-                    .foregroundStyle(.white)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("— \(Self.todaysQuote.author)")
-                    .font(.gsRegular(13))
-                    .foregroundStyle(.white.opacity(0.8))
-                Spacer()
+            ZStack {
+                // Animated ShaderGradient (WebGL) background, only rendered
+                // while the banner itself is visible, to save GPU.
+                quoteBannerBackground
+
+                // Dark scrim so the white serif quote stays legible over the
+                // bright, high-contrast gradient.
+                LinearGradient(
+                    colors: [.black.opacity(0.45), .black.opacity(0.15)],
+                    startPoint: .leading,
+                    endPoint: .trailing)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Spacer()
+                    Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
+                        .font(.instrumentSerifItalic(30))
+                        .foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("— \(Self.todaysQuote.author)")
+                        .font(.gsRegular(13))
+                        .foregroundStyle(.white.opacity(0.8))
+                    Spacer()
+                }
+                .padding(28)
+                .frame(maxWidth: .infinity, minHeight: 181, alignment: .topLeading)
             }
-            .padding(28)
             .frame(maxWidth: .infinity, minHeight: 181, alignment: .topLeading)
-            .background(quoteBannerBackground)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             Button {
@@ -145,9 +159,11 @@ struct DictationView: View {
         }
     }
 
-    /// Rich dark gradient + procedural grain, structured so a real photo can
-    /// later drop straight in: if a "QuoteBanner" image asset exists it is
-    /// used as-is; otherwise this gradient+grain placeholder renders instead.
+    /// Animated ShaderGradient background (rendered via an embedded, fully
+    /// transparent, non-interactive `WKWebView`), falling back to a static
+    /// dark gradient + procedural grain if the bundled shader page is
+    /// missing — e.g. an image asset resource failure, or offline first run
+    /// before the CDN modules can load. Never renders a blank/white banner.
     private var quoteBannerBackground: some View {
         ZStack {
             if let nsImage = NSImage(named: "QuoteBanner") {
@@ -160,6 +176,10 @@ struct DictationView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing)
                 GrainOverlay()
+
+                if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
+                    ShaderGradientView()
+                }
             }
         }
     }
