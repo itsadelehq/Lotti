@@ -115,8 +115,10 @@ struct RootView: View {
         Group {
             switch selection {
             case .dictation: DictationView()
+            case .notetaker: NotetakerView()
             case .insights: InsightsView()
             case .snippets: SnippetsView()
+            case .scratchpad: ScratchpadView()
             default: ContentUnavailableView("Coming soon", systemImage: "clock")
             }
         }
