@@ -14,10 +14,33 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
 
     init(inMemory: Bool = false) {
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
-        container = try! ModelContainer(for: Dictation.self, Snippet.self, configurations: config)
+        container = try! ModelContainer(for: Dictation.self, Snippet.self, Note.self, configurations: config)
     }
     func add(_ d: Dictation) { context.insert(d); try? context.save(); revision += 1 }
     func delete(_ d: Dictation) { context.delete(d); try? context.save(); revision += 1 }
+
+    // MARK: - Notes (Notetaker)
+
+    /// All notes, newest first (by last-updated time).
+    func notes() -> [Note] {
+        (try? context.fetch(FetchDescriptor<Note>(
+            sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]))) ?? []
+    }
+    /// Creates an empty "Untitled" note and returns it so the caller can open it.
+    @discardableResult
+    func addNote() -> Note {
+        let n = Note(title: "", body: "")
+        context.insert(n)
+        try? context.save(); revision += 1
+        return n
+    }
+    func updateNote(_ n: Note, title: String, body: String) {
+        n.title = title; n.body = body; n.updatedAt = .now
+        try? context.save(); revision += 1
+    }
+    func deleteNote(_ n: Note) {
+        context.delete(n); try? context.save(); revision += 1
+    }
 
     // MARK: - Snippets (voice text-expansion shortcuts)
 

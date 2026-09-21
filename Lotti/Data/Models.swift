@@ -20,6 +20,23 @@ import SwiftData
     }
 }
 
+/// A free-form note created in the Notetaker feature. `title` and `body` are
+/// edited in the note editor; `updatedAt` is bumped on every save so lists can
+/// sort by recency and show relative timestamps.
+@Model final class Note {
+    var id: UUID
+    var title: String
+    var body: String
+    var createdAt: Date
+    var updatedAt: Date
+
+    init(id: UUID = UUID(), title: String = "", body: String = "",
+         createdAt: Date = .now, updatedAt: Date = .now) {
+        self.id = id; self.title = title; self.body = body
+        self.createdAt = createdAt; self.updatedAt = updatedAt
+    }
+}
+
 /// A saved voice text-expansion shortcut: the spoken `name` (trigger phrase)
 /// is replaced by `expansion` (text/URL) in the dictation transcript.
 @Model final class Snippet {
