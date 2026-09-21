@@ -32,11 +32,17 @@ import SwiftData
     /// `false` for Notetaker notes, `true` for Scratchpad notes. Both share the
     /// same model and editor; this flag routes them into the right list.
     var isScratch: Bool = false
+    /// AI-generated summary (concise summary + optional action items). Empty
+    /// until the user taps "Generate summary". New optional-with-default
+    /// property so SwiftData migrates the store automatically.
+    var summary: String = ""
 
     init(id: UUID = UUID(), title: String = "", body: String = "",
-         isScratch: Bool = false, createdAt: Date = .now, updatedAt: Date = .now) {
+         isScratch: Bool = false, summary: String = "",
+         createdAt: Date = .now, updatedAt: Date = .now) {
         self.id = id; self.title = title; self.body = body
         self.isScratch = isScratch
+        self.summary = summary
         self.createdAt = createdAt; self.updatedAt = updatedAt
     }
 }

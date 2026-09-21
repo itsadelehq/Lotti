@@ -45,6 +45,11 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
     func deleteNote(_ n: Note) {
         context.delete(n); try? context.save(); revision += 1
     }
+    /// Stores an AI-generated summary on a note and bumps recency.
+    func setSummary(_ note: Note, summary: String) {
+        note.summary = summary; note.updatedAt = .now
+        try? context.save(); revision += 1
+    }
 
     // MARK: - Snippets (voice text-expansion shortcuts)
 
