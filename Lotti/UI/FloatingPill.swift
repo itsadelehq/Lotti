@@ -21,7 +21,7 @@ struct PillView: View {
             .buttonStyle(.plain)
 
             WaveformView(level: model.level)
-                .frame(width: 24, height: 54)
+                .frame(width: 24, height: 130)
 
             Button(action: onConfirm) {
                 Image(systemName: "checkmark")
@@ -47,22 +47,23 @@ final class PillModel: ObservableObject { @Published var level: Float = 0 }
 /// `level` updates are relatively infrequent.
 struct WaveformView: View {
     var level: Float
-    private let rows = 5
-    private let maxWidth: CGFloat = 22
+    private let rows = 13
+    private let maxWidth: CGFloat = 24
     // Per-bar phase offsets (radians) and rate multipliers so bars pulse at
-    // different speeds rather than moving in unison.
-    private let phases: [Double] = [0.0, 1.1, 2.3, 3.6, 4.8]
-    private let rates: [Double] = [2.4, 3.1, 2.7, 3.4, 2.9]
+    // different speeds rather than moving in unison. Generated to cover
+    // `rows` bars with varied phase/rate so no two bars move identically.
+    private let phases: [Double] = [0.0, 0.9, 1.8, 2.7, 3.6, 4.5, 5.4, 0.5, 1.4, 2.3, 3.2, 4.1, 5.0]
+    private let rates: [Double] = [2.4, 3.1, 2.7, 3.4, 2.9, 2.5, 3.3, 2.8, 3.0, 2.6, 3.5, 2.7, 3.2]
 
     var body: some View {
         TimelineView(.animation) { context in
             let t = context.date.timeIntervalSinceReferenceDate
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 ForEach(0..<rows, id: \.self) { i in
                     Capsule()
                         .fill(.white)
                         .opacity(opacity(for: i, t: t))
-                        .frame(width: width(for: i, t: t), height: 3)
+                        .frame(width: width(for: i, t: t), height: 1.6)
                 }
             }
             .frame(maxHeight: .infinity)
@@ -75,7 +76,7 @@ struct WaveformView: View {
     private func width(for i: Int, t: TimeInterval) -> CGFloat {
         let distanceFromCenter = abs(Double(i) - Double(rows - 1) / 2)
         let weight = 1.0 - distanceFromCenter / Double(rows) // 0.6...1.0
-        let base = 5.0
+        let base = 3.0
         let clampedLevel = Double(min(1, max(0, level)))
         let wobble = (sin(t * rates[i] + phases[i]) + 1) / 2 // 0...1
         let dynamic = clampedLevel * (Double(maxWidth) - base) * weight * (0.5 + 0.5 * wobble)
@@ -97,7 +98,7 @@ struct WaveformView: View {
 
     // Slim pill footprint.
     private let pillWidth: CGFloat = 40
-    private let pillHeight: CGFloat = 108
+    private let pillHeight: CGFloat = 184
 
     func show() {
         let host = NSHostingController(rootView: PillView(model: model,
