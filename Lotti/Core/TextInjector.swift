@@ -6,6 +6,7 @@ enum TextInjector {
         NSWorkspace.shared.frontmostApplication?.bundleIdentifier
     }
     static func paste(_ text: String) {
+        AppLog.log("TextInjector: pasting \(text.count) chars into \(frontmostAppBundleId() ?? "unknown")")
         let pb = NSPasteboard.general
         let saved = pb.string(forType: .string)
         pb.clearContents(); pb.setString(text, forType: .string)

@@ -48,6 +48,7 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
         let newTask = URLSession.shared.webSocketTask(with: req)
         queue.sync { task = newTask }
         newTask.resume()
+        AppLog.log("Deepgram: websocket opened (model=nova-2, 16k linear16)")
         receive()
     }
     private func receive() {
@@ -55,11 +56,17 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
         currentTask?.receive { [weak self] result in
             guard let self else { return }
             self.queue.async {
-                if case .success(let msg) = result {
+                switch result {
+                case .success(let msg):
                     if case .string(let s) = msg, let d = s.data(using: .utf8),
                        let parsed = DeepgramParser.transcript(from: d) {
+                        if parsed.isFinal {
+                            AppLog.log("Deepgram: FINAL transcript — \"\(parsed.text)\"")
+                        }
                         self.onTranscriptHandler?(parsed.text, parsed.isFinal)
                     }
+                case .failure(let error):
+                    AppLog.log("Deepgram: websocket error/closed — \(error.localizedDescription)")
                 }
             }
             if case .success = result {
@@ -75,5 +82,6 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
         let currentTask = queue.sync { task }
         currentTask?.send(.string(#"{"type":"CloseStream"}"#)) { _ in }
         currentTask?.cancel(with: .goingAway, reason: nil)
+        AppLog.log("Deepgram: websocket closed (finish)")
     }
 }

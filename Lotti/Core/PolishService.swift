@@ -32,7 +32,13 @@ struct PolishService {
         req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = PolishRequest.body(for: raw)
+        AppLog.log("Polish: request sent to Claude (\(raw.count) chars in)")
         let (data, _) = try await URLSession.shared.data(for: req)
-        return PolishRequest.text(fromResponse: data) ?? raw
+        if let polished = PolishRequest.text(fromResponse: data) {
+            AppLog.log("Polish: response received (\(polished.count) chars out)")
+            return polished
+        }
+        AppLog.log("Polish: no text in response — falling back to raw transcript")
+        return raw
     }
 }

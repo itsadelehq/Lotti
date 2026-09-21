@@ -6,10 +6,16 @@ final class AudioCapture {
     var onLevel: ((Float) -> Void)?
     private let engine = AVAudioEngine()
     private var converter: AVAudioConverter?
+    private var didLogFirstBuffer = false
     private let targetFormat = AVAudioFormat(
         commonFormat: .pcmFormatInt16, sampleRate: 16000, channels: 1, interleaved: true)!
 
     func start() throws {
+        // Surface a denied/undetermined mic so it doesn't silently fail.
+        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        if status != .authorized {
+            AppLog.log("AudioCapture: microphone NOT authorized (status=\(status.rawValue)) — capture will produce no audio. Grant it in Settings → Permissions / System Settings → Privacy → Microphone.")
+        }
         let input = engine.inputNode
         let inFormat = input.outputFormat(forBus: 0)
         converter = AVAudioConverter(from: inFormat, to: targetFormat)
@@ -17,7 +23,13 @@ final class AudioCapture {
             self?.process(buf)
         }
         engine.prepare()
-        try engine.start()
+        do {
+            try engine.start()
+            AppLog.log("AudioCapture: engine started (input \(Int(inFormat.sampleRate))Hz → 16k PCM)")
+        } catch {
+            AppLog.log("AudioCapture: engine.start() FAILED — \(error.localizedDescription)")
+            throw error
+        }
     }
     private func process(_ buffer: AVAudioPCMBuffer) {
         guard let converter else { return }
@@ -32,6 +44,10 @@ final class AudioCapture {
         }
         if let ch = out.int16ChannelData, out.frameLength > 0 {
             let data = Data(bytes: ch[0], count: Int(out.frameLength) * 2)
+            if !didLogFirstBuffer {
+                didLogFirstBuffer = true
+                AppLog.log("AudioCapture: first PCM buffer delivered (\(data.count) bytes)")
+            }
             onPCM?(data)
             // RMS level for waveform
             let n = Int(out.frameLength)
@@ -43,5 +59,6 @@ final class AudioCapture {
     func stop() {
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
+        didLogFirstBuffer = false
     }
 }
