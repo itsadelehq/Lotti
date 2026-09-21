@@ -19,9 +19,13 @@ struct PillView: View {
                     .background(Circle().fill(cancelGrey))
             }
             .buttonStyle(.plain)
+            // Nudge the ✕ down a few points so it isn't touching the top edge.
+            .padding(.top, 4)
 
+            // Waveform tightened by the same amount we inset the two buttons,
+            // so the pill's overall height is unchanged.
             WaveformView(level: model.level)
-                .frame(width: 24, height: 60)
+                .frame(width: 24, height: 52)
 
             Button(action: onConfirm) {
                 Image(systemName: "checkmark")
@@ -31,6 +35,8 @@ struct PillView: View {
                     .background(Circle().fill(.white))
             }
             .buttonStyle(.plain)
+            // Nudge the ✓ up a few points so it isn't touching the bottom edge.
+            .padding(.bottom, 4)
         }
         .padding(.vertical, 5)
         .frame(width: 40)
