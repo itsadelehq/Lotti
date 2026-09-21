@@ -60,6 +60,13 @@ struct SnippetsView: View {
         }
     }
 
+    // MARK: - Promo card shader preset
+
+    /// A fixed, tasteful warm/rich preset — reuses the same
+    /// `ShaderGradientView`/`ShaderPreset` machinery as the Dictation quote
+    /// banner, but pinned rather than rotated daily.
+    private static let promoShaderPreset = shaderPresets[0]
+
     private func addButton(title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -112,20 +119,23 @@ struct SnippetsView: View {
 
     private var promoCard: some View {
         ZStack(alignment: .topLeading) {
-            // Two soft blurred orbs, upper-right, for a warm grainy glow.
-            ZStack {
-                Circle()
-                    .fill(Color(red: 0.64, green: 0.60, blue: 0.45))
-                    .frame(width: 380, height: 380)
-                    .blur(radius: 80)
-                    .offset(x: 220, y: -140)
-                Circle()
-                    .fill(Color(red: 0.77, green: 0.73, blue: 0.62))
-                    .frame(width: 180, height: 180)
-                    .blur(radius: 55)
-                    .offset(x: 260, y: -60)
+            // Animated ShaderGradient background (same mechanism as the
+            // Dictation quote banner), only rendered when the bundled shader
+            // page is available. Non-interactive so it never steals clicks
+            // from the buttons/chips layered on top.
+            if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
+                ShaderGradientView(preset: Self.promoShaderPreset)
+            } else {
+                Color(red: 0.20, green: 0.20, blue: 0.18)
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+
+            // Dark scrim so the light title/subtitle/chips stay legible over
+            // the bright, high-contrast gradient.
+            LinearGradient(
+                colors: [.black.opacity(0.55), .black.opacity(0.35)],
+                startPoint: .leading,
+                endPoint: .trailing)
+            .allowsHitTesting(false)
 
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 10) {
@@ -294,9 +304,6 @@ struct SnippetsView: View {
                     .foregroundStyle(Color.figTextGrey)
 
                 VStack(spacing: 0) {
-                    formattingToolbar
-                    Rectangle().fill(Color.figBorder).frame(height: 0.5)
-
                     ZStack(alignment: .topLeading) {
                         if draftExpansion.isEmpty {
                             Text("What should it expand to?")
@@ -354,28 +361,6 @@ struct SnippetsView: View {
             }
         }
         .padding(24)
-    }
-
-    /// Non-functional formatting toolbar placeholders (B / I / bullets / link),
-    /// matching the Figma expansion-editor chrome.
-    private var formattingToolbar: some View {
-        HStack(spacing: 4) {
-            toolbarIcon("bold")
-            toolbarIcon("italic")
-            toolbarIcon("list.bullet")
-            toolbarIcon("link")
-            Spacer()
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-    }
-
-    private func toolbarIcon(_ system: String) -> some View {
-        Image(systemName: system)
-            .font(.system(size: 12, weight: .medium))
-            .foregroundStyle(Color.figTextGrey)
-            .frame(width: 26, height: 26)
-            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.clear))
     }
 
     // MARK: - Actions
