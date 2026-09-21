@@ -103,12 +103,15 @@ import Foundation
         // paste the smart-formatted Deepgram text directly (near-instant path,
         // ~350ms instead of ~1.4s for the Haiku round trip).
         let polishEnabled = UserDefaults.standard.bool(forKey: "polishEnabled")
-        let polished: String
+        var polished: String
         if polishEnabled, let polisher = makePolish() {
             polished = (try? await polisher.polish(raw)) ?? raw
         } else {
             polished = raw
         }
+        // Expand saved snippets LAST — after any polish — so URLs/expansions
+        // are inserted verbatim and never altered by Haiku.
+        polished = Self.expandSnippets(in: polished, snippets: store.snippets())
         let polishAt = Date()
         AppLog.log(String(format: "[Lotti] timing lastFinal→haiku: %.0fms",
                           polishAt.timeIntervalSince(lastFinalAt) * 1000))
@@ -124,6 +127,41 @@ import Foundation
             appBundleId: targetApp, durationSeconds: duration))
         let words = polished.split(whereSeparator: { $0 == " " || $0 == "\n" }).count
         AppLog.log("Coordinator.end: saved dictation (\(words) words)")
+    }
+
+    /// Replaces any spoken snippet NAME occurrences in `text` with the
+    /// snippet's EXPANSION. Case-insensitive, whole-phrase (word-boundary
+    /// aware) matching so "my LinkedIn" matches "send my LinkedIn please"
+    /// but not a substring of another word. Longer names are applied first
+    /// to avoid partial overlaps, and trailing punctuation on the spoken name
+    /// is tolerated (Deepgram may append a period).
+    static func expandSnippets(in text: String, snippets: [Snippet]) -> String {
+        var result = text
+        // Longest names first so "my LinkedIn page" wins over "my LinkedIn".
+        let sorted = snippets
+            .map { (name: $0.name.trimmingCharacters(in: .whitespacesAndNewlines), expansion: $0.expansion) }
+            .filter { !$0.name.isEmpty }
+            .sorted { $0.name.count > $1.name.count }
+
+        for snippet in sorted {
+            // Strip trailing punctuation the speaker's name shouldn't include,
+            // then escape for a literal regex match. Allow optional trailing
+            // punctuation (e.g. a Deepgram period) after the matched phrase.
+            let cleanName = snippet.name.trimmingCharacters(in: CharacterSet(charactersIn: " .,!?;:"))
+            guard !cleanName.isEmpty else { continue }
+            let escaped = NSRegularExpression.escapedPattern(for: cleanName)
+            // (?<![\w]) / (?![\w]) are word boundaries that also work when the
+            // phrase contains spaces (unlike \b at both ends).
+            let pattern = "(?<![\\p{L}\\p{N}])\(escaped)[.,!?;:]*(?![\\p{L}\\p{N}])"
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            let range = NSRange(result.startIndex..., in: result)
+            let matchCount = regex.numberOfMatches(in: result, options: [], range: range)
+            guard matchCount > 0 else { continue }
+            let template = NSRegularExpression.escapedTemplate(for: snippet.expansion)
+            result = regex.stringByReplacingMatches(in: result, options: [], range: range, withTemplate: template)
+            AppLog.log("[Lotti] snippet expanded: \"\(cleanName)\"")
+        }
+        return result
     }
 
     /// Poll briefly for a late final transcript to land after `finalize()`.
