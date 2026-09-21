@@ -100,7 +100,8 @@ struct RootView: View {
                 .padding(.top, 4)
                 .padding(.bottom, 12)
             }
-            .background(Color.appSidebarBg)
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
             .frame(minWidth: 230, idealWidth: 230)
         } detail: {
             Group {
