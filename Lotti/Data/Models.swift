@@ -29,10 +29,14 @@ import SwiftData
     var body: String
     var createdAt: Date
     var updatedAt: Date
+    /// `false` for Notetaker notes, `true` for Scratchpad notes. Both share the
+    /// same model and editor; this flag routes them into the right list.
+    var isScratch: Bool = false
 
     init(id: UUID = UUID(), title: String = "", body: String = "",
-         createdAt: Date = .now, updatedAt: Date = .now) {
+         isScratch: Bool = false, createdAt: Date = .now, updatedAt: Date = .now) {
         self.id = id; self.title = title; self.body = body
+        self.isScratch = isScratch
         self.createdAt = createdAt; self.updatedAt = updatedAt
     }
 }

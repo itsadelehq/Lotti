@@ -21,15 +21,19 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
 
     // MARK: - Notes (Notetaker)
 
-    /// All notes, newest first (by last-updated time).
-    func notes() -> [Note] {
-        (try? context.fetch(FetchDescriptor<Note>(
+    /// Notes for a given surface, newest first (by last-updated time).
+    /// `scratch == false` are Notetaker notes; `scratch == true` are Scratchpad notes.
+    func notes(scratch: Bool = false) -> [Note] {
+        let predicate = #Predicate<Note> { $0.isScratch == scratch }
+        return (try? context.fetch(FetchDescriptor<Note>(
+            predicate: predicate,
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]))) ?? []
     }
-    /// Creates an empty "Untitled" note and returns it so the caller can open it.
+    /// Creates an empty note (Notetaker or Scratchpad) and returns it so the
+    /// caller can open it in the shared editor.
     @discardableResult
-    func addNote() -> Note {
-        let n = Note(title: "", body: "")
+    func addNote(scratch: Bool = false) -> Note {
+        let n = Note(title: "", body: "", isScratch: scratch)
         context.insert(n)
         try? context.save(); revision += 1
         return n
