@@ -266,35 +266,43 @@ struct NotetakerView: View {
     }
 
     private func noteRow(_ note: Note) -> some View {
-        Button(action: { selected = note }) {
-            HStack(spacing: 12) {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(Color.appBg)
-                    .frame(width: 38, height: 38)
-                    .overlay(
-                        Image(systemName: "note.text")
-                            .font(.system(size: 15))
-                            .foregroundStyle(Color.figTextGrey)
-                    )
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(note.title.isEmpty ? "Untitled" : note.title)
-                        .font(.gsMedium(15))
-                        .foregroundStyle(Color.figTextPrimary)
-                        .lineLimit(1)
-                    Text("\(timeString(note.createdAt)) · Generate summary")
-                        .font(.gsRegular(12))
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.appBg)
+                .frame(width: 38, height: 38)
+                .overlay(
+                    Image(systemName: "note.text")
+                        .font(.system(size: 15))
                         .foregroundStyle(Color.figTextGrey)
-                }
-                Spacer()
+                )
+            VStack(alignment: .leading, spacing: 3) {
+                Text(note.title.isEmpty ? "Untitled" : note.title)
+                    .font(.gsMedium(15))
+                    .foregroundStyle(Color.figTextPrimary)
+                    .lineLimit(1)
+                Text("\(timeString(note.createdAt)) · Generate summary")
+                    .font(.gsRegular(12))
+                    .foregroundStyle(Color.figTextGrey)
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(hoveredRow == note.id ? Color.figNavHoverBg.opacity(0.5) : Color.figCardFill)
-            )
-            .contentShape(Rectangle())
+            Spacer()
+            Button(action: { store.deleteNote(note) }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.figTextGrey)
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(Color.appBg))
+            }
+            .buttonStyle(.plain)
+            .help("Delete note")
+            .opacity(hoveredRow == note.id ? 1 : 0)
         }
-        .buttonStyle(.plain)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(hoveredRow == note.id ? Color.figNavHoverBg.opacity(0.5) : Color.figCardFill)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture { selected = note }
         .onHover { hoveredRow = $0 ? note.id : (hoveredRow == note.id ? nil : hoveredRow) }
     }
 
