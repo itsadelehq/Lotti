@@ -42,13 +42,19 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
             .init(name: "sample_rate", value: "16000"),
             .init(name: "interim_results", value: "true"),
             .init(name: "language", value: "en"),
+            // Smart formatting + punctuation make the RAW transcript already
+            // well-punctuated and capitalised, so Haiku only lightly corrects
+            // (better accuracy, less work). Endpointing finalizes utterances fast.
+            .init(name: "smart_format", value: "true"),
+            .init(name: "punctuate", value: "true"),
+            .init(name: "endpointing", value: "true"),
         ]
         var req = URLRequest(url: comps.url!)
         req.setValue("Token \(apiKey)", forHTTPHeaderField: "Authorization")
         let newTask = URLSession.shared.webSocketTask(with: req)
         queue.sync { task = newTask }
         newTask.resume()
-        AppLog.log("Deepgram: websocket opened (model=nova-2, 16k linear16)")
+        AppLog.log("Deepgram: websocket opened (model=nova-2, 16k linear16, smart_format+punctuate+endpointing)")
         receive()
     }
     private func receive() {
@@ -77,11 +83,20 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
     func send(_ pcm: Data) {
         queue.sync { task }?.send(.data(pcm)) { _ in }
     }
-    func finish() async {
-        // Deepgram closes on a zero-length frame + CloseStream message
+    /// Flush buffered audio so Deepgram emits any pending final transcript
+    /// immediately, WITHOUT closing the socket. Non-blocking.
+    func finalize() {
+        queue.sync { task }?.send(.string(#"{"type":"Finalize"}"#)) { _ in }
+        AppLog.log("Deepgram: sent Finalize (flush)")
+    }
+    /// Tear down the socket in the background — nothing awaits this on the
+    /// paste path, so the WS close handshake never adds to perceived latency.
+    func close() {
         let currentTask = queue.sync { task }
+        queue.async { self.task = nil }
         currentTask?.send(.string(#"{"type":"CloseStream"}"#)) { _ in }
         currentTask?.cancel(with: .goingAway, reason: nil)
-        AppLog.log("Deepgram: websocket closed (finish)")
+        AppLog.log("Deepgram: websocket closed (background)")
     }
+    func finish() async { close() }
 }

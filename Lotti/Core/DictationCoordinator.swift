@@ -69,26 +69,69 @@ import Foundation
     }
 
     func end(cancelled: Bool) async {
+        let keyUp = Date()
         audio?.stop()
-        await engine?.finish()
+        let e = engine
+        defer { engine = nil; audio = nil }
+
         Sounds.playEnd()
         pill?.hide()
-        defer { engine = nil; audio = nil }
+
         if cancelled {
+            e?.close() // background teardown, not awaited
             AppLog.log("Coordinator.end: cancelled — nothing saved")
             return
         }
+
+        // Flush Deepgram so it emits any last final transcript, then wait only
+        // a short bounded window for it — do NOT block on the WS close handshake.
+        e?.finalize()
+        await waitForFinalizedTranscript(maxWait: 0.30)
+        let lastFinalAt = Date()
+        // Close the socket in the background; the paste path never awaits it.
+        e?.close()
+
         let raw = finals.joined(separator: " ")
+        AppLog.log(String(format: "[Lotti] timing keyUp→lastFinal: %.0fms",
+                          lastFinalAt.timeIntervalSince(keyUp) * 1000))
         guard !raw.isEmpty else {
             AppLog.log("Coordinator.end: empty transcript — nothing saved")
             return
         }
-        let polished = (try? await makePolish()?.polish(raw)) ?? raw
+
+        // Polish with Haiku when available; otherwise paste the smart-formatted
+        // Deepgram text directly (near-instant path).
+        let polished: String
+        if let polisher = makePolish() {
+            polished = (try? await polisher.polish(raw)) ?? raw
+        } else {
+            polished = raw
+        }
+        let polishAt = Date()
+        AppLog.log(String(format: "[Lotti] timing lastFinal→haiku: %.0fms",
+                          polishAt.timeIntervalSince(lastFinalAt) * 1000))
+
         if inject { TextInjector.paste(polished) }
+        let pasteAt = Date()
+        AppLog.log(String(format: "[Lotti] timing haiku→pasted: %.0fms | total keyUp→pasted: %.0fms",
+                          pasteAt.timeIntervalSince(polishAt) * 1000,
+                          pasteAt.timeIntervalSince(keyUp) * 1000))
+
         let duration = startedAt.map { Date().timeIntervalSince($0) } ?? 0
         store.add(Dictation(rawText: raw, polishedText: polished,
             appBundleId: targetApp, durationSeconds: duration))
         let words = polished.split(whereSeparator: { $0 == " " || $0 == "\n" }).count
         AppLog.log("Coordinator.end: saved dictation (\(words) words)")
+    }
+
+    /// Poll briefly for a late final transcript to land after `finalize()`.
+    /// Returns as soon as `finals` grows, or after `maxWait` seconds.
+    private func waitForFinalizedTranscript(maxWait: TimeInterval) async {
+        let deadline = Date().addingTimeInterval(maxWait)
+        let before = finals.count
+        while Date() < deadline {
+            try? await Task.sleep(nanoseconds: 20_000_000) // 20ms
+            if finals.count > before { return }
+        }
     }
 }
