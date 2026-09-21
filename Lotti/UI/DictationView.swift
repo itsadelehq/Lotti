@@ -201,7 +201,7 @@ struct DictationView: View {
 
     private var rightRail: some View {
         VStack(alignment: .leading, spacing: 14) {
-            statRow(value: "\(stats.totalWords)", label: "total words")
+            statRow(value: Self.compact(stats.totalWords), label: "total words")
             statRow(value: "\(stats.wpm)", label: "wpm")
             statRow(value: "\(stats.currentStreak)", label: "day streak")
         }
@@ -215,6 +215,18 @@ struct DictationView: View {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(Color.figBorder, lineWidth: 0.5)
         )
+    }
+
+    /// Compact word count like Wispr: 229757 -> "229.8K", 1_200_000 -> "1.2M".
+    static func compact(_ n: Int) -> String {
+        switch n {
+        case 1_000_000...:
+            return String(format: "%.1fM", Double(n) / 1_000_000)
+        case 1_000...:
+            return String(format: "%.1fK", Double(n) / 1_000)
+        default:
+            return "\(n)"
+        }
     }
 
     private func statRow(value: String, label: String) -> some View {
