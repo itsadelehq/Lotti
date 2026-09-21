@@ -43,23 +43,23 @@ extension Color {
     static let appInsightCard = Color(hex: 0xF7F5F2)   // card fill (Figma)
     static let appGaugeTrack = Color(hex: 0xE4E3DD)    // gauge / bar track
 
-    // Periwinkle / light-purple Insights palette (from Figma).
-    static let figPeriwinkleStrong = Color(hex: 0x2640FF) // top usage bar
-    static let figPeriwinkleMed    = Color(hex: 0x6E7DFF) // gauge arc / heatmap high
-    static let figPeriwinkleLight  = Color(hex: 0x8FB0FF) // lower usage bars
-    static let figPeriwinkleFaint  = Color(hex: 0xB8BCFF) // heatmap low
+    // Cohesive two-tone periwinkle Insights palette (from Figma).
+    static let figPeriwinkleStrong = Color(hex: 0x6A7EFF) // WPM arc / top usage bar / strong heatmap
+    static let figPeriwinkleMed    = Color(hex: 0x6A7EFF) // gauge arc (alias of strong)
+    static let figPeriwinkleLight  = Color(hex: 0xB6BEFF) // lower usage bars / lower-intensity heatmap
+    static let figPeriwinkleFaint  = Color(hex: 0xB6BEFF) // heatmap low (alias of light)
     static let figLilac            = Color(hex: 0xEBD6FF) // accent cells
     static let figHeatEmpty        = Color(hex: 0xC9C7BF) // empty heatmap cell
     static let figHeatFuture       = Color(hex: 0xF0F0EB) // future / no-data cell
     static let figChipYellow       = Color(hex: 0xFFEB9C) // "% this month" chip
 
-    /// Heatmap intensity scale: periwinkle with warm-grey empties.
+    /// Heatmap intensity scale: cohesive two-tone periwinkle with warm-grey empties.
     static let heatmapMixed: [Color] = [
         Color(hex: 0xC9C7BF), // empty / none (warm grey)
-        Color(hex: 0xB8BCFF), // low (light periwinkle)
-        Color(hex: 0x9199FF), // med
-        Color(hex: 0x6E7DFF), // high (strong periwinkle)
-        Color(hex: 0x2640FF), // max
+        Color(hex: 0xB6BEFF), // low (light periwinkle)
+        Color(hex: 0xB6BEFF), // med (light periwinkle)
+        Color(hex: 0x6A7EFF), // high (strong periwinkle)
+        Color(hex: 0x6A7EFF), // max (strong periwinkle)
     ]
 }
 

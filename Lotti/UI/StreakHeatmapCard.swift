@@ -73,21 +73,30 @@ struct StreakHeatmapCard: View {
                 }
             }
 
-            // Month labels row with chevrons.
+            // Month labels row with chevrons, evenly distributed above each
+            // month's column of the grid (rather than packed to the left).
             HStack(spacing: 6) {
                 Image(systemName: "chevron.left").font(.system(size: 9)).foregroundStyle(Color.appTextSecondary)
-                HStack(alignment: .top, spacing: 0) {
-                    // Spacer to align with the day-label gutter.
-                    Color.clear.frame(width: 30)
-                    ForEach(Array(monthLabels.enumerated()), id: \.offset) { _, label in
-                        Text(label)
-                            .font(.gsMedium(10))
-                            .foregroundStyle(labelGrey)
-                            .lineLimit(1)
-                            .fixedSize()
-                            .frame(width: cell + gap, alignment: .leading)
+                // Align with the day-label gutter, then lay out the grid width.
+                Color.clear.frame(width: 30)
+                GeometryReader { geo in
+                    ZStack(alignment: .topLeading) {
+                        ForEach(Array(monthLabels.enumerated()), id: \.offset) { idx, label in
+                            if !label.isEmpty {
+                                Text(label)
+                                    .font(.gsMedium(10))
+                                    .foregroundStyle(labelGrey)
+                                    .lineLimit(1)
+                                    .fixedSize()
+                                    .position(
+                                        x: (CGFloat(idx) + 0.5) / CGFloat(weeks) * geo.size.width,
+                                        y: 6
+                                    )
+                            }
+                        }
                     }
                 }
+                .frame(height: 12)
                 Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(Color.appTextSecondary)
             }
 

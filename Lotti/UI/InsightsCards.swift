@@ -42,9 +42,11 @@ struct WpmGaugeCard: View {
                 .frame(height: 96)
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .insightCardStyle()
+        .frame(width: 230, height: 216)
     }
 }
 
@@ -107,9 +109,11 @@ struct FixesCard: View {
                 subRow(value: dictionaryFixes, label: "dictionary fixes")
             }
             .padding(.top, 14)
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .insightCardStyle()
+        .frame(width: 210, height: 216)
     }
 
     private func subRow(value: Int, label: String) -> some View {
@@ -162,9 +166,12 @@ struct TotalWordsCard: View {
                     )
             }
             .padding(.top, 14)
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .insightCardStyle()
+        .frame(maxWidth: .infinity)
+        .frame(height: 216)
     }
 }
 
