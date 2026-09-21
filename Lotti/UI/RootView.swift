@@ -60,6 +60,7 @@ struct RootView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(ToastView())
         .background(WindowAccessor())
         .onAppear { AppFonts.register() }
     }

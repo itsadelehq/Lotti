@@ -15,6 +15,7 @@ final class AudioCapture {
         let status = AVCaptureDevice.authorizationStatus(for: .audio)
         if status != .authorized {
             AppLog.log("AudioCapture: microphone NOT authorized (status=\(status.rawValue)) — capture will produce no audio. Grant it in Settings → Permissions / System Settings → Privacy → Microphone.")
+            Toaster.shared.error("Microphone access is off — enable it in System Settings → Privacy.")
         }
         let input = engine.inputNode
         let inFormat = input.outputFormat(forBus: 0)

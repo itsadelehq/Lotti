@@ -53,13 +53,28 @@ struct SummaryService {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = SummaryRequest.body(for: text)
         AppLog.log("summary: request sent to Claude (\(text.count) chars in)")
-        let (data, _) = try await URLSession.shared.data(for: req)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: req)
+        } catch {
+            AppLog.log("summary: request error — \(error.localizedDescription)")
+            Toaster.shared.error("AI request failed — check your Anthropic key or connection.")
+            throw error
+        }
+        if let http = response as? HTTPURLResponse, http.statusCode != 200 {
+            AppLog.log("summary: non-200 (\(http.statusCode))")
+            Toaster.shared.error("AI request failed — check your Anthropic key or connection.")
+            throw NSError(domain: "SummaryService", code: http.statusCode,
+                          userInfo: [NSLocalizedDescriptionKey: "Summary request failed"])
+        }
         if let summary = SummaryRequest.text(fromResponse: data)?
             .trimmingCharacters(in: .whitespacesAndNewlines), !summary.isEmpty {
             AppLog.log("summary: response received (\(summary.count) chars out)")
             return summary
         }
         AppLog.log("summary: no text in response")
+        Toaster.shared.error("AI request failed — check your Anthropic key or connection.")
         throw NSError(domain: "SummaryService", code: 1,
                       userInfo: [NSLocalizedDescriptionKey: "No summary returned"])
     }

@@ -42,6 +42,7 @@ import Foundation
             // Still show the pill (already shown) so the user gets feedback, but
             // don't start the engine — there's nothing to transcribe with.
             AppLog.log("No Deepgram key — open Settings → Keys. Skipping transcription engine.")
+            Toaster.shared.error("Add your Deepgram key in Settings → Keys")
         }
 
         if hasKey {

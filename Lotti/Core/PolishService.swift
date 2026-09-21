@@ -54,12 +54,24 @@ struct PolishService {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = PolishRequest.body(for: raw)
         AppLog.log("Polish: request sent to Claude (\(raw.count) chars in)")
-        let (data, _) = try await URLSession.shared.data(for: req)
-        if let polished = PolishRequest.text(fromResponse: data) {
-            AppLog.log("Polish: response received (\(polished.count) chars out)")
-            return polished
+        do {
+            let (data, response) = try await URLSession.shared.data(for: req)
+            if let http = response as? HTTPURLResponse, http.statusCode != 200 {
+                AppLog.log("Polish: non-200 (\(http.statusCode)) — falling back to raw transcript")
+                Toaster.shared.error("AI request failed — check your Anthropic key or connection.")
+                return raw
+            }
+            if let polished = PolishRequest.text(fromResponse: data) {
+                AppLog.log("Polish: response received (\(polished.count) chars out)")
+                return polished
+            }
+            AppLog.log("Polish: no text in response — falling back to raw transcript")
+            Toaster.shared.error("AI request failed — check your Anthropic key or connection.")
+            return raw
+        } catch {
+            AppLog.log("Polish: request error — \(error.localizedDescription) — falling back to raw transcript")
+            Toaster.shared.error("AI request failed — check your Anthropic key or connection.")
+            return raw
         }
-        AppLog.log("Polish: no text in response — falling back to raw transcript")
-        return raw
     }
 }
