@@ -10,11 +10,47 @@ struct StreakHeatmapCard: View {
     private let gap: CGFloat = 6
     private let labelGrey = Color(hex: 0x707070)
 
-    private var wordsPerDay: [Date: Int] {
+    /// Per-day word totals, computed once at init (not per render / per cell).
+    private let wordsPerDay: [Date: Int]
+    /// Quartile activity level (1...4) for each active day, computed once at
+    /// init from `wordsPerDay` so `colorFor` is a cheap O(1) lookup instead of
+    /// recomputing buckets on every cell of every render.
+    private let cellLevels: [Date: Int]
+
+    init(items: [Dictation], longestStreak: Int, currentStreak: Int = 0) {
+        self.items = items
+        self.longestStreak = longestStreak
+        self.currentStreak = currentStreak
+
         let cal = Calendar.current
-        var m: [Date: Int] = [:]
-        for item in items { m[cal.startOfDay(for: item.createdAt), default: 0] += item.wordCount }
-        return m
+        var perDay: [Date: Int] = [:]
+        for item in items { perDay[cal.startOfDay(for: item.createdAt), default: 0] += item.wordCount }
+        self.wordsPerDay = perDay
+        self.cellLevels = Self.computeLevels(from: perDay)
+    }
+
+    /// Buckets each active day's word count into quartiles (1 = lowest
+    /// activity ... 4 = highest), computed once and reused for every cell.
+    private static func computeLevels(from wordsPerDay: [Date: Int]) -> [Date: Int] {
+        let activeCounts = wordsPerDay.values.filter { $0 > 0 }.sorted()
+        guard !activeCounts.isEmpty else { return [:] }
+
+        func threshold(_ p: Double) -> Int {
+            let idx = min(activeCounts.count - 1, Int(Double(activeCounts.count) * p))
+            return activeCounts[idx]
+        }
+        let q1 = threshold(0.25), q2 = threshold(0.5), q3 = threshold(0.75)
+
+        var levels: [Date: Int] = [:]
+        for (date, n) in wordsPerDay where n > 0 {
+            let level: Int
+            if n <= q1 { level = 1 }
+            else if n <= q2 { level = 2 }
+            else if n <= q3 { level = 3 }
+            else { level = 4 }
+            levels[date] = level
+        }
+        return levels
     }
 
     /// `weeks` columns x 7 rows (Sun...Sat), oldest first, ending this week.
@@ -44,18 +80,15 @@ struct StreakHeatmapCard: View {
     private func colorFor(_ date: Date) -> Color {
         // Future / no-data days render in a faint warm off-white.
         if date > Calendar.current.startOfDay(for: .now) { return .figHeatFuture }
-        let n = wordsPerDay[date] ?? 0
+        guard let level = cellLevels[date] else { return .figHeatEmpty }
         // Occasional light-purple accent cells among active days, for variety.
-        if n > 0 {
-            let day = Calendar.current.component(.day, from: date)
-            if day % 11 == 0 { return .figLilac }
-        }
-        switch n {
-        case 0: return .figHeatEmpty
-        case 1..<60: return .heatmapMixed[1]
-        case 60..<160: return .heatmapMixed[2]
-        case 160..<340: return .heatmapMixed[3]
-        default: return .heatmapMixed[4]
+        let day = Calendar.current.component(.day, from: date)
+        if day % 11 == 0 { return .figLilac }
+        switch level {
+        case 1: return .figPeriwinkle1
+        case 2: return .figPeriwinkle2
+        case 3: return .figPeriwinkle3
+        default: return .figPeriwinkle4
         }
     }
 
@@ -124,8 +157,8 @@ struct StreakHeatmapCard: View {
             // Legend.
             HStack(spacing: 6) {
                 Text("More").font(.gsRegular(11)).foregroundStyle(Color.appTextSecondary)
-                ForEach((0..<5).reversed(), id: \.self) { i in
-                    RoundedRectangle(cornerRadius: 2).fill(Color.heatmapMixed[i]).frame(width: 11, height: 11)
+                ForEach(Array(Color.heatmapLegend.enumerated()), id: \.offset) { _, color in
+                    RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 11, height: 11)
                 }
                 Text("Less").font(.gsRegular(11)).foregroundStyle(Color.appTextSecondary)
                 Spacer()

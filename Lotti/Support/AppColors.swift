@@ -43,23 +43,31 @@ extension Color {
     static let appInsightCard = Color(hex: 0xF7F5F2)   // card fill (Figma)
     static let appGaugeTrack = Color(hex: 0xE4E3DD)    // gauge / bar track
 
-    // Cohesive two-tone periwinkle Insights palette (from Figma).
-    static let figPeriwinkleStrong = Color(hex: 0x6A7EFF) // WPM arc / top usage bar / strong heatmap
-    static let figPeriwinkleMed    = Color(hex: 0x6A7EFF) // gauge arc (alias of strong)
-    static let figPeriwinkleLight  = Color(hex: 0xB6BEFF) // lower usage bars / lower-intensity heatmap
-    static let figPeriwinkleFaint  = Color(hex: 0xB6BEFF) // heatmap low (alias of light)
+    // Four-level graduated periwinkle Insights palette (from Figma).
+    static let figPeriwinkle1 = Color(hex: 0xB6BEFF) // level 1 (lowest activity)
+    static let figPeriwinkle2 = Color(hex: 0x9DA9FF) // level 2
+    static let figPeriwinkle3 = Color(hex: 0x8393FF) // level 3
+    static let figPeriwinkle4 = Color(hex: 0x6A7EFF) // level 4 (highest activity) / WPM arc / top usage bar
+
+    // Legacy aliases kept for call sites that reference the two-tone naming.
+    static let figPeriwinkleStrong = figPeriwinkle4 // WPM arc / top usage bar / strong heatmap
+    static let figPeriwinkleMed    = figPeriwinkle4 // gauge arc (alias of strong)
+    static let figPeriwinkleLight  = figPeriwinkle1 // lower usage bars / lower-intensity heatmap
+    static let figPeriwinkleFaint  = figPeriwinkle1 // heatmap low (alias of light)
     static let figLilac            = Color(hex: 0xEBD6FF) // accent cells
     static let figHeatEmpty        = Color(hex: 0xC9C7BF) // empty heatmap cell
     static let figHeatFuture       = Color(hex: 0xF0F0EB) // future / no-data cell
     static let figChipYellow       = Color(hex: 0xFFEB9C) // "% this month" chip
 
-    /// Heatmap intensity scale: cohesive two-tone periwinkle with warm-grey empties.
-    static let heatmapMixed: [Color] = [
-        Color(hex: 0xC9C7BF), // empty / none (warm grey)
-        Color(hex: 0xB6BEFF), // low (light periwinkle)
-        Color(hex: 0xB6BEFF), // med (light periwinkle)
-        Color(hex: 0x6A7EFF), // high (strong periwinkle)
-        Color(hex: 0x6A7EFF), // max (strong periwinkle)
+    /// Heatmap intensity scale, dark (most active) to light, plus the empty grey.
+    /// Index 0 = highest activity (figPeriwinkle4) ... index 3 = lowest (figPeriwinkle1),
+    /// index 4 = no-activity grey. Used for the legend ("More" -> "Less").
+    static let heatmapLegend: [Color] = [
+        figPeriwinkle4,
+        figPeriwinkle3,
+        figPeriwinkle2,
+        figPeriwinkle1,
+        figHeatEmpty,
     ]
 }
 

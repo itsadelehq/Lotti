@@ -38,45 +38,53 @@ struct WpmGaugeCard: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(wpm)").font(.gsBold(46)).foregroundStyle(Color.appTextPrimary)
             CardLabel(text: "WORDS PER MINUTE", info: true)
-            HalfGauge(fraction: fraction, centerText: "Top \(topPercent)%")
-                .frame(height: 96)
+            HalfGauge(fraction: fraction, centerText: "Top \(topPercent)%", strokeWidth: 11)
+                .frame(width: 128, height: 64)
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .insightCardStyle()
-        .frame(width: 230, height: 216)
+        .frame(width: 230, height: InsightsCardMetrics.topRowHeight, alignment: .top)
     }
+}
+
+/// Shared fixed height for the three top-row "Your usage" cards, so their
+/// tops and bottoms line up regardless of each card's internal content.
+enum InsightsCardMetrics {
+    static let topRowHeight: CGFloat = 216
 }
 
 struct HalfGauge: View {
     var fraction: Double
     var centerText: String
+    var strokeWidth: CGFloat = 14
     var body: some View {
         GeometryReader { geo in
             let w = geo.size.width
             let h = geo.size.height
-            let radius = min(w / 2, h) - 8
+            let inset = strokeWidth / 2 + 2
+            let radius = min(w / 2, h) - inset
             let center = CGPoint(x: w / 2, y: h)
             let endAngle = Angle.degrees(180 + 180 * min(1, fraction))
             ZStack {
-                GaugeArc(fraction: 1)
-                    .stroke(Color.appGaugeTrack, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                GaugeArc(fraction: min(1, fraction))
-                    .stroke(Color.figPeriwinkleMed, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                GaugeArc(fraction: 1, inset: inset)
+                    .stroke(Color.appGaugeTrack, style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
+                GaugeArc(fraction: min(1, fraction), inset: inset)
+                    .stroke(Color.figPeriwinkleMed, style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
                 // Small grey knob at the arc end.
                 Circle()
                     .fill(Color(hex: 0xBFBEB6))
-                    .frame(width: 10, height: 10)
+                    .frame(width: strokeWidth * 0.7, height: strokeWidth * 0.7)
                     .position(
                         x: center.x + radius * CGFloat(cos(endAngle.radians)),
                         y: center.y + radius * CGFloat(sin(endAngle.radians))
                     )
                 Text(centerText)
-                    .font(.gsBold(15))
+                    .font(.gsBold(13))
                     .foregroundStyle(Color.appTextPrimary)
-                    .position(x: w / 2, y: h - 14)
+                    .position(x: w / 2, y: h - 10)
             }
         }
     }
@@ -84,10 +92,11 @@ struct HalfGauge: View {
 
 struct GaugeArc: Shape {
     var fraction: Double
+    var inset: CGFloat = 8
     func path(in rect: CGRect) -> Path {
         var p = Path()
         let center = CGPoint(x: rect.midX, y: rect.maxY)
-        let radius = min(rect.width / 2, rect.height) - 8
+        let radius = min(rect.width / 2, rect.height) - inset
         p.addArc(center: center, radius: radius, startAngle: .degrees(180),
                   endAngle: .degrees(180 + 180 * fraction), clockwise: false)
         return p
@@ -113,7 +122,7 @@ struct FixesCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .insightCardStyle()
-        .frame(width: 210, height: 216)
+        .frame(width: 210, height: InsightsCardMetrics.topRowHeight, alignment: .top)
     }
 
     private func subRow(value: Int, label: String) -> some View {
@@ -164,7 +173,7 @@ struct TotalWordsCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .insightCardStyle()
         .frame(maxWidth: .infinity)
-        .frame(height: 216)
+        .frame(height: InsightsCardMetrics.topRowHeight, alignment: .top)
     }
 }
 
@@ -232,7 +241,7 @@ struct DesktopUsageCard: View {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.appGaugeTrack)
-                        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.figPeriwinkleStrong)
+                        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.figPeriwinkle4)
                             .frame(width: max(60, geo.size.width * widthFraction))
                             .overlay(alignment: .leading) {
                                 Text("\(pct)%")
@@ -253,7 +262,7 @@ struct DesktopUsageCard: View {
                     .font(.gsBold(12))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12).padding(.vertical, 7)
-                    .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.figPeriwinkleLight))
+                    .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.figPeriwinkle1))
                 Text("\(bigNumber(words)) \(noun(for: cat))")
                     .font(.gsMedium(11))
                     .foregroundStyle(Color.appTextSecondary)
