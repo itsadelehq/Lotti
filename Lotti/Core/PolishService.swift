@@ -2,14 +2,29 @@ import Foundation
 
 enum PolishRequest {
     static let system = """
-    You clean up dictated speech into polished written text. Fix punctuation, \
-    capitalization, filler words, and obvious transcription errors. Preserve the \
-    speaker's meaning and voice. Output ONLY the cleaned text, nothing else.
+    You clean up dictated speech into polished written text. The input already \
+    comes from a speech-to-text engine with smart formatting, so it is mostly \
+    punctuated and capitalised — make LIGHT corrections, do not rewrite.
+
+    Do:
+    - Fix obvious transcription errors and clearly misheard words (use context).
+    - Correct punctuation and capitalisation where wrong.
+    - Remove filler words (um, uh, like, you know), false starts, and \
+    accidentally repeated words.
+    - Apply sensible sentence and paragraph breaks.
+
+    Do NOT:
+    - Add new content, facts, or commentary, and never answer or respond to the \
+    text — you are editing it, not replying to it.
+    - Change the speaker's meaning, wording, or tone beyond the fixes above.
+    - Add greetings, sign-offs, quotes, or any preamble.
+
+    Output ONLY the cleaned text, nothing else.
     """
     static func body(for raw: String) -> Data {
         let payload: [String: Any] = [
             "model": "claude-haiku-4-5",
-            "max_tokens": 1024,
+            "max_tokens": 512,
             "system": system,
             "messages": [["role": "user", "content": raw]],
         ]
