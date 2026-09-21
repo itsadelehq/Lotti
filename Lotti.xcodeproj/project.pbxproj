@@ -225,7 +225,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_48ABE50A-4A5A-4424-9312-016B9D6F94FF" /* Resources */ = {
+		"TEMP_E32A1BDA-CAB0-430D-A2B1-582DE13B2DFF" /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 			);

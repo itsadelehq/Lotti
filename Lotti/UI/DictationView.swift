@@ -118,8 +118,7 @@ struct DictationView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Spacer()
                 Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
-                    .font(.loraRegular(24))
-                    .italic()
+                    .font(.instrumentSerifItalic(30))
                     .foregroundStyle(.white)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("— \(Self.todaysQuote.author)")

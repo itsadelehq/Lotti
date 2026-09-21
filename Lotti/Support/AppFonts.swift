@@ -111,6 +111,18 @@ extension Font {
     static func loraMedium(_ size: CGFloat) -> Font { AppFonts.lora(size: size, weight: .medium) }
     static func loraSemiBold(_ size: CGFloat) -> Font { AppFonts.lora(size: size, weight: .semibold) }
     static func loraBold(_ size: CGFloat) -> Font { AppFonts.lora(size: size, weight: .bold) }
+
+    /// Instrument Serif (elegant display serif) — used for the daily quote.
+    static func instrumentSerif(_ size: CGFloat) -> Font {
+        NSFont(name: "InstrumentSerif-Regular", size: size) != nil
+            ? .custom("InstrumentSerif-Regular", size: size)
+            : .system(size: size, design: .serif)
+    }
+    static func instrumentSerifItalic(_ size: CGFloat) -> Font {
+        NSFont(name: "InstrumentSerif-Italic", size: size) != nil
+            ? .custom("InstrumentSerif-Italic", size: size)
+            : .system(size: size, design: .serif).italic()
+    }
 }
 
 /// Shared heading sizes so screen titles and section headings stay
