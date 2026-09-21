@@ -222,7 +222,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		"TEMP_58DEA44C-FDC2-4CFF-8BFD-59B38E48830D" /* Resources */ = {
+		"TEMP_BDEA5203-02EF-42AA-9D3C-EB038B7E09B7" /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 			);
