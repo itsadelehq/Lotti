@@ -232,7 +232,7 @@ struct DictationView: View {
     private func statRow(value: String, label: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text(value)
-                .font(.gsBold(27))
+                .font(.loraRegular(27))
                 .foregroundStyle(Color.figTextPrimary)
             Text(label)
                 .font(.gsRegular(14))
