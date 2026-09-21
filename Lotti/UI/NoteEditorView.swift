@@ -13,19 +13,30 @@ struct NoteEditorView: View {
     let backTitle: String
     let onBack: () -> Void
 
+    /// When true, summary generation kicks off automatically as soon as the
+    /// editor appears (used by the note row's "Generate summary" action).
+    let autoGenerate: Bool
+
     @State private var title: String
     @State private var body_: String
+    @State private var summaryText: String
     @State private var didDiscard = false
+    @State private var isSummarizing = false
+    @State private var summaryMissingKey = false
     @StateObject private var recorder = NoteRecorder()
 
     private let editorBg = Color(hex: 0xFBFBF9)
+    private let summaryCardBg = Color(hex: 0xF7F5F2)
 
-    init(note: Note, backTitle: String = "Notetaker", onBack: @escaping () -> Void) {
+    init(note: Note, backTitle: String = "Notetaker", autoGenerate: Bool = false,
+         onBack: @escaping () -> Void) {
         self.note = note
         self.backTitle = backTitle
+        self.autoGenerate = autoGenerate
         self.onBack = onBack
         _title = State(initialValue: note.title)
         _body_ = State(initialValue: note.body)
+        _summaryText = State(initialValue: note.summary)
     }
 
     var body: some View {
@@ -33,8 +44,10 @@ struct NoteEditorView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     backControl
+                    if !summaryText.isEmpty { summaryCard }
                     titleField
                     metaRow
+                    summaryControls
                     bodyEditor
                     Spacer(minLength: 90)
                 }
@@ -60,6 +73,110 @@ struct NoteEditorView: View {
         .onDisappear {
             recorder.stop()
             discardIfEmpty()
+        }
+        .task {
+            if autoGenerate && summaryText.isEmpty && !isSummarizing
+                && !body_.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                generateSummary()
+            }
+        }
+    }
+
+    // MARK: - Summary
+
+    /// Rounded #F7F5F2 card showing the generated summary above the body.
+    private var summaryCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("SUMMARY")
+                .font(.gsSemibold(11))
+                .tracking(0.6)
+                .foregroundStyle(Color.figTextGrey)
+            Text(summaryText)
+                .font(.gsRegular(14))
+                .foregroundStyle(Color.figTextPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .textSelection(.enabled)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(summaryCardBg)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.figBorder, lineWidth: 0.5)
+        )
+    }
+
+    private var summaryControls: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button(action: generateSummary) {
+                HStack(spacing: 6) {
+                    if isSummarizing {
+                        ProgressView()
+                            .controlSize(.small)
+                            .scaleEffect(0.7)
+                        Text("Summarising…")
+                            .font(.gsSemibold(13))
+                    } else {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text(summaryText.isEmpty ? "Generate summary" : "Regenerate summary")
+                            .font(.gsSemibold(13))
+                    }
+                }
+                .foregroundStyle(Color.figTextPrimary)
+                .padding(.horizontal, 14)
+                .frame(height: 32)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .stroke(Color.figBorder, lineWidth: 0.5)
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isSummarizing
+                      || body_.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            if summaryMissingKey {
+                HStack(spacing: 4) {
+                    Image(systemName: "key.fill").font(.system(size: 9, weight: .semibold))
+                    Text("Add an Anthropic key in Settings → Keys")
+                        .font(.gsMedium(11))
+                }
+                .foregroundStyle(Color(hex: 0xB4432B))
+                .padding(.horizontal, 12)
+                .frame(height: 26)
+                .background(Capsule().fill(Color(hex: 0xFBEDE9)))
+                .overlay(Capsule().stroke(Color(hex: 0xB4432B).opacity(0.3), lineWidth: 0.5))
+            }
+        }
+    }
+
+    private func generateSummary() {
+        guard !isSummarizing else { return }
+        let text = body_.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
+        let key = Keychain.get("anthropic_api_key") ?? ""
+        guard !key.isEmpty else {
+            summaryMissingKey = true
+            AppLog.log("summary: no Anthropic key — open Settings → Keys.")
+            return
+        }
+        summaryMissingKey = false
+        isSummarizing = true
+        let body = body_
+        Task { @MainActor in
+            defer { isSummarizing = false }
+            do {
+                let result = try await SummaryService(apiKey: key).summarize(body)
+                summaryText = result
+                store.setSummary(note, summary: result)
+                AppLog.log("[Lotti] summary: generated (\(result.count) chars)")
+            } catch {
+                AppLog.log("summary: error — \(error.localizedDescription)")
+            }
         }
     }
 

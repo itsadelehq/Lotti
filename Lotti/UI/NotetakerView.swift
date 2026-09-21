@@ -10,6 +10,7 @@ struct NotetakerView: View {
 
     @State private var notes: [Note] = []
     @State private var selected: Note?
+    @State private var autoGenerateOnOpen = false
     @State private var activeTab: Tab = .past
     @State private var hoveredRow: UUID?
 
@@ -29,7 +30,8 @@ struct NotetakerView: View {
     var body: some View {
         Group {
             if let note = selected {
-                NoteEditorView(note: note, onBack: { selected = nil })
+                NoteEditorView(note: note, autoGenerate: autoGenerateOnOpen,
+                               onBack: { selected = nil })
                     .id(note.id)
             } else {
                 home
@@ -44,7 +46,14 @@ struct NotetakerView: View {
     private func openNewNote() {
         let n = store.addNote()
         refresh()
+        autoGenerateOnOpen = false
         selected = n
+    }
+
+    /// Opens a note in the editor, optionally kicking off summary generation.
+    private func open(_ note: Note, generateSummary: Bool = false) {
+        autoGenerateOnOpen = generateSummary
+        selected = note
     }
 
     // MARK: - Home
@@ -280,9 +289,23 @@ struct NotetakerView: View {
                     .font(.gsMedium(15))
                     .foregroundStyle(Color.figTextPrimary)
                     .lineLimit(1)
-                Text("\(timeString(note.createdAt)) · Generate summary")
-                    .font(.gsRegular(12))
-                    .foregroundStyle(Color.figTextGrey)
+                HStack(spacing: 4) {
+                    Text("\(timeString(note.createdAt)) ·")
+                        .font(.gsRegular(12))
+                        .foregroundStyle(Color.figTextGrey)
+                    if note.summary.isEmpty {
+                        Text("Generate summary")
+                            .font(.gsMedium(12))
+                            .foregroundStyle(Color.figTextGrey)
+                            .contentShape(Rectangle())
+                            .onTapGesture { open(note, generateSummary: true) }
+                            .help("Summarise this note with AI")
+                    } else {
+                        Text("Summarised")
+                            .font(.gsMedium(12))
+                            .foregroundStyle(Color(hex: 0x1B7A4B))
+                    }
+                }
             }
             Spacer()
             Button(action: { store.deleteNote(note) }) {
@@ -302,7 +325,7 @@ struct NotetakerView: View {
                 .fill(hoveredRow == note.id ? Color.figNavHoverBg.opacity(0.5) : Color.figCardFill)
         )
         .contentShape(Rectangle())
-        .onTapGesture { selected = note }
+        .onTapGesture { open(note) }
         .onHover { hoveredRow = $0 ? note.id : (hoveredRow == note.id ? nil : hoveredRow) }
     }
 
