@@ -31,6 +31,7 @@ enum KeyCodeNaming {
         0x3C: "Right ⇧", 0x38: "Left ⇧",
         0x3E: "Right ⌃", 0x3B: "Left ⌃",
         0x31: "Space", 0x35: "Esc",
+        0x3F: "Fn",
     ]
     static func name(for code: Int) -> String {
         names[CGKeyCode(code)] ?? "Key \(code)"

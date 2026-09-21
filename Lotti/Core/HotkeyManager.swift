@@ -89,27 +89,77 @@ final class HotkeyManager: ObservableObject {
     /// machinery once the tap exists and the process is trusted.
     private func attemptCreateTap() {
         guard tap == nil else { return }
-        let mask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
+        let mask = (1 << CGEventType.keyDown.rawValue)
+            | (1 << CGEventType.keyUp.rawValue)
+            | (1 << CGEventType.flagsChanged.rawValue)
         let created = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
             options: .listenOnly, eventsOfInterest: CGEventMask(mask),
             callback: { _, type, event, refcon in
                 let mgr = Unmanaged<HotkeyManager>.fromOpaque(refcon!).takeUnretainedValue()
                 let code = CGKeyCode(event.getIntegerValueField(.keyboardEventKeycode))
-                let isDown = (type == .keyDown)
 
-                // Track currently-pressed keys ourselves so we know the real
-                // state of the space key (rather than relying on a modifier
-                // flag, which doesn't reliably reflect the plain space key).
-                if isDown {
-                    mgr.pressedKeys.insert(code)
-                } else {
-                    mgr.pressedKeys.remove(code)
-                }
-                let spaceDown = mgr.pressedKeys.contains(mgr.spaceKey)
+                switch type {
+                case .keyDown, .keyUp:
+                    let isDown = (type == .keyDown)
 
-                if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
-                    AppLog.log("Hotkey event \(ev) (triggerKey=\(mgr.machine.triggerKey))")
-                    DispatchQueue.main.async { mgr.onEvent?(ev) }
+                    // Track currently-pressed keys ourselves so we know the real
+                    // state of the space key (rather than relying on a modifier
+                    // flag, which doesn't reliably reflect the plain space key).
+                    if isDown {
+                        mgr.pressedKeys.insert(code)
+                    } else {
+                        mgr.pressedKeys.remove(code)
+                    }
+                    let spaceDown = mgr.pressedKeys.contains(mgr.spaceKey)
+
+                    if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
+                        print("[Lotti] hotkey \(ev) key=0x\(String(code, radix: 16))")
+                        AppLog.log("Hotkey event \(ev) (triggerKey=\(mgr.machine.triggerKey))")
+                        DispatchQueue.main.async { mgr.onEvent?(ev) }
+                    }
+
+                case .flagsChanged:
+                    // Modifier keys (⌘ ⌥ ⌃ ⇧ Fn) never emit keyDown/keyUp — only
+                    // flagsChanged. Map the keycode to its flag bit and use our
+                    // own pressed-set to determine a reliable press/release
+                    // transition (left+right share one flag, e.g. both ⌘ keys
+                    // set .maskCommand).
+                    let flag: CGEventFlags?
+                    switch code {
+                    case 0x37, 0x36: flag = .maskCommand
+                    case 0x38, 0x3C: flag = .maskShift
+                    case 0x3A, 0x3D: flag = .maskAlternate
+                    case 0x3B, 0x3E: flag = .maskControl
+                    case 0x3F: flag = .maskSecondaryFn
+                    default: flag = nil
+                    }
+
+                    if let flag {
+                        let flagPresent = event.flags.contains(flag)
+                        let wasPressed = mgr.pressedKeys.contains(code)
+                        let isDown: Bool
+                        if !wasPressed && flagPresent {
+                            isDown = true
+                            mgr.pressedKeys.insert(code)
+                        } else if wasPressed && !flagPresent {
+                            isDown = false
+                            mgr.pressedKeys.remove(code)
+                        } else {
+                            // No real transition for this specific keycode
+                            // (e.g. the other ⌘ key toggled the shared flag).
+                            return Unmanaged.passUnretained(event)
+                        }
+                        let spaceDown = mgr.pressedKeys.contains(mgr.spaceKey)
+
+                        if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
+                            print("[Lotti] hotkey \(ev) key=0x\(String(code, radix: 16))")
+                            AppLog.log("Hotkey event \(ev) (triggerKey=\(mgr.machine.triggerKey))")
+                            DispatchQueue.main.async { mgr.onEvent?(ev) }
+                        }
+                    }
+
+                default:
+                    break
                 }
                 return Unmanaged.passUnretained(event)
             },
