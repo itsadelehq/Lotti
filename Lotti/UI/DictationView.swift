@@ -33,11 +33,18 @@ struct DictationView: View {
         }
     }
 
+    /// The feed only ever shows the most recent dictations (a real app shows
+    /// recent items, not thousands), so we cap it. Stats are still computed
+    /// over the full store.
+    private static let feedCap = 60
+
     private func refreshIfNeeded() {
-        let items = store.all()
-        guard items.count != cachedItemCount else { return }
-        cachedItemCount = items.count
-        dayGroups = Self.dayGroups(for: items)
+        let all = store.all()
+        guard all.count != cachedItemCount else { return }
+        cachedItemCount = all.count
+        // `all` is already newest-first; take only the most recent rows so the
+        // feed renders a bounded number of views.
+        dayGroups = Self.dayGroups(for: Array(all.prefix(Self.feedCap)))
         stats = store.stats(now: .now)
     }
 
@@ -138,7 +145,7 @@ struct DictationView: View {
     // MARK: - Feed
 
     private var feed: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        LazyVStack(alignment: .leading, spacing: 20) {
             if dayGroups.isEmpty {
                 sectionHeader("TODAY")
                 feedContainer {
