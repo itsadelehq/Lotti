@@ -51,22 +51,22 @@ struct DictationView: View {
 
     var body: some View {
         ScrollView {
-            HStack(alignment: .top, spacing: 24) {
+            HStack(alignment: .top, spacing: 28) {
                 mainColumn
                     .frame(maxWidth: .infinity, alignment: .leading)
                 rightRail
-                    .frame(width: 320)
+                    .frame(width: 250)
             }
-            .padding(28)
+            .padding(32)
         }
         .task { refreshIfNeeded() }
     }
 
     private var mainColumn: some View {
-        VStack(alignment: .leading, spacing: 22) {
+        VStack(alignment: .leading, spacing: 24) {
             Text("Welcome back, Adele")
-                .font(.gsBold(AppFontSizes.screenTitle))
-                .foregroundStyle(Color.appTextPrimary)
+                .font(.gsBold(25))
+                .foregroundStyle(Color.figTextPrimary)
 
             if !bannerDismissed {
                 promoBanner
@@ -76,59 +76,91 @@ struct DictationView: View {
         }
     }
 
+    // MARK: - Promo banner
+
     private var promoBanner: some View {
         ZStack(alignment: .topTrailing) {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text("Working around other people?")
-                    .font(.gsBold(20))
+                    .font(.loraRegular(25))
                     .foregroundStyle(.white)
-                Text("Learn how to dictate discreetly, even in shared spaces.")
+                Text("With the right setup, you can Flow without disrupting your neighbours")
                     .font(.gsRegular(14))
-                    .foregroundStyle(.white.opacity(0.7))
-                Button("Show me how") {}
-                    .buttonStyle(.plain)
-                    .font(.gsMedium(13))
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Capsule().fill(.white))
-                    .padding(.top, 4)
+                    .foregroundStyle(.white.opacity(0.85))
+                    .fixedSize(horizontal: false, vertical: true)
+                Button {
+                } label: {
+                    Text("Show me how")
+                        .font(.gsBold(13))
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.figCardFill))
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 4)
             }
-            .padding(24)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.appPillBlack))
+            .padding(28)
+            .frame(maxWidth: .infinity, minHeight: 181, alignment: .topLeading)
+            .background(bannerBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             Button {
                 bannerDismissed = true
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .padding(8)
-                    .background(Circle().fill(.white.opacity(0.15)))
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(.black.opacity(0.4)))
             }
             .buttonStyle(.plain)
-            .padding(14)
+            .padding(16)
         }
     }
 
+    /// Approximates the Figma's tinted-image look: a maroon base with a dark-teal
+    /// overlay, blended as a diagonal gradient (no external image needed).
+    private var bannerBackground: some View {
+        ZStack {
+            Color(hex: 0x803A45).opacity(0.5)
+            LinearGradient(
+                colors: [
+                    Color(hex: 0x0A2630).opacity(0.85),
+                    Color(hex: 0x803A45).opacity(0.5),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing)
+            Color(hex: 0x0A2630).opacity(0.55)
+        }
+    }
+
+    // MARK: - Feed
+
     private var feed: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 20) {
             if dayGroups.isEmpty {
                 sectionHeader("TODAY")
-                Text("No dictations yet today.")
-                    .font(.gsRegular(14))
-                    .foregroundStyle(Color.appTextSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 16)
+                feedContainer {
+                    Text("No dictations yet today.")
+                        .font(.gsRegular(14))
+                        .foregroundStyle(Color.figTextGrey)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 17)
+                        .padding(.horizontal, 15)
+                }
             } else {
                 ForEach(dayGroups) { group in
-                    sectionHeader(group.title)
-                    VStack(spacing: 0) {
-                        ForEach(Array(group.items.enumerated()), id: \.element.id) { index, item in
-                            FeedRow(item: item)
-                            if index != group.items.count - 1 {
-                                Divider().overlay(Color.appDivider)
+                    VStack(alignment: .leading, spacing: 12) {
+                        sectionHeader(group.title)
+                        feedContainer {
+                            ForEach(Array(group.items.enumerated()), id: \.element.id) { index, item in
+                                FeedRow(item: item)
+                                if index != group.items.count - 1 {
+                                    Rectangle()
+                                        .fill(Color.figBorder)
+                                        .frame(height: 0.5)
+                                }
                             }
                         }
                     }
@@ -137,39 +169,62 @@ struct DictationView: View {
         }
     }
 
+    /// Rounded, hairline-bordered container that wraps the bordered-row list.
+    @ViewBuilder
+    private func feedContainer<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        VStack(spacing: 0) { content() }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color.figBorder, lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
     @ViewBuilder
     private func sectionHeader(_ title: String) -> some View {
-        HStack {
+        HStack(spacing: 6) {
             Text(title)
-                .font(.gsMedium(12))
-                .foregroundStyle(Color.appTextSecondary)
-                .tracking(1)
-            Spacer()
+                .font(.gsMedium(11))
+                .foregroundStyle(Color.figTextGrey)
+                .tracking(1.2)
             if title == "TODAY" {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.appTextSecondary)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.figTextGrey)
             }
+            Spacer()
         }
     }
 
+    // MARK: - Right rail stats
+
     private var rightRail: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 14) {
             statRow(value: "\(stats.totalWords)", label: "total words")
             statRow(value: "\(stats.wpm)", label: "wpm")
             statRow(value: "\(stats.currentStreak)", label: "day streak")
         }
-        .appCardStyle()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(EdgeInsets(top: 25, leading: 24, bottom: 20, trailing: 24))
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.figCardFill)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.figBorder, lineWidth: 0.5)
+        )
     }
 
     private func statRow(value: String, label: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text(value)
-                .font(.system(size: 40, weight: .medium, design: .serif))
-                .foregroundStyle(Color.appTextPrimary)
+                .font(.loraRegular(27))
+                .foregroundStyle(Color.figTextPrimary)
             Text(label)
-                .font(.gsRegular(13))
-                .foregroundStyle(Color.appTextSecondary)
+                .font(.gsRegular(14))
+                .foregroundStyle(Color.figTextPrimary)
         }
     }
 }
@@ -183,16 +238,18 @@ private struct FeedRow: View {
         HStack(alignment: .top, spacing: 16) {
             Text(item.createdAt, style: .time)
                 .font(.gsRegular(13))
-                .foregroundStyle(Color.appTextSecondary)
+                .foregroundStyle(Color.figTextGrey)
                 .frame(width: 70, alignment: .leading)
             Text(item.polishedText)
                 .font(.gsRegular(14))
-                .foregroundStyle(Color.appTextPrimary)
+                .foregroundStyle(Color.figTextPrimary)
+                .lineSpacing(5)
                 .frame(maxWidth: .infinity, alignment: .leading)
             actions
                 .opacity(hovering ? 1 : 0)
         }
-        .padding(.vertical, 14)
+        .padding(.vertical, 17)
+        .padding(.horizontal, 15)
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .animation(.easeInOut(duration: 0.15), value: hovering)
@@ -214,7 +271,7 @@ private struct FeedRow: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.appTextSecondary)
+                .foregroundStyle(Color.figTextGrey)
                 .frame(width: 26, height: 26)
                 .contentShape(Rectangle())
         }

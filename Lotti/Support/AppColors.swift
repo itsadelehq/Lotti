@@ -29,6 +29,14 @@ extension Color {
     static let appHairline = Color.black.opacity(0.06)
     static let appDivider = Color.black.opacity(0.08)
 
+    // Figma dictation/sidebar spec tokens (exact values from the export).
+    static let figCardFill   = Color(hex: 0xF7F5F2) // stat card / button fill
+    static let figBorder     = Color(hex: 0xE8E6DE) // 0.5pt hairline border
+    static let figTextPrimary = Color(hex: 0x212120)
+    static let figTextGrey    = Color(hex: 0x78786F)
+    static let figNavActiveBg = Color(hex: 0xEDEDE8)
+    static let figProPillBg   = Color(hex: 0xEBD6FF)
+
     // Insights-specific tokens (reference screenshot).
     static let appInsightCard = Color(hex: 0xEFEEE9)   // warm grey card fill
     static let appGaugeTrack = Color(hex: 0xE4E3DD)    // gauge / bar track
