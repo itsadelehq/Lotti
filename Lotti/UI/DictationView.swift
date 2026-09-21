@@ -341,9 +341,12 @@ struct ShaderPreset {
 /// `DictationView.todaysShaderPreset`), in lockstep with the daily quote.
 /// Add more presets here — one line each — to extend the rotation.
 let shaderPresets: [ShaderPreset] = [
-    .init(c1: "ff5005", c2: "dbba95", c3: "d0bce1", type: "plane"),
-    .init(c1: "d975b9", c2: "db55bc", c3: "d4202f", type: "plane"),
-    .init(c1: "d9b6b2", c2: "74cfdb", c3: "4d86d1", type: "waterPlane")
+    // Curated, on-brand set — warm/teal/periwinkle tones that read well
+    // behind white serif text with the dark scrim.
+    .init(c1: "0E5A4F", c2: "5FB7A6", c3: "B6BEFF", type: "plane"),      // teal → periwinkle
+    .init(c1: "E29B7B", c2: "C77FA6", c3: "9AA6E8", type: "waterPlane"), // sunset → violet
+    .init(c1: "4D6FD1", c2: "6A7EFF", c3: "C7B8F5", type: "plane"),      // indigo → lilac
+    .init(c1: "C98F7A", c2: "7FB0C4", c3: "B6BEFF", type: "waterPlane")  // clay → sky
 ]
 
 /// ~30 built-in quotes; the banner picks one deterministically per calendar day.
