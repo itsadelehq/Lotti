@@ -17,6 +17,11 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
         (try? context.fetch(FetchDescriptor<Dictation>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]))) ?? []
     }
+    /// Lightweight COUNT query that does not materialise any rows — used to
+    /// cheaply detect whether the feed changed without fetching ~1700 objects.
+    func count() -> Int {
+        (try? context.fetchCount(FetchDescriptor<Dictation>())) ?? 0
+    }
     func stats(now: Date) -> Stats {
         let items = all()
         let totalWords = items.reduce(0) { $0 + $1.wordCount }
@@ -82,7 +87,7 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
         let targetWpm = 105.0
         for offset in sortedOffsets {
             guard let base = cal.date(byAdding: .day, value: -offset, to: today) else { continue }
-            let perDay = 12 + rnd(12) // 12–23 dictations that day
+            let perDay = 8 + rnd(10) // 8–17 dictations that day
             for _ in 0..<perDay {
                 // Short, clean, readable dictations (2–4 sentences). The feed is
                 // lazy + capped to 60 rows, so many rows don't cause lag, and the

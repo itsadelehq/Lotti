@@ -39,9 +39,12 @@ struct DictationView: View {
     private static let feedCap = 60
 
     private func refreshIfNeeded() {
+        // Cheap COUNT query first, so navigating to Dictation doesn't fetch
+        // and materialise ~1700 objects just to check whether anything changed.
+        let count = store.count()
+        guard count != cachedItemCount else { return }
+        cachedItemCount = count
         let all = store.all()
-        guard all.count != cachedItemCount else { return }
-        cachedItemCount = all.count
         // `all` is already newest-first; take only the most recent rows so the
         // feed renders a bounded number of views.
         dayGroups = Self.dayGroups(for: Array(all.prefix(Self.feedCap)))
