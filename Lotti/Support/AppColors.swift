@@ -35,7 +35,8 @@ extension Color {
     static let figTextPrimary = Color(hex: 0x212120)
     static let figTextGrey    = Color(hex: 0x78786F)
     static let figNavActiveBg = Color(hex: 0xEDEDE8)
-    static let figNavHoverBg  = Color(hex: 0xEDEDE8).opacity(0.5)
+    // Non-active hover highlight: a touch darker/greyer warm grey at full opacity.
+    static let figNavHoverBg  = Color(hex: 0xE4E3DE)
     static let figProPillBg   = Color(hex: 0xEBD6FF)
 
     // Insights-specific tokens (reference screenshot).

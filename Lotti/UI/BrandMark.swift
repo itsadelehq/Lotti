@@ -16,7 +16,9 @@ struct BrandMark: View {
 struct BrandHeader: View {
     var body: some View {
         HStack(spacing: 8) {
-            BrandMark(size: 24)
+            // Sized to the cap-height of the "Lotti" wordmark so the mark reads
+            // as a small, refined glyph the same visual height as the word.
+            BrandMark(size: 19)
             Text("Lotti")
                 .font(.gsBold(18))
                 .foregroundStyle(Color.figTextPrimary)
