@@ -81,11 +81,12 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
         let targetWpm = 105.0
         for offset in sortedOffsets {
             guard let base = cal.date(byAdding: .day, value: -offset, to: today) else { continue }
-            let perDay = 3 + rnd(4) // 3–6 dictations that day (a few hundred rows total)
+            let perDay = 12 + rnd(12) // 12–23 dictations that day
             for _ in 0..<perDay {
-                // Larger per-dictation counts so the lifetime total still reads
-                // as a heavy user (~150K–250K words) despite far fewer rows.
-                let words = 180 + rnd(520) // 180–699 words, always readable
+                // Short, clean, readable dictations (2–4 sentences). The feed is
+                // lazy + capped to 60 rows, so many rows don't cause lag, and the
+                // lifetime total still reads as a heavy user (~100K+ words).
+                let words = 30 + rnd(70) // 30–100 words
                 let hour = 8 + rnd(12)
                 let minute = rnd(60)
                 let when = cal.date(bySettingHour: hour, minute: minute, second: 0, of: base) ?? base
