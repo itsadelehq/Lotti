@@ -10,7 +10,7 @@ struct PillView: View {
     private let cancelGrey = Color(red: 0x3A/255, green: 0x3A/255, blue: 0x3C/255)
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             Button(action: onCancel) {
                 Image(systemName: "xmark")
                     .font(.system(size: 9, weight: .bold))
@@ -21,7 +21,7 @@ struct PillView: View {
             .buttonStyle(.plain)
 
             WaveformView(level: model.level)
-                .frame(width: 24, height: 130)
+                .frame(width: 24, height: 60)
 
             Button(action: onConfirm) {
                 Image(systemName: "checkmark")
@@ -32,7 +32,7 @@ struct PillView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, 9)
+        .padding(.vertical, 5)
         .frame(width: 40)
         .background(RoundedRectangle(cornerRadius: 20).fill(.black))
     }
@@ -58,7 +58,7 @@ struct WaveformView: View {
     var body: some View {
         TimelineView(.animation) { context in
             let t = context.date.timeIntervalSinceReferenceDate
-            VStack(spacing: 2) {
+            VStack(spacing: 1) {
                 ForEach(0..<rows, id: \.self) { i in
                     Capsule()
                         .fill(.white)
@@ -98,7 +98,7 @@ struct WaveformView: View {
 
     // Slim pill footprint.
     private let pillWidth: CGFloat = 40
-    private let pillHeight: CGFloat = 184
+    private let pillHeight: CGFloat = 110
 
     func show() {
         let host = NSHostingController(rootView: PillView(model: model,
