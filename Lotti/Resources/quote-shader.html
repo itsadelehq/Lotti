@@ -32,6 +32,23 @@ import {
 
 const e = React.createElement
 
+// Reads the daily preset (colors + type) from the URL query string, e.g.
+// `quote-shader.html?c1=d975b9&c2=db55bc&c3=d4202f&type=plane`, falling back
+// to the original defaults when a param is missing (or the page is opened
+// with no query string at all).
+function normalizeHex(value, fallback) {
+  if (!value) return fallback
+  const hex = value.replace(/^#/, '').replace(/^%23/, '')
+  return '#' + hex
+}
+
+const params = new URLSearchParams(window.location.search)
+const color1 = normalizeHex(params.get('c1'), '#ff5005')
+const color2 = normalizeHex(params.get('c2'), '#dbba95')
+const color3 = normalizeHex(params.get('c3'), '#d0bce1')
+const shaderType = params.get('type') === 'waterPlane' ? 'waterPlane' : (params.get('type') === 'plane' ? 'plane' : 'plane')
+const cDistance = params.get('cDistance') ? parseFloat(params.get('cDistance')) : 3.6
+
 createRoot(document.getElementById('root')).render(
   e(
     ShaderGradientCanvas,
@@ -43,18 +60,18 @@ createRoot(document.getElementById('root')).render(
     e(ShaderGradient, {
       animate: 'on',
       control: 'props',
-      color1: '#ff5005',
-      color2: '#dbba95',
-      color3: '#d0bce1',
+      color1: color1,
+      color2: color2,
+      color3: color3,
       brightness: 1.2,
       cAzimuthAngle: 180,
-      cDistance: 3.6,
+      cDistance: cDistance,
       cPolarAngle: 90,
       cameraZoom: 1,
       envPreset: 'city',
       grain: 'on',
       lightType: '3d',
-      type: 'plane',
+      type: shaderType,
       shader: 'defaults',
       positionX: -1.4,
       positionY: 0,

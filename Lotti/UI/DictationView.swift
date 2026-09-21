@@ -114,6 +114,15 @@ struct DictationView: View {
         return motivationalQuotes[index]
     }
 
+    /// Same day-of-year source as `todaysQuote`, so the ShaderGradient
+    /// background rotates in lockstep with the quote — both change together
+    /// once a day.
+    private static var todaysShaderPreset: ShaderPreset {
+        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: .now) ?? 0
+        let index = dayOfYear % shaderPresets.count
+        return shaderPresets[index]
+    }
+
     private var quoteBanner: some View {
         ZStack(alignment: .topTrailing) {
             ZStack {
@@ -122,9 +131,12 @@ struct DictationView: View {
                 quoteBannerBackground
 
                 // Dark scrim so the white serif quote stays legible over the
-                // bright, high-contrast gradient.
+                // bright, high-contrast gradient. Bumped up from the original
+                // 0.45 leading opacity because some rotating presets (e.g.
+                // the light pink/blue waterPlane preset) are much lighter
+                // than the original orange/lilac default.
                 LinearGradient(
-                    colors: [.black.opacity(0.45), .black.opacity(0.15)],
+                    colors: [.black.opacity(0.5), .black.opacity(0.15)],
                     startPoint: .leading,
                     endPoint: .trailing)
 
@@ -178,7 +190,7 @@ struct DictationView: View {
                 GrainOverlay()
 
                 if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
-                    ShaderGradientView()
+                    ShaderGradientView(preset: Self.todaysShaderPreset)
                 }
             }
         }
@@ -298,6 +310,30 @@ struct MotivationalQuote {
     let text: String
     let author: String
 }
+
+/// One ShaderGradient color/type configuration for the quote banner
+/// background. Colors are hex strings without the leading `#` (the shader
+/// HTML page adds it back).
+struct ShaderPreset {
+    let c1: String
+    let c2: String
+    let c3: String
+    let type: String
+
+    /// Stable identity used by `ShaderGradientView` to decide whether the
+    /// embedded web view needs to reload for a new preset.
+    var key: String { "\(c1)-\(c2)-\(c3)-\(type)" }
+}
+
+/// The rotating set of ShaderGradient presets for the daily quote banner.
+/// One is picked deterministically per calendar day (see
+/// `DictationView.todaysShaderPreset`), in lockstep with the daily quote.
+/// Add more presets here — one line each — to extend the rotation.
+let shaderPresets: [ShaderPreset] = [
+    .init(c1: "ff5005", c2: "dbba95", c3: "d0bce1", type: "plane"),
+    .init(c1: "d975b9", c2: "db55bc", c3: "d4202f", type: "plane"),
+    .init(c1: "d9b6b2", c2: "74cfdb", c3: "4d86d1", type: "waterPlane")
+]
 
 /// ~30 built-in quotes; the banner picks one deterministically per calendar day.
 let motivationalQuotes: [MotivationalQuote] = [
