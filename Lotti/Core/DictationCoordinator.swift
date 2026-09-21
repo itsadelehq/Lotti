@@ -99,10 +99,12 @@ import Foundation
             return
         }
 
-        // Polish with Haiku when available; otherwise paste the smart-formatted
-        // Deepgram text directly (near-instant path).
+        // Polish with Haiku only when the user opted in via Settings; otherwise
+        // paste the smart-formatted Deepgram text directly (near-instant path,
+        // ~350ms instead of ~1.4s for the Haiku round trip).
+        let polishEnabled = UserDefaults.standard.bool(forKey: "polishEnabled")
         let polished: String
-        if let polisher = makePolish() {
+        if polishEnabled, let polisher = makePolish() {
             polished = (try? await polisher.polish(raw)) ?? raw
         } else {
             polished = raw

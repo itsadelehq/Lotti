@@ -22,10 +22,16 @@ enum PolishRequest {
     Output ONLY the cleaned text, nothing else.
     """
     static func body(for raw: String) -> Data {
+        // Mark the (fixed, reused-every-call) system prompt as cacheable so
+        // Anthropic prompt caching skips re-processing it on repeated calls,
+        // shaving latency off each polish request.
+        let systemBlocks: [[String: Any]] = [
+            ["type": "text", "text": system, "cache_control": ["type": "ephemeral"]],
+        ]
         let payload: [String: Any] = [
             "model": "claude-haiku-4-5",
             "max_tokens": 512,
-            "system": system,
+            "system": systemBlocks,
             "messages": [["role": "user", "content": raw]],
         ]
         return try! JSONSerialization.data(withJSONObject: payload)

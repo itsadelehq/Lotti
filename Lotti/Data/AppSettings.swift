@@ -4,7 +4,10 @@ import CoreGraphics
 final class AppSettings: ObservableObject {
     @AppStorage("triggerKeyCode") var triggerKeyCode: Int = 0x36
     @AppStorage("engine") var engine: String = "deepgram"
-    @AppStorage("polishEnabled") var polishEnabled: Bool = true
+    // Off by default: pastes the Deepgram smart-formatted transcript immediately
+    // (~350ms) instead of waiting on the Haiku polish call (~1.4s). Opt in for
+    // higher-accuracy cleanup at the cost of latency.
+    @AppStorage("polishEnabled") var polishEnabled: Bool = false
 
     // System
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
