@@ -5,6 +5,21 @@ final class AppSettings: ObservableObject {
     @AppStorage("triggerKeyCode") var triggerKeyCode: Int = 0x36
     @AppStorage("engine") var engine: String = "deepgram"
     @AppStorage("polishEnabled") var polishEnabled: Bool = true
+
+    // System
+    @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
+    @AppStorage("showFloatingPill") var showFloatingPill: Bool = true
+    @AppStorage("showInDock") var showInDock: Bool = true
+    @AppStorage("soundsEnabled") var soundsEnabled: Bool = true
+    @AppStorage("muteMusicWhileDictating") var muteMusicWhileDictating: Bool = false
+
+    // General
+    @AppStorage("appLanguage") var appLanguage: String = "English"
+
+    // Account
+    @AppStorage("firstName") var firstName: String = "Adele"
+    @AppStorage("lastName") var lastName: String = ""
+    @AppStorage("accountEmail") var accountEmail: String = "adele.sagayam@gmail.com"
 }
 
 /// Human-readable labels for a subset of virtual key codes used by the

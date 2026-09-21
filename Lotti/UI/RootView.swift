@@ -26,19 +26,47 @@ enum Section: String, CaseIterable, Identifiable {
 struct RootView: View {
     @State private var selection: Section = .dictation
     @State private var hoveredSection: String?
+    @State private var showSettings = false
     private let mainSections: [Section] = [
         .dictation, .notetaker, .insights, .dictionary, .style, .scratchpad,
     ]
 
     var body: some View {
-        HStack(spacing: 0) {
-            sidebar
-            detail
+        ZStack {
+            HStack(spacing: 0) {
+                sidebar
+                detail
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.appBg)
+
+            if showSettings {
+                settingsModal
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.appBg)
         .background(WindowAccessor())
         .onAppear { AppFonts.register() }
+    }
+
+    // MARK: - Settings modal (centered card over a dimmed scrim)
+
+    private var settingsModal: some View {
+        ZStack {
+            Color.black.opacity(0.30)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { showSettings = false }
+
+            SettingsView(onClose: { showSettings = false })
+                .frame(width: 960, height: 640)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.white)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: .black.opacity(0.19), radius: 30, y: 16)
+        }
     }
 
     // MARK: - Sidebar (flat cream, no material / vibrancy / border / shadow)
@@ -67,7 +95,10 @@ struct RootView: View {
                 .padding(.vertical, 8)
 
             VStack(spacing: 2) {
-                sidebarRow(.settings)
+                navRow(id: Section.settings.id, icon: Section.settings.systemImage,
+                       title: Section.settings.title, isActive: showSettings) {
+                    showSettings = true
+                }
                 navRow(id: "help", icon: "questionmark.circle", title: "Help", isActive: false) {}
             }
             .padding(.horizontal, 8)
@@ -85,7 +116,6 @@ struct RootView: View {
             switch selection {
             case .dictation: DictationView()
             case .insights: InsightsView()
-            case .settings: SettingsView()
             default: ContentUnavailableView("Coming soon", systemImage: "clock")
             }
         }
