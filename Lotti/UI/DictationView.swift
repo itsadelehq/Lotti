@@ -165,7 +165,7 @@ struct DictationView: View {
     private func statRow(value: String, label: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
-                .font(.gsBold(30))
+                .font(.system(size: 40, weight: .medium, design: .serif))
                 .foregroundStyle(Color.appTextPrimary)
             Text(label)
                 .font(.gsRegular(13))
