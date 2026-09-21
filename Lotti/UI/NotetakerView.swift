@@ -19,8 +19,12 @@ struct NotetakerView: View {
     }
 
     private let darkButton = Color(red: 0.10, green: 0.10, blue: 0.10)
-    private let heroBg = Color(red: 0.13, green: 0.12, blue: 0.12)
     private let editorBg = Color(hex: 0xFBFBF9)
+
+    /// A fixed, tasteful preset for the hero banner — reuses the same
+    /// `ShaderGradientView`/`ShaderPreset` machinery as the Dictation quote
+    /// banner and Snippets promo card.
+    private static let heroShaderPreset = shaderPresets[1]
 
     var body: some View {
         Group {
@@ -91,54 +95,37 @@ struct NotetakerView: View {
     // MARK: - Hero card
 
     private var heroCard: some View {
-        HStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Take Notetaker for a test run")
+        ZStack(alignment: .leading) {
+            // Animated ShaderGradient background (same mechanism as the
+            // Dictation quote banner / Snippets promo card), only rendered
+            // when the bundled shader page is available.
+            if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
+                ShaderGradientView(preset: Self.heroShaderPreset)
+            } else {
+                Color(red: 0.13, green: 0.12, blue: 0.12)
+            }
+
+            // Dark scrim so the light serif title/subtitle stay legible over
+            // the bright, high-contrast gradient.
+            LinearGradient(
+                colors: [.black.opacity(0.55), .black.opacity(0.3)],
+                startPoint: .leading,
+                endPoint: .trailing)
+            .allowsHitTesting(false)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Record your notes when you\u{2019}re on a call")
                     .font(.loraRegular(23))
                     .foregroundStyle(.white)
                 Text("Transcript, summary, and action items for every meeting")
                     .font(.gsRegular(14))
-                    .foregroundStyle(.white.opacity(0.72))
-                Button(action: openNewNote) {
-                    Text("Try Notetaker")
-                        .font(.gsSemibold(13))
-                        .foregroundStyle(Color.figTextPrimary)
-                        .padding(.horizontal, 16)
-                        .frame(height: 34)
-                        .background(
-                            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                                .fill(Color(hex: 0xF5F4F1))
-                        )
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 2)
+                    .foregroundStyle(.white.opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer(minLength: 0)
-            avatars
+            .padding(20)
         }
-        .padding(20)
-        .frame(minHeight: 125)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(heroBg)
-        )
-    }
-
-    /// Decorative overlapping soft-colored circles (purely cosmetic).
-    private var avatars: some View {
-        HStack(spacing: -18) {
-            circle(Color(hex: 0xF6A93B))
-            circle(Color(hex: 0x8393FF))
-            circle(Color(hex: 0xD8F0DF))
-        }
-        .padding(.trailing, 6)
-    }
-
-    private func circle(_ color: Color) -> some View {
-        Circle()
-            .fill(color.opacity(0.9))
-            .frame(width: 46, height: 46)
-            .overlay(Circle().stroke(Color(red: 0.13, green: 0.12, blue: 0.12), lineWidth: 3))
+        .frame(maxWidth: .infinity, minHeight: 125, alignment: .leading)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: - TODAY section (empty state)
