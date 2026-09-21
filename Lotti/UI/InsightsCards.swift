@@ -157,13 +157,6 @@ struct TotalWordsCard: View {
                         .foregroundStyle(Color.appTextPrimary)
                 }
                 Spacer()
-                Text("Download on mobile")
-                    .font(.gsMedium(12))
-                    .foregroundStyle(Color.appTextPrimary)
-                    .padding(.horizontal, 12).padding(.vertical, 7)
-                    .background(
-                        Capsule().stroke(Color.appTextSecondary.opacity(0.35), lineWidth: 1)
-                    )
             }
             .padding(.top, 14)
             Spacer(minLength: 0)
