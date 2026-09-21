@@ -14,6 +14,7 @@ struct SettingsView: View {
         case system = "System"
         case notetaker = "Notetaker"
         case keys = "Keys"
+        case permissions = "Permissions"
         case account = "Account"
         case dataPrivacy = "Data & Privacy"
         var id: String { rawValue }
@@ -24,6 +25,7 @@ struct SettingsView: View {
             case .system: "macwindow"
             case .notetaker: "record.circle"
             case .keys: "key"
+            case .permissions: "hand.raised"
             case .account: "person.crop.circle"
             case .dataPrivacy: "lock.shield"
             }
@@ -39,7 +41,10 @@ struct SettingsView: View {
     @State private var hoveredNav: String?
     @State private var showClearConfirm = false
 
-    private let topGroup: [Pane] = [.general, .system, .notetaker, .keys]
+    @State private var micAuthorized = false
+    @State private var axTrusted = false
+
+    private let topGroup: [Pane] = [.general, .system, .notetaker, .keys, .permissions]
     private let accountGroup: [Pane] = [.account, .dataPrivacy]
 
     var body: some View {
@@ -136,6 +141,7 @@ struct SettingsView: View {
                 case .system: systemContent
                 case .notetaker: notetakerContent
                 case .keys: keysContent
+                case .permissions: permissionsContent
                 case .account: accountContent
                 case .dataPrivacy: dataPrivacyContent
                 }
@@ -171,6 +177,9 @@ struct SettingsView: View {
                     }
                     TriggerKeyRecorder(isRecording: $isRecordingKey) { code in
                         settings.triggerKeyCode = code
+                        // Take effect LIVE — the running HotkeyManager updates
+                        // its trigger key without a relaunch.
+                        NotificationCenter.default.post(name: .triggerKeyChanged, object: code)
                         isRecordingKey = false
                     }
                     .frame(width: 0, height: 0)
@@ -272,6 +281,63 @@ struct SettingsView: View {
                 .font(.gsRegular(12))
                 .foregroundStyle(Color.figTextGrey)
                 .padding(.horizontal, 4)
+        }
+    }
+
+    // MARK: - Permissions
+
+    private var permissionsContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            card {
+                settingRow(label: "Microphone",
+                           sub: micAuthorized ? "Granted" : "Not granted — required to record speech") {
+                    HStack(spacing: 10) {
+                        statusDot(micAuthorized)
+                        changeButton("Grant microphone") {
+                            Task {
+                                _ = await Permissions.requestMicrophone()
+                                refreshPermissionStatus()
+                            }
+                        }
+                    }
+                }
+                hairline
+                settingRow(label: "Accessibility",
+                           sub: axTrusted ? "Granted" : "Not granted — required for the hotkey and paste") {
+                    HStack(spacing: 10) {
+                        statusDot(axTrusted)
+                        changeButton("Open Accessibility settings") {
+                            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }
+                    }
+                }
+            }
+            HStack {
+                changeButton("Re-check") { refreshPermissionStatus() }
+                Spacer()
+            }
+            .padding(.horizontal, 4)
+            Text("Microphone lets Lotti hear you. Accessibility lets Lotti detect the global hotkey and paste your text. After granting Accessibility, the hotkey activates without relaunching.")
+                .font(.gsRegular(12))
+                .foregroundStyle(Color.figTextGrey)
+                .padding(.horizontal, 4)
+        }
+        .onAppear { refreshPermissionStatus() }
+    }
+
+    private func statusDot(_ ok: Bool) -> some View {
+        Circle()
+            .fill(ok ? Color.appTeal : Color.red.opacity(0.7))
+            .frame(width: 9, height: 9)
+    }
+
+    private func refreshPermissionStatus() {
+        axTrusted = Permissions.accessibilityTrusted(prompt: false)
+        Task {
+            let mic = await Permissions.microphoneAuthorized()
+            await MainActor.run { micAuthorized = mic }
         }
     }
 

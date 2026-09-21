@@ -1,7 +1,14 @@
 import AppKit
 import CoreGraphics
+import ApplicationServices
 
 enum HotkeyEvent { case start, stop, lockToggle, cancel }
+
+extension Notification.Name {
+    /// Posted (object: Int key code) when the trigger key changes in Settings,
+    /// so the live HotkeyManager updates without a relaunch.
+    static let triggerKeyChanged = Notification.Name("lotti.triggerKeyChanged")
+}
 
 final class HotkeyStateMachine {
     var triggerKey: CGKeyCode = 0x36 // right command
@@ -27,16 +34,63 @@ final class HotkeyStateMachine {
     }
 }
 
-final class HotkeyManager {
+/// Owns the global CGEventTap that drives push-to-talk.
+///
+/// The tap can only be created once Accessibility is granted — `CGEvent.tapCreate`
+/// returns nil otherwise. To make the app usable WITHOUT a relaunch after the
+/// user grants access, we retry: on `NSApplication.didBecomeActiveNotification`
+/// and on a short repeating timer, both of which stop once the tap exists and
+/// `AXIsProcessTrusted()` is true. `isActive` is published so the UI can reflect
+/// whether the hotkey is live.
+final class HotkeyManager: ObservableObject {
     var onEvent: ((HotkeyEvent) -> Void)?
     let machine = HotkeyStateMachine()
+
+    /// True once the CGEventTap is created (i.e. Accessibility granted and the
+    /// global hotkey is live). Observable so Settings can reflect the state.
+    @Published private(set) var isActive = false
+
     private var tap: CFMachPort?
+    private var runLoopSource: CFRunLoopSource?
+    private var retryTimer: Timer?
     private var pressedKeys = Set<CGKeyCode>()
     private let spaceKey: CGKeyCode = 0x31
 
     func start() {
+        // Live trigger-key updates from Settings (no relaunch needed).
+        NotificationCenter.default.addObserver(
+            forName: .triggerKeyChanged, object: nil, queue: .main) { [weak self] note in
+            guard let code = note.object as? Int else { return }
+            self?.machine.triggerKey = CGKeyCode(code)
+            AppLog.log("Hotkey trigger key updated live → keyCode \(code)")
+        }
+        attemptCreateTap()
+        if !isActive {
+            AppLog.log("Hotkey tap NOT created (Accessibility not granted yet) — will retry on activation/timer")
+            // Retry when the app regains focus (e.g. after user grants access
+            // in System Settings and returns to Lotti).
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(appDidBecomeActive),
+                name: NSApplication.didBecomeActiveNotification, object: nil)
+            // And a short repeating timer as a belt-and-braces fallback.
+            let timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
+                self?.attemptCreateTap()
+            }
+            RunLoop.main.add(timer, forMode: .common)
+            retryTimer = timer
+        }
+    }
+
+    @objc private func appDidBecomeActive() {
+        attemptCreateTap()
+    }
+
+    /// Attempts to (re)create the event tap. No-op once active. Stops the retry
+    /// machinery once the tap exists and the process is trusted.
+    private func attemptCreateTap() {
+        guard tap == nil else { return }
         let mask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
-        tap = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
+        let created = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
             options: .listenOnly, eventsOfInterest: CGEventMask(mask),
             callback: { _, type, event, refcon in
                 let mgr = Unmanaged<HotkeyManager>.fromOpaque(refcon!).takeUnretainedValue()
@@ -54,15 +108,27 @@ final class HotkeyManager {
                 let spaceDown = mgr.pressedKeys.contains(mgr.spaceKey)
 
                 if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
+                    AppLog.log("Hotkey event \(ev) (triggerKey=\(mgr.machine.triggerKey))")
                     DispatchQueue.main.async { mgr.onEvent?(ev) }
                 }
                 return Unmanaged.passUnretained(event)
             },
             userInfo: Unmanaged.passUnretained(self).toOpaque())
-        if let tap {
-            let src = CFMachPortCreateRunLoopSource(nil, tap, 0)
-            CFRunLoopAddSource(CFRunLoopGetCurrent(), src, .commonModes)
-            CGEvent.tapEnable(tap: tap, enable: true)
+
+        guard let created else { return }
+        tap = created
+        let src = CFMachPortCreateRunLoopSource(nil, created, 0)
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), src, .commonModes)
+        CGEvent.tapEnable(tap: created, enable: true)
+        runLoopSource = src
+        isActive = true
+        AppLog.log("Hotkey tap created — global push-to-talk is LIVE")
+
+        // Tap is up and trust is granted: tear down the retry machinery.
+        if AXIsProcessTrusted() {
+            retryTimer?.invalidate(); retryTimer = nil
+            NotificationCenter.default.removeObserver(
+                self, name: NSApplication.didBecomeActiveNotification, object: nil)
         }
     }
 }
