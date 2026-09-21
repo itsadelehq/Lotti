@@ -20,7 +20,7 @@ final class AppSettings: ObservableObject {
     @AppStorage("appLanguage") var appLanguage: String = "English"
 
     // Account
-    @AppStorage("firstName") var firstName: String = "Adele"
+    @AppStorage("firstName") var firstName: String = ""
     @AppStorage("lastName") var lastName: String = ""
     @AppStorage("accountEmail") var accountEmail: String = "adele.sagayam@gmail.com"
 }

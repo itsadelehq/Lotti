@@ -8,6 +8,8 @@ struct DictationView: View {
     // day the banner was dismissed, so it stays hidden for the rest of that
     // calendar day but reappears (with a new quote) on the next day.
     @AppStorage("quoteBannerDismissedDay") private var quoteBannerDismissedDay = ""
+    /// The user's own first name, set during onboarding / Settings. Empty until set.
+    @AppStorage("firstName") private var firstName = ""
 
     // Cached once (and refreshed only when the feed size changes) instead of
     // being recomputed as `body` computed properties on every SwiftUI render
@@ -82,9 +84,15 @@ struct DictationView: View {
         .onChange(of: store.revision) { _, _ in refreshIfNeeded() }
     }
 
+    /// "Welcome back, <name>" once a name is set, otherwise just "Welcome back".
+    private var welcomeTitle: String {
+        let name = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? "Welcome back" : "Welcome back, \(name)"
+    }
+
     private var mainColumn: some View {
         VStack(alignment: .leading, spacing: 24) {
-            Text("Welcome back, Adele")
+            Text(welcomeTitle)
                 .font(.gsBold(25))
                 .foregroundStyle(Color.figTextPrimary)
 
