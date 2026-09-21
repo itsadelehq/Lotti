@@ -5,8 +5,9 @@ struct PillView: View {
     @ObservedObject var model: PillModel
     var onCancel: () -> Void, onConfirm: () -> Void
 
-    // Muted teal-green tint for the cancel button.
-    private let cancelGreen = Color(red: 0x2E/255, green: 0x9E/255, blue: 0x73/255)
+    // Neutral dark grey for the cancel button (matches the Wispr reference) —
+    // NOT green, which read as a confirm/positive action.
+    private let cancelGrey = Color(red: 0x3A/255, green: 0x3A/255, blue: 0x3C/255)
 
     var body: some View {
         VStack(spacing: 8) {
@@ -15,7 +16,7 @@ struct PillView: View {
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(width: 18, height: 18)
-                    .background(Circle().fill(cancelGreen.opacity(0.85)))
+                    .background(Circle().fill(cancelGrey))
             }
             .buttonStyle(.plain)
 
@@ -39,32 +40,52 @@ struct PillView: View {
 
 final class PillModel: ObservableObject { @Published var level: Float = 0 }
 
-/// Vertical equaliser: a stack of short HORIZONTAL bars whose widths pulse
-/// with the audio level, centered in the pill.
+/// Vertical equaliser: a stack of short HORIZONTAL bars whose widths/opacity
+/// visibly pulse with the live mic level, like Wispr's waveform. Each bar
+/// carries its own phase so they don't all move in lockstep — driven by a
+/// continuously-ticking `TimelineView` so the animation is lively even when
+/// `level` updates are relatively infrequent.
 struct WaveformView: View {
     var level: Float
     private let rows = 5
     private let maxWidth: CGFloat = 22
+    // Per-bar phase offsets (radians) and rate multipliers so bars pulse at
+    // different speeds rather than moving in unison.
+    private let phases: [Double] = [0.0, 1.1, 2.3, 3.6, 4.8]
+    private let rates: [Double] = [2.4, 3.1, 2.7, 3.4, 2.9]
 
     var body: some View {
-        VStack(spacing: 4) {
-            ForEach(0..<rows, id: \.self) { i in
-                Capsule()
-                    .fill(.white)
-                    .frame(width: width(for: i), height: 3)
+        TimelineView(.animation) { context in
+            let t = context.date.timeIntervalSinceReferenceDate
+            VStack(spacing: 4) {
+                ForEach(0..<rows, id: \.self) { i in
+                    Capsule()
+                        .fill(.white)
+                        .opacity(opacity(for: i, t: t))
+                        .frame(width: width(for: i, t: t), height: 3)
+                }
             }
+            .frame(maxHeight: .infinity)
         }
-        .frame(maxHeight: .infinity)
-        .animation(.easeOut(duration: 0.08), value: level)
     }
 
     // Center rows react most; a small base width keeps bars visible at rest.
-    private func width(for i: Int) -> CGFloat {
+    // A per-bar sine wobble (scaled by the live level) makes the stack read
+    // as an animating equaliser rather than a static column.
+    private func width(for i: Int, t: TimeInterval) -> CGFloat {
         let distanceFromCenter = abs(Double(i) - Double(rows - 1) / 2)
         let weight = 1.0 - distanceFromCenter / Double(rows) // 0.6...1.0
         let base = 5.0
-        let dynamic = Double(min(1, level)) * (Double(maxWidth) - base) * weight
+        let clampedLevel = Double(min(1, max(0, level)))
+        let wobble = (sin(t * rates[i] + phases[i]) + 1) / 2 // 0...1
+        let dynamic = clampedLevel * (Double(maxWidth) - base) * weight * (0.5 + 0.5 * wobble)
         return CGFloat(base + dynamic)
+    }
+
+    private func opacity(for i: Int, t: TimeInterval) -> Double {
+        let clampedLevel = Double(min(1, max(0, level)))
+        let wobble = (sin(t * rates[i] * 1.3 + phases[i]) + 1) / 2
+        return 0.55 + 0.45 * clampedLevel * wobble + (clampedLevel < 0.02 ? 0 : 0)
     }
 }
 
