@@ -388,6 +388,7 @@ struct NoteEditorView: View {
         guard !key.isEmpty else {
             missingKey = true
             AppLog.log("note-record: no Deepgram key — open Settings → Keys. Not recording.")
+            Toaster.shared.error("Add your Deepgram key in Settings → Keys")
             return
         }
         missingKey = false
@@ -395,7 +396,7 @@ struct NoteEditorView: View {
         AppLog.log("note-record: started (live mic → Deepgram → note body)")
 
         // Open the Deepgram websocket first so it's ready by the time PCM flows.
-        let e = DeepgramEngine(apiKey: key)
+        let e = DeepgramEngine(apiKey: key, keywords: Vocabulary.terms())
         engine = e
         e.onTranscript = { [weak self] text, isFinal in
             guard isFinal, !text.isEmpty else { return }
@@ -417,6 +418,7 @@ struct NoteEditorView: View {
             let granted = await Permissions.requestMicrophone()
             if !granted {
                 AppLog.log("note-record: microphone not authorized — grant it in System Settings → Privacy → Microphone")
+                Toaster.shared.error("Microphone access is off — enable it in System Settings → Privacy.")
             }
             guard self.isRecording else { return }
             let cap = AudioCapture()

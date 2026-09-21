@@ -26,13 +26,20 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
     private var task: URLSessionWebSocketTask?
     private var onTranscriptHandler: ((String, Bool) -> Void)?
     private let apiKey: String
+    private let keywords: [String]
+    /// Set once close()/finish() runs so a subsequent WS failure is recognised as
+    /// a user-initiated stop and does NOT surface an error toast.
+    private var userClosed = false
 
     var onTranscript: ((String, Bool) -> Void)? {
         get { queue.sync { onTranscriptHandler } }
         set { queue.sync { onTranscriptHandler = newValue } }
     }
 
-    init(apiKey: String) { self.apiKey = apiKey }
+    init(apiKey: String, keywords: [String] = []) {
+        self.apiKey = apiKey
+        self.keywords = keywords
+    }
 
     func start() async throws {
         var comps = URLComponents(string: "wss://api.deepgram.com/v1/listen")!
@@ -49,6 +56,16 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
             .init(name: "punctuate", value: "true"),
             .init(name: "endpointing", value: "true"),
         ]
+        // Custom vocabulary → Deepgram keyword boosting. Each term is boosted
+        // with the `:2` intensifier; URLComponents percent-encodes the term
+        // (spaces in multi-word phrases are preserved as %20).
+        let cleanedKeywords = keywords
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        comps.queryItems?.append(contentsOf: cleanedKeywords.map {
+            URLQueryItem(name: "keywords", value: "\($0):2")
+        })
+        AppLog.log("[Lotti] deepgram: \(cleanedKeywords.count) keyword(s) applied")
         var req = URLRequest(url: comps.url!)
         req.setValue("Token \(apiKey)", forHTTPHeaderField: "Authorization")
         let newTask = URLSession.shared.webSocketTask(with: req)
@@ -73,6 +90,19 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
                     }
                 case .failure(let error):
                     AppLog.log("Deepgram: websocket error/closed — \(error.localizedDescription)")
+                    // Only toast when this was NOT a user-initiated stop; a normal
+                    // close cancels the socket and surfaces as a failure here too.
+                    if !self.userClosed {
+                        let ns = error as NSError
+                        // A 401/handshake rejection surfaces as a specific URLError.
+                        if ns.domain == NSURLErrorDomain,
+                           ns.code == NSURLErrorUserAuthenticationRequired
+                            || ns.code == NSURLErrorUserCancelledAuthentication {
+                            Toaster.shared.error("Your Deepgram key looks invalid — check Settings → Keys.")
+                        } else {
+                            Toaster.shared.error("Couldn't reach Deepgram — check your key and connection.")
+                        }
+                    }
                 }
             }
             if case .success = result {
@@ -93,7 +123,7 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
     /// paste path, so the WS close handshake never adds to perceived latency.
     func close() {
         let currentTask = queue.sync { task }
-        queue.async { self.task = nil }
+        queue.async { self.userClosed = true; self.task = nil }
         currentTask?.send(.string(#"{"type":"CloseStream"}"#)) { _ in }
         currentTask?.cancel(with: .goingAway, reason: nil)
         AppLog.log("Deepgram: websocket closed (background)")

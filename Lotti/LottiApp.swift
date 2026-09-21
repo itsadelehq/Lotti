@@ -19,7 +19,8 @@ struct LottiApp: App {
         let coord = DictationCoordinator(
             store: store,
             makeEngine: {
-                DeepgramEngine(apiKey: Keychain.get("deepgram_api_key") ?? "")
+                DeepgramEngine(apiKey: Keychain.get("deepgram_api_key") ?? "",
+                               keywords: Vocabulary.terms())
             },
             // Read the Anthropic key lazily, at dictation time, so a key entered
             // in Settings works on the next dictation without relaunching.

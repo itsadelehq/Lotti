@@ -14,6 +14,7 @@ struct SettingsView: View {
         case system = "System"
         case notetaker = "Notetaker"
         case keys = "Keys"
+        case dictionary = "Dictionary"
         case permissions = "Permissions"
         case account = "Account"
         case dataPrivacy = "Data & Privacy"
@@ -25,6 +26,7 @@ struct SettingsView: View {
             case .system: "macwindow"
             case .notetaker: "record.circle"
             case .keys: "key"
+            case .dictionary: "character.book.closed"
             case .permissions: "hand.raised"
             case .account: "person.crop.circle"
             case .dataPrivacy: "lock.shield"
@@ -43,9 +45,11 @@ struct SettingsView: View {
 
     @State private var micAuthorized = false
     @State private var axTrusted = false
+    @State private var vocabTerms: [String] = Vocabulary.terms()
+    @State private var newTerm = ""
     @AppStorage("onboardingComplete") private var onboardingComplete = false
 
-    private let topGroup: [Pane] = [.general, .system, .notetaker, .keys, .permissions]
+    private let topGroup: [Pane] = [.general, .system, .notetaker, .keys, .dictionary, .permissions]
     private let accountGroup: [Pane] = [.account, .dataPrivacy]
 
     var body: some View {
@@ -142,6 +146,7 @@ struct SettingsView: View {
                 case .system: systemContent
                 case .notetaker: notetakerContent
                 case .keys: keysContent
+                case .dictionary: dictionaryContent
                 case .permissions: permissionsContent
                 case .account: accountContent
                 case .dataPrivacy: dataPrivacyContent
@@ -283,6 +288,96 @@ struct SettingsView: View {
                 .foregroundStyle(Color.figTextGrey)
                 .padding(.horizontal, 4)
         }
+    }
+
+    // MARK: - Dictionary (custom vocabulary)
+
+    private var dictionaryContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Add names, brands, or jargon so Lotti transcribes them correctly.")
+                .font(.gsRegular(13))
+                .foregroundStyle(Color.figTextGrey)
+                .padding(.horizontal, 4)
+
+            card {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 10) {
+                        TextField("e.g. Wispr Flow", text: $newTerm)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.gsRegular(14))
+                            .onSubmit(addTerm)
+                        Button(action: addTerm) {
+                            Text("Add")
+                                .font(.gsMedium(13))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 7)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                        .fill(Color.appTeal)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(newTerm.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                    .padding(.vertical, 4)
+
+                    if vocabTerms.isEmpty {
+                        Text("No custom words yet.")
+                            .font(.gsRegular(13))
+                            .foregroundStyle(Color.figTextGrey)
+                            .padding(.vertical, 6)
+                    } else {
+                        VStack(spacing: 0) {
+                            ForEach(Array(vocabTerms.enumerated()), id: \.offset) { index, term in
+                                if index > 0 { hairline }
+                                HStack(spacing: 12) {
+                                    Text(term)
+                                        .font(.gsMedium(14))
+                                        .foregroundStyle(Color.figTextPrimary)
+                                    Spacer(minLength: 12)
+                                    Button(action: { removeTerm(at: index) }) {
+                                        Image(systemName: "xmark")
+                                            .font(.system(size: 10, weight: .semibold))
+                                            .foregroundStyle(Color.figTextGrey)
+                                            .frame(width: 24, height: 24)
+                                            .background(Circle().fill(Color.figNavActiveBg))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                                .padding(.vertical, 10)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Text("Each term is boosted in Deepgram so it's recognised more reliably. Takes effect on your next dictation or recording.")
+                .font(.gsRegular(12))
+                .foregroundStyle(Color.figTextGrey)
+                .padding(.horizontal, 4)
+        }
+        .onAppear { vocabTerms = Vocabulary.terms() }
+    }
+
+    private func addTerm() {
+        let trimmed = newTerm.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        var terms = vocabTerms
+        terms.append(trimmed)
+        Vocabulary.set(terms)
+        vocabTerms = Vocabulary.terms()
+        newTerm = ""
+        AppLog.log("[Lotti] vocabulary: added \"\(trimmed)\" (\(vocabTerms.count) total)")
+    }
+
+    private func removeTerm(at index: Int) {
+        guard vocabTerms.indices.contains(index) else { return }
+        var terms = vocabTerms
+        let removed = terms.remove(at: index)
+        Vocabulary.set(terms)
+        vocabTerms = Vocabulary.terms()
+        AppLog.log("[Lotti] vocabulary: removed \"\(removed)\" (\(vocabTerms.count) total)")
     }
 
     // MARK: - Permissions
