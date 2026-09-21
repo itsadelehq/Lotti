@@ -2,15 +2,15 @@ import SwiftUI
 import AppKit
 
 enum Section: String, CaseIterable, Identifiable {
-    case dictation, notetaker, insights, dictionary, style, scratchpad, settings
+    case dictation, notetaker, insights, snippets, scratchpad, settings
     var id: String { rawValue }
     var title: String { rawValue.capitalized }
-    var isActive: Bool { self == .dictation || self == .insights || self == .settings }
+    var isActive: Bool { self == .dictation || self == .insights || self == .snippets || self == .settings }
     var systemImage: String {
         switch self {
         case .dictation: "mic"; case .notetaker: "record.circle"
-        case .insights: "chart.bar"; case .dictionary: "character.book.closed"
-        case .style: "textformat"; case .scratchpad: "note.text"
+        case .insights: "chart.bar"; case .snippets: "text.badge.plus"
+        case .scratchpad: "note.text"
         case .settings: "gearshape"
         }
     }
@@ -28,7 +28,7 @@ struct RootView: View {
     @State private var hoveredSection: String?
     @State private var showSettings = false
     private let mainSections: [Section] = [
-        .dictation, .notetaker, .insights, .dictionary, .style, .scratchpad,
+        .dictation, .notetaker, .insights, .snippets, .scratchpad,
     ]
 
     var body: some View {
@@ -116,6 +116,7 @@ struct RootView: View {
             switch selection {
             case .dictation: DictationView()
             case .insights: InsightsView()
+            case .snippets: SnippetsView()
             default: ContentUnavailableView("Coming soon", systemImage: "clock")
             }
         }
