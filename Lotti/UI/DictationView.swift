@@ -162,7 +162,10 @@ struct DictationView: View {
                         sectionHeader(group.title)
                         feedContainer {
                             ForEach(Array(group.items.enumerated()), id: \.element.id) { index, item in
-                                FeedRow(item: item)
+                                FeedRow(item: item, onDelete: {
+                                    cachedItemCount = -1
+                                    refreshIfNeeded()
+                                })
                                 if index != group.items.count - 1 {
                                     Rectangle()
                                         .fill(Color.figBorder)
@@ -251,7 +254,11 @@ struct DictationView: View {
 /// A single dictation row that reveals a trailing action cluster on hover.
 private struct FeedRow: View {
     let item: Dictation
+    var onDelete: () -> Void = {}
+
+    @EnvironmentObject var store: Store
     @State private var hovering = false
+    @State private var copied = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
@@ -269,24 +276,72 @@ private struct FeedRow: View {
         }
         .padding(.vertical, 17)
         .padding(.horizontal, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(hovering ? Color(hex: 0xF0EFEB) : Color.clear)
+        )
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
-        .animation(.easeInOut(duration: 0.15), value: hovering)
+        .animation(.easeOut(duration: 0.12), value: hovering)
     }
 
     private var actions: some View {
         HStack(spacing: 10) {
-            iconButton("play") {}
-            iconButton("doc.on.doc") {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(item.polishedText, forType: .string)
+            iconButton(copied ? "checkmark" : "doc.on.doc", help: copied ? "Copied!" : "Copy transcript") {
+                copy()
             }
-            iconButton("flag") {}
-            iconButton("ellipsis") {}
+            iconButton("flag", help: "Flag") {}
+            moreOptionsMenu
         }
     }
 
-    private func iconButton(_ symbol: String, action: @escaping () -> Void) -> some View {
+    private func copy() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(item.polishedText, forType: .string)
+        copied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            copied = false
+        }
+    }
+
+    private var moreOptionsMenu: some View {
+        Menu {
+            Button {
+                // Undo AI edit: no-op for now.
+            } label: {
+                Label("Undo AI edit", systemImage: "arrow.uturn.backward")
+            }
+            Button {
+                // Retry transcript: no-op for now.
+            } label: {
+                Label("Retry transcript", systemImage: "arrow.clockwise")
+            }
+            Button(role: .destructive) {
+                store.delete(item)
+                onDelete()
+            } label: {
+                Label("Delete transcript", systemImage: "trash")
+            }
+            Button {
+                // Extract audio: no-op for now.
+            } label: {
+                Label("Extract audio", systemImage: "waveform")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(Color.figTextGrey)
+                .frame(width: 26, height: 26)
+                .contentShape(Rectangle())
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .help("More options")
+    }
+
+    private func iconButton(_ symbol: String, help: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 13, weight: .medium))
@@ -295,5 +350,6 @@ private struct FeedRow: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(help)
     }
 }

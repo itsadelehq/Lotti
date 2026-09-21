@@ -12,6 +12,7 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
         container = try! ModelContainer(for: Dictation.self, configurations: config)
     }
     func add(_ d: Dictation) { context.insert(d); try? context.save() }
+    func delete(_ d: Dictation) { context.delete(d); try? context.save() }
     func all() -> [Dictation] {
         (try? context.fetch(FetchDescriptor<Dictation>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]))) ?? []
