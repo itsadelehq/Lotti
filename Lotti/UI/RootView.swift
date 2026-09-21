@@ -25,6 +25,7 @@ enum Section: String, CaseIterable, Identifiable {
 /// switching is a synchronous `@State` change (instant).
 struct RootView: View {
     @State private var selection: Section = .dictation
+    @State private var hoveredSection: String?
     private let mainSections: [Section] = [
         .dictation, .notetaker, .insights, .dictionary, .style, .scratchpad,
     ]
@@ -67,7 +68,7 @@ struct RootView: View {
 
             VStack(spacing: 2) {
                 sidebarRow(.settings)
-                navRow(icon: "questionmark.circle", title: "Help", isActive: false) {}
+                navRow(id: "help", icon: "questionmark.circle", title: "Help", isActive: false) {}
             }
             .padding(.horizontal, 8)
             .padding(.bottom, 12)
@@ -109,7 +110,7 @@ struct RootView: View {
 
     @ViewBuilder
     private func sidebarRow(_ s: Section) -> some View {
-        navRow(icon: s.systemImage, title: s.title, isActive: selection == s) {
+        navRow(id: s.id, icon: s.systemImage, title: s.title, isActive: selection == s) {
             // Synchronous, unanimated selection change — instantaneous.
             selection = s
         }
@@ -117,9 +118,11 @@ struct RootView: View {
 
     /// Shared 40pt nav row: 18pt icon + label with 10pt gap, 12pt horizontal
     /// padding, radius 6. Active rows use semibold weight over the #ECEBE6 pill;
-    /// inactive rows are medium weight over a transparent background.
+    /// inactive rows are medium weight over a transparent background, and show
+    /// a subtle lighter pill on pointer hover (like Wispr Flow).
     @ViewBuilder
-    private func navRow(icon: String, title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+    private func navRow(id: String, icon: String, title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+        let isHovered = hoveredSection == id
         Button(action: action) {
             HStack(spacing: 10) {
                 Image(systemName: icon)
@@ -134,10 +137,19 @@ struct RootView: View {
             .frame(height: 40)
             .background(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(isActive ? Color.figNavActiveBg : .clear)
+                    .fill(isActive ? Color.figNavActiveBg : (isHovered ? Color.figNavHoverBg : .clear))
             )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .animation(.easeOut(duration: 0.12), value: isHovered)
+        .onHover { hovering in
+            hoveredSection = hovering ? id : (hoveredSection == id ? nil : hoveredSection)
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
     }
 }
