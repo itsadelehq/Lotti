@@ -26,6 +26,17 @@ struct PillView: View {
             // so the pill's overall height is unchanged.
             WaveformView(level: model.level)
                 .frame(width: 24, height: 52)
+                // Subtle hands-free indicator: a small lock glyph overlaid on the
+                // waveform so the user knows releasing the key won't stop it.
+                .overlay(alignment: .center) {
+                    if model.isLocked {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(3)
+                            .background(Circle().fill(cancelGrey.opacity(0.9)))
+                    }
+                }
 
             Button(action: onConfirm) {
                 Image(systemName: "checkmark")
@@ -41,10 +52,18 @@ struct PillView: View {
         .padding(.vertical, 5)
         .frame(width: 40)
         .background(RoundedRectangle(cornerRadius: 20).fill(.black))
+        // A subtle teal border while hands-free lock is engaged.
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.appTeal, lineWidth: model.isLocked ? 1.5 : 0)
+        )
     }
 }
 
-final class PillModel: ObservableObject { @Published var level: Float = 0 }
+final class PillModel: ObservableObject {
+    @Published var level: Float = 0
+    @Published var isLocked: Bool = false
+}
 
 /// Vertical equaliser: a stack of short HORIZONTAL bars whose widths/opacity
 /// visibly pulse with the live mic level, like Wispr's waveform. Each bar
@@ -107,6 +126,8 @@ struct WaveformView: View {
     private let pillHeight: CGFloat = 110
 
     func show() {
+        // Reset any prior locked state whenever a fresh session's pill appears.
+        model.isLocked = false
         let host = NSHostingController(rootView: PillView(model: model,
             onCancel: { [weak self] in self?.onCancel?() },
             onConfirm: { [weak self] in self?.onConfirm?() }))
@@ -123,5 +144,7 @@ struct WaveformView: View {
         panel = p
     }
     func update(level: Float) { model.level = level }
+    /// Reflects hands-free lock state on the pill (lock glyph + teal border).
+    func setLocked(_ isLocked: Bool) { model.isLocked = isLocked }
     func hide() { panel?.orderOut(nil); panel = nil }
 }

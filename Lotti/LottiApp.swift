@@ -42,7 +42,7 @@ struct LottiApp: App {
             case .start: coord.begin()
             case .stop: Task { await coord.end(cancelled: false) }
             case .cancel: Task { await coord.end(cancelled: true) }
-            case .lockToggle: break
+            case .lockToggle: coord.lockEngaged()
             }
         }
         hotkey.start()

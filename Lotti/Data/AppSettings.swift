@@ -8,6 +8,11 @@ final class AppSettings: ObservableObject {
     // (~350ms) instead of waiting on the Haiku polish call (~1.4s). Opt in for
     // higher-accuracy cleanup at the cost of latency.
     @AppStorage("polishEnabled") var polishEnabled: Bool = false
+    // Off by default. When on, pressing the trigger key + spacebar locks the
+    // session hands-free (keep recording without holding the key); press the key
+    // again to stop. Kept opt-in so a stray spacebar can't accidentally lock and
+    // swallow the key release, which used to split/lose dictation.
+    @AppStorage("handsFreeLock") var handsFreeLock: Bool = false
 
     // System
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
@@ -18,6 +23,8 @@ final class AppSettings: ObservableObject {
 
     // General
     @AppStorage("appLanguage") var appLanguage: String = "English"
+    // Persistent UID of the chosen input device; empty = system default.
+    @AppStorage("inputDeviceUID") var inputDeviceUID: String = ""
 
     // Account
     @AppStorage("firstName") var firstName: String = ""

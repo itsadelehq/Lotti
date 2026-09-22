@@ -69,6 +69,13 @@ import Foundation
         }
     }
 
+    /// Called when hands-free lock engages (trigger key + spacebar). Reflects it
+    /// on the floating pill so the user knows releasing the key won't stop it.
+    func lockEngaged() {
+        pill?.setLocked(true)
+        AppLog.log("[Lotti] Coordinator: hands-free lock engaged")
+    }
+
     func end(cancelled: Bool) async {
         let keyUp = Date()
         audio?.stop()

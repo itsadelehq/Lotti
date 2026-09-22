@@ -56,6 +56,13 @@ final class HotkeyManager: ObservableObject {
     private var pressedKeys = Set<CGKeyCode>()
     private let spaceKey: CGKeyCode = 0x31
 
+    /// Whether "hold key + spacebar to lock (hands-free)" is opt-in enabled.
+    /// Default OFF so a stray spacebar press during dictation can never lock the
+    /// session and swallow the key release (which used to split/lose speech).
+    fileprivate var handsFreeLockEnabled: Bool {
+        UserDefaults.standard.bool(forKey: "handsFreeLock")
+    }
+
     func start() {
         // Live trigger-key updates from Settings (no relaunch needed).
         NotificationCenter.default.addObserver(
@@ -110,7 +117,18 @@ final class HotkeyManager: ObservableObject {
                     } else {
                         mgr.pressedKeys.remove(code)
                     }
-                    let spaceDown = mgr.pressedKeys.contains(mgr.spaceKey)
+                    // Gate the space→lock behaviour behind the opt-in flag: when
+                    // disabled, `spaceDown` is forced false so a spacebar press
+                    // during recording is IGNORED (never locks the session).
+                    let spacePressed = mgr.pressedKeys.contains(mgr.spaceKey)
+                    let spaceDown = mgr.handsFreeLockEnabled && spacePressed
+                    if code == mgr.spaceKey, isDown, mgr.machine.isRecording {
+                        if mgr.handsFreeLockEnabled {
+                            AppLog.log("[Lotti] hands-free lock: applying lock (key + space while recording)")
+                        } else {
+                            AppLog.log("[Lotti] hands-free lock: ignored space press (feature off)")
+                        }
+                    }
 
                     if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
                         print("[Lotti] hotkey \(ev) key=0x\(String(code, radix: 16))")
@@ -149,7 +167,9 @@ final class HotkeyManager: ObservableObject {
                             // (e.g. the other ⌘ key toggled the shared flag).
                             return Unmanaged.passUnretained(event)
                         }
-                        let spaceDown = mgr.pressedKeys.contains(mgr.spaceKey)
+                        // Space is a regular key (handled above), never a
+                        // modifier — but keep the same gate here for safety.
+                        let spaceDown = mgr.handsFreeLockEnabled && mgr.pressedKeys.contains(mgr.spaceKey)
 
                         if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
                             print("[Lotti] hotkey \(ev) key=0x\(String(code, radix: 16))")
