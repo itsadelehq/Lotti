@@ -47,6 +47,7 @@ struct SettingsView: View {
     @State private var axTrusted = false
     @State private var vocabTerms: [String] = Vocabulary.terms()
     @State private var newTerm = ""
+    @State private var inputDevices: [(id: String, name: String)] = []
     @AppStorage("onboardingComplete") private var onboardingComplete = false
 
     private let topGroup: [Pane] = [.general, .system, .notetaker, .keys, .dictionary, .permissions]
@@ -192,8 +193,19 @@ struct SettingsView: View {
                 }
             }
             hairline
-            settingRow(label: "Microphone", sub: "Auto-detect (System Default)") {
-                changeButton("Change") {}
+            settingRow(label: "Microphone", sub: micSubValue) {
+                Picker("", selection: $settings.inputDeviceUID) {
+                    Text("System default").tag("")
+                    ForEach(inputDevices, id: \.id) { device in
+                        Text(device.name).tag(device.id)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 180)
+                .onChange(of: settings.inputDeviceUID) { newValue in
+                    let name = inputDevices.first(where: { $0.id == newValue })?.name ?? "System default"
+                    AppLog.log("[Lotti] Settings: input device selected → \"\(name)\"")
+                }
             }
             hairline
             settingRow(label: "Dictation Language", sub: "English") {
@@ -208,6 +220,16 @@ struct SettingsView: View {
                 .frame(width: 130)
             }
         }
+        .onAppear { inputDevices = AudioDevices.inputs() }
+    }
+
+    /// Sub-value under the Microphone row: the selected device's name, or the
+    /// current system default when "System default" is chosen.
+    private var micSubValue: String {
+        let uid = settings.inputDeviceUID
+        if uid.isEmpty { return "System default (\(AudioDevices.systemDefaultName()))" }
+        if let match = inputDevices.first(where: { $0.id == uid }) { return match.name }
+        return "Selected device not connected"
     }
 
     // MARK: - System
@@ -226,6 +248,12 @@ struct SettingsView: View {
                 toggleRow(label: "Show app in Dock",
                           sub: "Keep the Lotti icon in your Dock",
                           isOn: $settings.showInDock)
+            }
+            sectionHeading("Dictation")
+            card {
+                toggleRow(label: "Hands-free lock (hold key + spacebar)",
+                          sub: "When on, press your key + spacebar to keep recording without holding the key; press the key again to stop.",
+                          isOn: $settings.handsFreeLock)
             }
             sectionHeading("Sound")
             card {
