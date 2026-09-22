@@ -53,6 +53,7 @@ final class HotkeyManager: ObservableObject {
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
     private var retryTimer: Timer?
+    private var keepAliveTimer: Timer?
     private var pressedKeys = Set<CGKeyCode>()
     private let spaceKey: CGKeyCode = 0x31
 
@@ -86,10 +87,34 @@ final class HotkeyManager: ObservableObject {
             RunLoop.main.add(timer, forMode: .common)
             retryTimer = timer
         }
+
+        // Keep-alive: macOS disables event taps after sleep/idle/heavy load.
+        // Re-check on wake and on a low-frequency timer so push-to-talk never
+        // silently dies without a relaunch.
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self, selector: #selector(ensureTapEnabled),
+            name: NSWorkspace.didWakeNotification, object: nil)
+        let keepAlive = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            self?.ensureTapEnabled()
+        }
+        RunLoop.main.add(keepAlive, forMode: .common)
+        keepAliveTimer = keepAlive
     }
 
     @objc private func appDidBecomeActive() {
-        attemptCreateTap()
+        ensureTapEnabled()
+    }
+
+    /// Recreate the tap if it's gone, or re-enable it if macOS disabled it.
+    @objc private func ensureTapEnabled() {
+        if let t = tap {
+            if !CGEvent.tapIsEnabled(tap: t) {
+                CGEvent.tapEnable(tap: t, enable: true)
+                AppLog.log("Hotkey tap re-enabled (keep-alive)")
+            }
+        } else {
+            attemptCreateTap()
+        }
     }
 
     /// Attempts to (re)create the event tap. No-op once active. Stops the retry
@@ -174,6 +199,15 @@ final class HotkeyManager: ObservableObject {
                             AppLog.log("Hotkey event \(ev) key=0x\(String(code, radix: 16)) (triggerKey=\(mgr.machine.triggerKey))")
                             DispatchQueue.main.async { mgr.onEvent?(ev) }
                         }
+                    }
+
+                case .tapDisabledByTimeout, .tapDisabledByUserInput:
+                    // macOS disables event taps after sleep, heavy load, or a
+                    // slow callback. Re-enable ours immediately so push-to-talk
+                    // survives sleep/idle without a relaunch.
+                    if let t = mgr.tap {
+                        CGEvent.tapEnable(tap: t, enable: true)
+                        AppLog.log("Hotkey tap re-enabled (macOS had disabled it)")
                     }
 
                 default:
