@@ -15,6 +15,9 @@ import Foundation
     private var audio: AudioCapture?
     private var pill: FloatingPillController?
     private var finals: [String] = []
+    /// Latest INTERIM (non-final) transcript. Used as a fallback so a tail that
+    /// was still interim when recording stopped isn't lost.
+    private var lastInterim: String = ""
     private var startedAt: Date?
     private var targetApp: String?
 
@@ -31,7 +34,7 @@ import Foundation
     }
 
     func begin() {
-        finals.removeAll(); startedAt = Date()
+        finals.removeAll(); lastInterim = ""; startedAt = Date()
         targetApp = inject ? TextInjector.frontmostAppBundleId() : nil
         Sounds.playStart()
         pill?.show()
@@ -48,7 +51,10 @@ import Foundation
         if hasKey {
             let e = makeEngine(); engine = e
             e.onTranscript = { [weak self] text, isFinal in
-                Task { @MainActor in if isFinal { self?.finals.append(text) } }
+                Task { @MainActor in
+                    if isFinal { self?.finals.append(text) }
+                    else { self?.lastInterim = text }
+                }
             }
             Task {
                 do { try await e.start() }
@@ -91,15 +97,30 @@ import Foundation
             return
         }
 
-        // Flush Deepgram so it emits any last final transcript, then wait only
-        // a short bounded window for it — do NOT block on the WS close handshake.
-        e?.finalize()
-        await waitForFinalizedTranscript(maxWait: 0.30)
+        // Flush Deepgram and WAIT for the trailing final transcript(s) that arrive
+        // a few hundred ms after Finalize — finish() only returns once they've been
+        // delivered via onTranscript (and the socket has been closed). This is what
+        // keeps the END of longer/faster speech ("tail") from being dropped.
+        if let e {
+            await e.finish()
+            // Let any final onTranscript MainActor hops that were enqueued just
+            // before finish() resumed drain into `finals`/`lastInterim`.
+            await drainPendingTranscripts()
+        }
         let lastFinalAt = Date()
-        // Close the socket in the background; the paste path never awaits it.
-        e?.close()
+        AppLog.log(String(format: "[Lotti] timing keyUp→finishReturned: %.0fms",
+                          lastFinalAt.timeIntervalSince(keyUp) * 1000))
 
-        let raw = finals.joined(separator: " ")
+        var raw = finals.joined(separator: " ")
+        // Fallback: if the very last thing spoken was still an interim (finals
+        // never caught up to it), append it so no trailing words are lost.
+        let interim = lastInterim.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !interim.isEmpty,
+           !raw.trimmingCharacters(in: .whitespacesAndNewlines)
+                .hasSuffix(interim) {
+            raw = raw.isEmpty ? interim : raw + " " + interim
+            AppLog.log("[Lotti] tail fallback: appended trailing interim")
+        }
         AppLog.log(String(format: "[Lotti] timing keyUp→lastFinal: %.0fms",
                           lastFinalAt.timeIntervalSince(keyUp) * 1000))
         guard !raw.isEmpty else {
@@ -172,14 +193,17 @@ import Foundation
         return result
     }
 
-    /// Poll briefly for a late final transcript to land after `finalize()`.
-    /// Returns as soon as `finals` grows, or after `maxWait` seconds.
-    private func waitForFinalizedTranscript(maxWait: TimeInterval) async {
-        let deadline = Date().addingTimeInterval(maxWait)
-        let before = finals.count
-        while Date() < deadline {
+    /// The engine delivers trailing finals via `onTranscript`, which hops to the
+    /// MainActor asynchronously. When `finish()` resumes, the last such hop may
+    /// still be queued; wait briefly until `finals` stops growing so the tail is
+    /// fully accumulated before we build the transcript. Bounded and short.
+    private func drainPendingTranscripts() async {
+        var lastCount = -1
+        for _ in 0..<8 { // up to ~160ms
+            let count = finals.count
+            if count == lastCount { return } // settled
+            lastCount = count
             try? await Task.sleep(nanoseconds: 20_000_000) // 20ms
-            if finals.count > before { return }
         }
     }
 }

@@ -6,12 +6,20 @@ enum DeepgramParser {
             let alternatives: [Alt] }
         let is_final: Bool?
         let channel: Channel?
+        let type: String?
     }
     static func transcript(from json: Data) -> (text: String, isFinal: Bool)? {
         guard let f = try? JSONDecoder().decode(Frame.self, from: json),
               let text = f.channel?.alternatives.first?.transcript,
               !text.isEmpty else { return nil }
         return (text, f.is_final ?? false)
+    }
+    /// True when the message signals that the post-`Finalize` flush is complete:
+    /// Deepgram emits a `{"type":"Metadata"}` frame (and closes the turn) once it
+    /// has delivered the remaining final results for the flushed tail audio.
+    static func isFinalizeComplete(from json: Data) -> Bool {
+        guard let f = try? JSONDecoder().decode(Frame.self, from: json) else { return false }
+        return f.type == "Metadata"
     }
 }
 
@@ -30,6 +38,22 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
     /// Set once close()/finish() runs so a subsequent WS failure is recognised as
     /// a user-initiated stop and does NOT surface an error toast.
     private var userClosed = false
+
+    // --- Tail capture (finalize) state, all confined to `queue`. ---
+    /// True between `finish()` sending Finalize and the trailing finals landing.
+    private var isFinishing = false
+    /// Resumed exactly once when the finalize flush is judged complete.
+    private var finishContinuation: CheckedContinuation<Void, Never>?
+    /// Fires ~250ms after the last trailing final; declares the flush quiet.
+    private var quietTimer: DispatchWorkItem?
+    /// Hard upper bound (~1.5s) so `finish()` always returns.
+    private var hardCapTimer: DispatchWorkItem?
+    /// Set true when Finalize completed normally, so the subsequent socket close
+    /// is recognised as expected and not logged/toasted as an error.
+    private var finalizeCompleted = false
+
+    private let quietWindow: TimeInterval = 0.25
+    private let hardCap: TimeInterval = 1.5
 
     var onTranscript: ((String, Bool) -> Void)? {
         get { queue.sync { onTranscriptHandler } }
@@ -81,15 +105,32 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
             self.queue.async {
                 switch result {
                 case .success(let msg):
-                    if case .string(let s) = msg, let d = s.data(using: .utf8),
-                       let parsed = DeepgramParser.transcript(from: d) {
-                        if parsed.isFinal {
-                            AppLog.log("Deepgram: FINAL transcript — \"\(parsed.text)\"")
+                    if case .string(let s) = msg, let d = s.data(using: .utf8) {
+                        if let parsed = DeepgramParser.transcript(from: d) {
+                            if parsed.isFinal {
+                                AppLog.log("Deepgram: FINAL transcript — \"\(parsed.text)\"")
+                            }
+                            self.onTranscriptHandler?(parsed.text, parsed.isFinal)
+                            // While flushing the tail, every trailing final restarts
+                            // a short quiet timer; when it elapses the flush is done.
+                            if self.isFinishing && parsed.isFinal {
+                                self.armQuietTimer()
+                            }
+                        } else if self.isFinishing, DeepgramParser.isFinalizeComplete(from: d) {
+                            // Deepgram acknowledged the flush — resolve immediately.
+                            self.resolveFinish()
                         }
-                        self.onTranscriptHandler?(parsed.text, parsed.isFinal)
                     }
                 case .failure(let error):
+                    // A normal post-finalize/close cancels the socket and surfaces
+                    // here too; don't log a scary error for the expected case.
+                    if self.userClosed || self.finalizeCompleted {
+                        // If we were still waiting on the flush, unblock finish().
+                        if self.isFinishing { self.resolveFinish() }
+                        break
+                    }
                     AppLog.log("Deepgram: websocket error/closed — \(error.localizedDescription)")
+                    if self.isFinishing { self.resolveFinish() }
                     // Only toast when this was NOT a user-initiated stop; a normal
                     // close cancels the socket and surfaces as a failure here too.
                     if !self.userClosed {
@@ -128,5 +169,59 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
         currentTask?.cancel(with: .goingAway, reason: nil)
         AppLog.log("Deepgram: websocket closed (background)")
     }
-    func finish() async { close() }
+
+    /// Flush Deepgram and WAIT (bounded) for the trailing final transcript(s) that
+    /// arrive a few hundred ms after `Finalize`, delivering them through
+    /// `onTranscript` before returning. Only then is the socket closed. This is
+    /// what prevents the END of longer/faster speech ("tail") from being dropped.
+    func finish() async {
+        finalize() // sends {"type":"Finalize"}
+        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            queue.async {
+                // Guard against a socket that already failed/closed before we got here.
+                guard self.task != nil, !self.userClosed else {
+                    cont.resume()
+                    return
+                }
+                self.isFinishing = true
+                self.finishContinuation = cont
+                // Ultimate upper bound so finish() always returns even if Deepgram
+                // never acknowledges (e.g. dropped connection).
+                self.armHardCap()
+            }
+        }
+        // The trailing finals (if any) have now been delivered — close the socket.
+        finalizeCompleted = true
+        close()
+        AppLog.log("[Lotti] Deepgram: finalize complete, socket closed")
+    }
+
+    /// (Re)arm the quiet timer: when no new final arrives for `quietWindow`, the
+    /// flush is considered drained. Must be called on `queue`.
+    private func armQuietTimer() {
+        quietTimer?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.resolveFinish() }
+        quietTimer = work
+        queue.asyncAfter(deadline: .now() + quietWindow, execute: work)
+    }
+
+    /// Arm the hard-cap timer. Must be called on `queue`.
+    private func armHardCap() {
+        hardCapTimer?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.resolveFinish() }
+        hardCapTimer = work
+        queue.asyncAfter(deadline: .now() + hardCap, execute: work)
+    }
+
+    /// Resume `finish()` exactly once and stop all finalize timers. Must be
+    /// called on `queue`.
+    private func resolveFinish() {
+        guard isFinishing else { return }
+        isFinishing = false
+        quietTimer?.cancel(); quietTimer = nil
+        hardCapTimer?.cancel(); hardCapTimer = nil
+        let cont = finishContinuation
+        finishContinuation = nil
+        cont?.resume()
+    }
 }
