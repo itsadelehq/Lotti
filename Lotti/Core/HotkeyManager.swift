@@ -131,8 +131,7 @@ final class HotkeyManager: ObservableObject {
                     }
 
                     if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
-                        print("[Lotti] hotkey \(ev) key=0x\(String(code, radix: 16))")
-                        AppLog.log("Hotkey event \(ev) (triggerKey=\(mgr.machine.triggerKey))")
+                        AppLog.log("Hotkey event \(ev) key=0x\(String(code, radix: 16)) (triggerKey=\(mgr.machine.triggerKey))")
                         DispatchQueue.main.async { mgr.onEvent?(ev) }
                     }
 
@@ -172,8 +171,7 @@ final class HotkeyManager: ObservableObject {
                         let spaceDown = mgr.handsFreeLockEnabled && mgr.pressedKeys.contains(mgr.spaceKey)
 
                         if let ev = mgr.machine.handle(keyCode: code, isDown: isDown, spaceDown: spaceDown) {
-                            print("[Lotti] hotkey \(ev) key=0x\(String(code, radix: 16))")
-                            AppLog.log("Hotkey event \(ev) (triggerKey=\(mgr.machine.triggerKey))")
+                            AppLog.log("Hotkey event \(ev) key=0x\(String(code, radix: 16)) (triggerKey=\(mgr.machine.triggerKey))")
                             DispatchQueue.main.async { mgr.onEvent?(ev) }
                         }
                     }
