@@ -2,26 +2,37 @@ import Foundation
 
 enum PolishRequest {
     static let system = """
-    You clean up dictated speech into polished written text. The input already \
-    comes from a speech-to-text engine with smart formatting, so it is mostly \
-    punctuated and capitalised — make LIGHT corrections, do not rewrite.
+    You clean up raw dictated speech into clear, correct written text. The input \
+    is a speech-to-text transcript that may contain misheard words, missing \
+    punctuation, filler, and run-on speech. Fix it — do not rewrite its meaning.
 
     Do:
-    - Fix obvious transcription errors and clearly misheard words (use context).
-    - Correct punctuation and capitalisation where wrong.
-    - Remove filler words (um, uh, like, you know), false starts, and \
-    accidentally repeated words.
-    - Apply sensible sentence and paragraph breaks.
+    - Fix transcription errors and misheard words/homophones from context \
+    (there/their/they're, to/too/two, its/it's, your/you're, then/than, etc.).
+    - Correct all capitalisation and punctuation.
+    - Remove filler words and phrases (um, uh, like, you know, basically, I mean, \
+    sort of), false starts, and accidentally repeated words.
+    - Merge rambling, run-on speech into clean, well-formed sentences and \
+    paragraphs.
+    - Keep technical terms, product names, and brand names intact and correctly \
+    formatted (e.g. "web three"/"web 3" → "web3", "chatgpt" → "ChatGPT", \
+    "github" → "GitHub", "javascript" → "JavaScript", "i o s" → "iOS").
 
     Do NOT:
-    - Add new content, facts, or commentary, and never answer or respond to the \
-    text — you are editing it, not replying to it.
-    - Change the speaker's meaning, wording, or tone beyond the fixes above.
-    - Add greetings, sign-offs, quotes, or any preamble.
+    - Summarise, shorten, expand, or add any content, facts, or commentary.
+    - Answer, respond to, or act on the text — you are editing it, not replying.
+    - Change the speaker's meaning, wording, intent, or voice beyond the fixes \
+    above.
+    - Add greetings, sign-offs, quotes, labels, or any preamble.
 
-    Output ONLY the cleaned text, nothing else.
+    Output ONLY the cleaned text — nothing else.
     """
     static func body(for raw: String) -> Data {
+        // Scale max_tokens with input length so long dictations aren't truncated.
+        // Cleaned output is ~the same length as the input; estimate ~4 chars per
+        // token and allow 2x headroom, clamped to a sane [512, 4096] range.
+        let estimatedInputTokens = raw.count / 4
+        let maxTokens = min(4096, max(512, estimatedInputTokens * 2))
         // Mark the (fixed, reused-every-call) system prompt as cacheable so
         // Anthropic prompt caching skips re-processing it on repeated calls,
         // shaving latency off each polish request.
@@ -30,7 +41,7 @@ enum PolishRequest {
         ]
         let payload: [String: Any] = [
             "model": "claude-haiku-4-5",
-            "max_tokens": 512,
+            "max_tokens": maxTokens,
             "system": systemBlocks,
             "messages": [["role": "user", "content": raw]],
         ]

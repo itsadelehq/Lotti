@@ -10,6 +10,10 @@ struct LottiApp: App {
     private let pill = FloatingPillController()
 
     init() {
+        // Cleanup ON by default, even for existing installs whose "polishEnabled"
+        // key was never written (a missing bool would otherwise read false).
+        UserDefaults.standard.register(defaults: ["polishEnabled": true])
+        AppLog.startup()
         AppFonts.register()
         // Real data only: the store starts empty and only ever contains the
         // user's actual dictations. `seedDemoDataIfEmpty` is intentionally not

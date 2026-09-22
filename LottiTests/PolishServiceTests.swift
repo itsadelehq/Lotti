@@ -9,6 +9,23 @@ final class PolishServiceTests: XCTestCase {
         let messages = obj["messages"] as! [[String: Any]]
         XCTAssertTrue("\(messages)".contains("helo wrld"))
     }
+
+    func test_body_shortInput_usesFloorMaxTokens() throws {
+        let obj = try JSONSerialization.jsonObject(with: PolishRequest.body(for: "hi")) as! [String: Any]
+        XCTAssertEqual(obj["max_tokens"] as? Int, 512)
+    }
+
+    func test_body_longInput_scalesButCapsMaxTokens() throws {
+        let long = String(repeating: "word ", count: 5000) // ~25k chars
+        let obj = try JSONSerialization.jsonObject(with: PolishRequest.body(for: long)) as! [String: Any]
+        XCTAssertEqual(obj["max_tokens"] as? Int, 4096, "long input must be capped, never truncated below cap")
+    }
+
+    func test_body_systemPromptIsCached() throws {
+        let obj = try JSONSerialization.jsonObject(with: PolishRequest.body(for: "x")) as! [String: Any]
+        let system = obj["system"] as! [[String: Any]]
+        XCTAssertEqual((system.first?["cache_control"] as? [String: Any])?["type"] as? String, "ephemeral")
+    }
     func test_parsesResponseText() {
         let json = """
         {"content":[{"type":"text","text":"Hello, world."}]}

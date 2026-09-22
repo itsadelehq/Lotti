@@ -4,10 +4,10 @@ import CoreGraphics
 final class AppSettings: ObservableObject {
     @AppStorage("triggerKeyCode") var triggerKeyCode: Int = 0x36
     @AppStorage("engine") var engine: String = "deepgram"
-    // Off by default: pastes the Deepgram smart-formatted transcript immediately
-    // (~350ms) instead of waiting on the Haiku polish call (~1.4s). Opt in for
-    // higher-accuracy cleanup at the cost of latency.
-    @AppStorage("polishEnabled") var polishEnabled: Bool = false
+    // On by default: runs the Haiku cleanup on every dictation (Wispr-style) so
+    // output is corrected and readable. Turn OFF to paste the raw Deepgram
+    // smart-formatted transcript immediately (~350ms, no round trip).
+    @AppStorage("polishEnabled") var polishEnabled: Bool = true
     // Off by default. When on, pressing the trigger key + spacebar locks the
     // session hands-free (keep recording without holding the key); press the key
     // again to stop. Kept opt-in so a stray spacebar can't accidentally lock and

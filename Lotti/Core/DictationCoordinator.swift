@@ -131,7 +131,11 @@ import Foundation
         // Polish with Haiku only when the user opted in via Settings; otherwise
         // paste the smart-formatted Deepgram text directly (near-instant path,
         // ~350ms instead of ~1.4s for the Haiku round trip).
-        let polishEnabled = UserDefaults.standard.bool(forKey: "polishEnabled")
+        // Cleanup is ON by default: a missing key means the user never opted out,
+        // so treat nil as true (matches the registered default and AppSettings).
+        let polishEnabled = UserDefaults.standard.object(forKey: "polishEnabled") == nil
+            ? true
+            : UserDefaults.standard.bool(forKey: "polishEnabled")
         var polished: String
         if polishEnabled, let polisher = makePolish() {
             polished = (try? await polisher.polish(raw)) ?? raw
