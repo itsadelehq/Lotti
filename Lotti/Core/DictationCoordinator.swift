@@ -128,37 +128,65 @@ import Foundation
             return
         }
 
-        // Polish with Haiku only when the user opted in via Settings; otherwise
-        // paste the smart-formatted Deepgram text directly (near-instant path,
-        // ~350ms instead of ~1.4s for the Haiku round trip).
         // Cleanup is ON by default: a missing key means the user never opted out,
         // so treat nil as true (matches the registered default and AppSettings).
         let polishEnabled = UserDefaults.standard.object(forKey: "polishEnabled") == nil
             ? true
             : UserDefaults.standard.bool(forKey: "polishEnabled")
-        var polished: String
-        if polishEnabled, let polisher = makePolish() {
-            polished = (try? await polisher.polish(raw)) ?? raw
-        } else {
-            polished = raw
-        }
-        // Expand saved snippets LAST — after any polish — so URLs/expansions
-        // are inserted verbatim and never altered by Haiku.
-        polished = Self.expandSnippets(in: polished, snippets: store.snippets())
-        let polishAt = Date()
-        AppLog.log(String(format: "[Lotti] timing lastFinal→haiku: %.0fms",
-                          polishAt.timeIntervalSince(lastFinalAt) * 1000))
+        let polisher = polishEnabled ? makePolish() : nil
 
-        if inject { TextInjector.paste(polished) }
-        let pasteAt = Date()
-        AppLog.log(String(format: "[Lotti] timing haiku→pasted: %.0fms | total keyUp→pasted: %.0fms",
-                          pasteAt.timeIntervalSince(polishAt) * 1000,
-                          pasteAt.timeIntervalSince(keyUp) * 1000))
+        // nova-3's smart-formatted output is already clean and well-punctuated,
+        // so we expand snippets on it and can paste it AS-IS immediately. For
+        // short/medium dictation we then swap in the Haiku-cleaned version in
+        // place (Wispr-like: text appears instantly, refines a beat later). For
+        // long dictation we skip the instant path — mass-backspacing hundreds of
+        // characters to swap would look janky — and just polish-then-paste once.
+        let snippets = store.snippets()
+        let rawExpanded = Self.expandSnippets(in: raw, snippets: snippets)
+        let instantSwapCap = 400 // chars; above this, polish-then-paste once
+        let useInstant = inject && rawExpanded.count <= instantSwapCap
+
+        var finalText = rawExpanded
+        if useInstant {
+            TextInjector.paste(rawExpanded) // instant — user sees text now
+            let instantAt = Date()
+            AppLog.log(String(format: "[Lotti] timing keyUp→instantPaste: %.0fms",
+                              instantAt.timeIntervalSince(keyUp) * 1000))
+            if let polisher {
+                let polished = (try? await polisher.polish(raw)) ?? raw
+                let polishedExpanded = Self.expandSnippets(in: polished, snippets: snippets)
+                finalText = polishedExpanded
+                let polishAt = Date()
+                AppLog.log(String(format: "[Lotti] timing instantPaste→haiku: %.0fms",
+                                  polishAt.timeIntervalSince(instantAt) * 1000))
+                // Only swap if cleanup actually changed the text AND the same app
+                // still has focus (so we don't backspace into the wrong field).
+                if polishedExpanded != rawExpanded {
+                    if TextInjector.frontmostAppBundleId() == targetApp {
+                        TextInjector.replacePasted(previousCount: rawExpanded.count,
+                                                   with: polishedExpanded)
+                        AppLog.log("[Lotti] swapped raw→polished in place")
+                    } else {
+                        AppLog.log("[Lotti] focus changed — kept instant raw, polished saved only")
+                    }
+                }
+            }
+        } else {
+            // Long-form (or injection off): polish first, paste once.
+            if let polisher {
+                let polished = (try? await polisher.polish(raw)) ?? raw
+                finalText = Self.expandSnippets(in: polished, snippets: snippets)
+            }
+            if inject { TextInjector.paste(finalText) }
+        }
+        AppLog.log("[Lotti] pasted text: \"\(String(finalText.prefix(160)))\"")
+        AppLog.log(String(format: "[Lotti] timing total keyUp→done: %.0fms",
+                          Date().timeIntervalSince(keyUp) * 1000))
 
         let duration = startedAt.map { Date().timeIntervalSince($0) } ?? 0
-        store.add(Dictation(rawText: raw, polishedText: polished,
+        store.add(Dictation(rawText: raw, polishedText: finalText,
             appBundleId: targetApp, durationSeconds: duration))
-        let words = polished.split(whereSeparator: { $0 == " " || $0 == "\n" }).count
+        let words = finalText.split(whereSeparator: { $0 == " " || $0 == "\n" }).count
         AppLog.log("Coordinator.end: saved dictation (\(words) words)")
     }
 
