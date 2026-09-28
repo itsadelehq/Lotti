@@ -52,8 +52,12 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
     /// is recognised as expected and not logged/toasted as an error.
     private var finalizeCompleted = false
 
-    private let quietWindow: TimeInterval = 0.25
-    private let hardCap: TimeInterval = 1.5
+    // Tail-flush timing. Endpointing already finalizes utterances live, so by
+    // key-up we usually have every final; these bounds only cover the last few
+    // hundred ms of trailing audio. Kept tight so releasing the key feels
+    // near-instant (the old 0.25/1.5 added up to ~1.7s of dead wait per log).
+    private let quietWindow: TimeInterval = 0.15
+    private let hardCap: TimeInterval = 0.8
 
     var onTranscript: ((String, Bool) -> Void)? {
         get { queue.sync { onTranscriptHandler } }
@@ -68,7 +72,11 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
     func start() async throws {
         var comps = URLComponents(string: "wss://api.deepgram.com/v1/listen")!
         comps.queryItems = [
-            .init(name: "model", value: "nova-2"),
+            // nova-3 is Deepgram's most accurate English model and supports
+            // keyterm prompting (a much stronger replacement for nova-2 keyword
+            // boosting), which is what fixes proper nouns like "Claude" being
+            // misheard as "call the".
+            .init(name: "model", value: "nova-3"),
             .init(name: "encoding", value: "linear16"),
             .init(name: "sample_rate", value: "16000"),
             .init(name: "interim_results", value: "true"),
@@ -80,22 +88,30 @@ final class DeepgramEngine: TranscriptionEngine, @unchecked Sendable {
             .init(name: "punctuate", value: "true"),
             .init(name: "endpointing", value: "true"),
         ]
-        // Custom vocabulary → Deepgram keyword boosting. Each term is boosted
-        // with the `:2` intensifier; URLComponents percent-encodes the term
-        // (spaces in multi-word phrases are preserved as %20).
-        let cleanedKeywords = keywords
+        // Custom vocabulary → nova-3 keyterm prompting. We always seed a small
+        // set of commonly-misheard proper nouns, then merge in the user's own
+        // terms (e.g. snippet names). Each term becomes one `keyterm` param;
+        // URLComponents percent-encodes multi-word phrases (spaces → %20).
+        let defaultKeyterms = [
+            "Claude", "ChatGPT", "Lotti", "Deepgram", "Anthropic",
+            "OpenAI", "GitHub", "iOS", "API", "LinkedIn",
+        ]
+        let cleanedKeywords = (defaultKeyterms + keywords)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        comps.queryItems?.append(contentsOf: cleanedKeywords.map {
-            URLQueryItem(name: "keywords", value: "\($0):2")
+        // De-duplicate case-insensitively while preserving order.
+        var seen = Set<String>()
+        let keyterms = cleanedKeywords.filter { seen.insert($0.lowercased()).inserted }
+        comps.queryItems?.append(contentsOf: keyterms.map {
+            URLQueryItem(name: "keyterm", value: $0)
         })
-        AppLog.log("[Lotti] deepgram: \(cleanedKeywords.count) keyword(s) applied")
+        AppLog.log("[Lotti] deepgram: \(keyterms.count) keyterm(s) applied")
         var req = URLRequest(url: comps.url!)
         req.setValue("Token \(apiKey)", forHTTPHeaderField: "Authorization")
         let newTask = URLSession.shared.webSocketTask(with: req)
         queue.sync { task = newTask }
         newTask.resume()
-        AppLog.log("Deepgram: websocket opened (model=nova-2, 16k linear16, smart_format+punctuate+endpointing)")
+        AppLog.log("Deepgram: websocket opened (model=nova-3, 16k linear16, smart_format+punctuate+endpointing)")
         receive()
     }
     private func receive() {
