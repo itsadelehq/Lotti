@@ -135,52 +135,27 @@ import Foundation
             : UserDefaults.standard.bool(forKey: "polishEnabled")
         let polisher = polishEnabled ? makePolish() : nil
 
-        // nova-3's smart-formatted output is already clean and well-punctuated,
-        // so we expand snippets on it and can paste it AS-IS immediately. For
-        // short/medium dictation we then swap in the Haiku-cleaned version in
-        // place (Wispr-like: text appears instantly, refines a beat later). For
-        // long dictation we skip the instant path — mass-backspacing hundreds of
-        // characters to swap would look janky — and just polish-then-paste once.
+        // Polish once with Haiku (when enabled), then paste a single time. An
+        // earlier build tried an "instant paste raw, then swap in the cleaned
+        // version" trick for a Wispr-like feel, but swapping in place needs
+        // rapid synthetic backspaces, and Electron/web apps (Claude desktop,
+        // Slack, etc.) silently DROP some of them — leaving corrupted/duplicated
+        // text. A single correct paste is worth the ~1s. nova-3's smart-format
+        // already makes the raw clean, so even the fallback (polish failed) is
+        // presentable. Snippets are expanded LAST so expansions are verbatim.
         let snippets = store.snippets()
-        let rawExpanded = Self.expandSnippets(in: raw, snippets: snippets)
-        let instantSwapCap = 400 // chars; above this, polish-then-paste once
-        let useInstant = inject && rawExpanded.count <= instantSwapCap
-
-        var finalText = rawExpanded
-        if useInstant {
-            TextInjector.paste(rawExpanded) // instant — user sees text now
-            let instantAt = Date()
-            AppLog.log(String(format: "[Lotti] timing keyUp→instantPaste: %.0fms",
-                              instantAt.timeIntervalSince(keyUp) * 1000))
-            if let polisher {
-                let polished = (try? await polisher.polish(raw)) ?? raw
-                let polishedExpanded = Self.expandSnippets(in: polished, snippets: snippets)
-                finalText = polishedExpanded
-                let polishAt = Date()
-                AppLog.log(String(format: "[Lotti] timing instantPaste→haiku: %.0fms",
-                                  polishAt.timeIntervalSince(instantAt) * 1000))
-                // Only swap if cleanup actually changed the text AND the same app
-                // still has focus (so we don't backspace into the wrong field).
-                if polishedExpanded != rawExpanded {
-                    if TextInjector.frontmostAppBundleId() == targetApp {
-                        TextInjector.replacePasted(previousCount: rawExpanded.count,
-                                                   with: polishedExpanded)
-                        AppLog.log("[Lotti] swapped raw→polished in place")
-                    } else {
-                        AppLog.log("[Lotti] focus changed — kept instant raw, polished saved only")
-                    }
-                }
-            }
-        } else {
-            // Long-form (or injection off): polish first, paste once.
-            if let polisher {
-                let polished = (try? await polisher.polish(raw)) ?? raw
-                finalText = Self.expandSnippets(in: polished, snippets: snippets)
-            }
-            if inject { TextInjector.paste(finalText) }
+        var finalText = raw
+        if let polisher {
+            finalText = (try? await polisher.polish(raw)) ?? raw
         }
+        let polishAt = Date()
+        AppLog.log(String(format: "[Lotti] timing lastFinal→haiku: %.0fms",
+                          polishAt.timeIntervalSince(lastFinalAt) * 1000))
+        finalText = Self.expandSnippets(in: finalText, snippets: snippets)
+
+        if inject { TextInjector.paste(finalText) }
         AppLog.log("[Lotti] pasted text: \"\(String(finalText.prefix(160)))\"")
-        AppLog.log(String(format: "[Lotti] timing total keyUp→done: %.0fms",
+        AppLog.log(String(format: "[Lotti] timing total keyUp→pasted: %.0fms",
                           Date().timeIntervalSince(keyUp) * 1000))
 
         let duration = startedAt.map { Date().timeIntervalSince($0) } ?? 0
