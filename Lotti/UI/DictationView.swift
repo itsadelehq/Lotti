@@ -440,7 +440,13 @@ private struct FeedRow: View {
                 .lineSpacing(5)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.trailing, 8)
+            // The action cluster is a real trailing column (not an overlay), so
+            // it always reserves its gutter and the text wraps BEFORE it instead
+            // of running underneath the icons. It's just hidden (opacity 0) until
+            // the row is hovered — reserving the space avoids any reflow jump.
+            actions
+                .opacity(hovering ? 1 : 0)
+                .frame(width: 86, alignment: .trailing)
         }
         .padding(.vertical, 17)
         .padding(.horizontal, 15)
@@ -449,12 +455,6 @@ private struct FeedRow: View {
                 .fill(hovering ? Color(hex: 0xF0EFEB) : Color.clear)
         )
         .contentShape(Rectangle())
-        .overlay(alignment: .topTrailing) {
-            actions
-                .opacity(hovering ? 1 : 0)
-                .padding(.top, 13)
-                .padding(.trailing, 11)
-        }
         .onHover { hovering = $0 }
         .animation(.easeOut(duration: 0.12), value: hovering)
     }
