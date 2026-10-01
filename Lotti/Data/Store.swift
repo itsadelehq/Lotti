@@ -250,10 +250,20 @@ struct Stats { let totalWords: Int; let wpm: Int; let currentStreak: Int; let lo
                 longest = max(longest, run)
             }
         }
-        // current streak ending today
-        var current = 0
-        var cursor = cal.startOfDay(for: now)
+        // Current streak, with a one-day grace: the streak is "alive" if you
+        // dictated today OR yesterday (today may simply be pending). Anchor the
+        // count at whichever of those two is active, then walk backwards over
+        // consecutive active days. Only when NEITHER today nor yesterday has a
+        // dictation is the streak considered broken (0). This is why the home
+        // card no longer drops to 0 the moment a new day starts.
         let daySet = Set(days)
+        let today = cal.startOfDay(for: now)
+        let yesterday = cal.date(byAdding: .day, value: -1, to: today)!
+        var cursor: Date
+        if daySet.contains(today) { cursor = today }
+        else if daySet.contains(yesterday) { cursor = yesterday }
+        else { return (0, longest) }
+        var current = 0
         while daySet.contains(cursor) {
             current += 1
             cursor = cal.date(byAdding: .day, value: -1, to: cursor)!
