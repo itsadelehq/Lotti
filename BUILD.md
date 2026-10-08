@@ -38,5 +38,5 @@ open Lotti.xcodeproj
 
 ## Notes
 - Your API keys live in your Mac's Keychain and never leave your device.
-- Fonts: the repo bundles open-source fonts (Lora, Instrument Serif). If **Aeonik Pro** files aren't present, the app falls back to the system font automatically.
+- Fonts: the repo bundles open-source fonts (**Inter**, Lora, Instrument Serif), all under the SIL Open Font License. The original private build used the commercial **Aeonik Pro** font, which is not included — see [NOTICE.md](NOTICE.md) if you own a license and want that exact look locally.
 - Cost: only your Deepgram usage (often $0 while the free credit lasts) + pennies for optional AI cleanup. No subscription.

@@ -2,21 +2,25 @@ import SwiftUI
 import CoreText
 import AppKit
 
-/// Registers the bundled Aeonik Pro fonts at launch and exposes
+/// Registers the bundled Inter fonts at launch and exposes
 /// `Font.gsBold/gsMedium/gsRegular` helpers. Falls back to system rounded
 /// fonts if registration or the family lookup fails for any reason.
+///
+/// Inter (SIL Open Font License) is the open-source default. The private
+/// Aeonik Pro build simply drops `AeonikPro-*.ttf` back into Resources/Fonts
+/// and swaps these four names — everything else is unchanged.
 ///
 /// Registration happens two ways for reliability:
 ///  (a) `ATSApplicationFontsPath` = `Fonts` in Info.plist (bundle auto-registers), and
 ///  (b) programmatic `CTFontManagerRegisterFontsForURL` here as a backup.
 enum AppFonts {
-    /// Family name verified from the bundled ttf `name` table via CoreText.
-    static let familyName = "Aeonik Pro"
-    /// Exact PostScript names verified via CoreText (see task notes).
-    static let psRegular  = "AeonikPro-Regular"
-    static let psMedium   = "AeonikPro-Medium"
-    static let psSemibold = "AeonikPro-SemiBold"
-    static let psBold     = "AeonikPro-Bold"
+    /// Family name of the bundled sans.
+    static let familyName = "Inter"
+    /// Exact PostScript names of the bundled Inter static faces.
+    static let psRegular  = "Inter-Regular"
+    static let psMedium   = "Inter-Medium"
+    static let psSemibold = "Inter-SemiBold"
+    static let psBold     = "Inter-Bold"
 
     private static let registered: Bool = {
         // Look in the "Fonts" subdirectory first (matches ATSApplicationFontsPath),
@@ -28,7 +32,7 @@ enum AppFonts {
         if let flat = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) {
             fontURLs += flat
         }
-        // Register every bundled ttf (Aeonik Pro and any remaining Google Sans files).
+        // Register every bundled ttf (Inter, Lora, Instrument Serif).
         for url in fontURLs {
             var error: Unmanaged<CFError>?
             // Ignore "already registered" errors – ATSApplicationFontsPath may have
@@ -49,7 +53,7 @@ enum AppFonts {
         let semibold = NSFont(name: psSemibold, size: 12) != nil
         let medium = NSFont(name: psMedium, size: 12) != nil
         let regular = NSFont(name: psRegular, size: 12) != nil
-        print("[AppFonts] registered=\(registered) bold(AeonikPro-Bold)=\(bold) semibold=\(semibold) medium=\(medium) regular=\(regular)")
+        print("[AppFonts] family=\(familyName) registered=\(registered) bold=\(bold) semibold=\(semibold) medium=\(medium) regular=\(regular)")
         // Lora (serif) verification – confirms the bundled variable font's named
         // instances resolve by their CoreText PostScript names.
         let loraReg = NSFont(name: loraPSRegular, size: 12) != nil
