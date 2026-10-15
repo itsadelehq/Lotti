@@ -66,6 +66,6 @@ hotkey, AVAudioEngine for capture, NSPasteboard + ⌘V for injection.
 ## License
 
 Source code: **MIT** (see [LICENSE](LICENSE)).
-Bundled fonts (Inter, Lora, Instrument Serif) are under the SIL Open Font License —
+Bundled fonts (Inter Tight, Lora, Instrument Serif) are under the SIL Open Font License —
 see [NOTICE.md](NOTICE.md). The commercial Aeonik Pro font used in the original
-private build is **not** included; the open build uses Inter instead.
+private build is **not** included; the open build uses Inter Tight instead.

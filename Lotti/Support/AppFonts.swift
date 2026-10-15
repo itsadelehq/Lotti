@@ -2,11 +2,11 @@ import SwiftUI
 import CoreText
 import AppKit
 
-/// Registers the bundled Inter fonts at launch and exposes
+/// Registers the bundled Inter Tight fonts at launch and exposes
 /// `Font.gsBold/gsMedium/gsRegular` helpers. Falls back to system rounded
 /// fonts if registration or the family lookup fails for any reason.
 ///
-/// Inter (SIL Open Font License) is the open-source default. The private
+/// Inter Tight (SIL Open Font License) is the open-source default. The private
 /// Aeonik Pro build simply drops `AeonikPro-*.ttf` back into Resources/Fonts
 /// and swaps these four names — everything else is unchanged.
 ///
@@ -14,13 +14,26 @@ import AppKit
 ///  (a) `ATSApplicationFontsPath` = `Fonts` in Info.plist (bundle auto-registers), and
 ///  (b) programmatic `CTFontManagerRegisterFontsForURL` here as a backup.
 enum AppFonts {
-    /// Family name of the bundled sans.
-    static let familyName = "Inter"
-    /// Exact PostScript names of the bundled Inter static faces.
-    static let psRegular  = "Inter-Regular"
-    static let psMedium   = "Inter-Medium"
-    static let psSemibold = "Inter-SemiBold"
-    static let psBold     = "Inter-Bold"
+    /// Default (open-source) sans: Inter Tight.
+    static let familyName = "Inter Tight"
+    static let psRegular  = "InterTight-Regular"
+    static let psMedium   = "InterTight-Medium"
+    static let psSemibold = "InterTight-SemiBold"
+    static let psBold     = "InterTight-Bold"
+
+    // Private-build override: if the owner has dropped the licensed Aeonik Pro
+    // faces into Resources/Fonts (gitignored, never published), prefer them so
+    // the personal build keeps the original look. The public repo ships only
+    // Inter Tight, so `useAeonik` is false there and Inter Tight is used.
+    static let aeRegular  = "AeonikPro-Regular"
+    static let aeMedium   = "AeonikPro-Medium"
+    static let aeSemibold = "AeonikPro-SemiBold"
+    static let aeBold     = "AeonikPro-Bold"
+    /// True only when the Aeonik Pro faces actually resolved (i.e. present).
+    private static let useAeonik: Bool = {
+        _ = registered // ensure all bundled ttf are registered first
+        return NSFont(name: aeBold, size: 12) != nil
+    }()
 
     private static let registered: Bool = {
         // Look in the "Fonts" subdirectory first (matches ATSApplicationFontsPath),
@@ -32,7 +45,7 @@ enum AppFonts {
         if let flat = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) {
             fontURLs += flat
         }
-        // Register every bundled ttf (Inter, Lora, Instrument Serif).
+        // Register every bundled ttf (Inter Tight, Lora, Instrument Serif).
         for url in fontURLs {
             var error: Unmanaged<CFError>?
             // Ignore "already registered" errors – ATSApplicationFontsPath may have
@@ -93,13 +106,14 @@ enum AppFonts {
         guard registered else {
             return .system(size: size, weight: weight, design: .rounded)
         }
-        // Prefer explicit PostScript names – addresses the named instances directly.
+        // Prefer explicit PostScript names – addresses the faces directly.
+        // Use Aeonik Pro when present (private build), else Inter Tight.
         let ps: String
         switch weight {
-        case .bold, .heavy, .black: ps = psBold
-        case .semibold: ps = psSemibold
-        case .medium: ps = psMedium
-        default: ps = psRegular
+        case .bold, .heavy, .black: ps = useAeonik ? aeBold : psBold
+        case .semibold: ps = useAeonik ? aeSemibold : psSemibold
+        case .medium: ps = useAeonik ? aeMedium : psMedium
+        default: ps = useAeonik ? aeRegular : psRegular
         }
         return .custom(ps, size: size)
     }

@@ -8,3 +8,6 @@ xcuserdata/
 
 default.profraw
 *.profraw
+
+# Private licensed font (owner-only local build, never commit)
+Lotti/Resources/Fonts/AeonikPro-*.ttf
