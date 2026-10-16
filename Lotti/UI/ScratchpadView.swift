@@ -11,6 +11,8 @@ struct ScratchpadView: View {
     @State private var notes: [Note] = []
     @State private var selected: Note?
     @State private var hoveredRow: UUID?
+    @State private var bannerDismissed = false
+    @AppStorage("showGradients") private var showGradients = true
 
 
     var body: some View {
@@ -40,7 +42,7 @@ struct ScratchpadView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 header
-                heroCard
+                if showGradients && !bannerDismissed { heroCard }
                 recentsSection
             }
             .padding(32)
@@ -102,6 +104,9 @@ struct ScratchpadView: View {
         }
         .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(alignment: .topTrailing) {
+            BannerDismissButton { bannerDismissed = true }
+        }
     }
 
     // MARK: - Recents

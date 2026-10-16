@@ -7,6 +7,7 @@ struct DictationView: View {
     // day the banner was dismissed, so it stays hidden for the rest of that
     // calendar day but reappears (with a new quote) on the next day.
     @AppStorage("quoteBannerDismissedDay") private var quoteBannerDismissedDay = ""
+    @AppStorage("showGradients") private var showGradients = true
     /// The user's own first name, set during onboarding / Settings. Empty until set.
     @AppStorage("firstName") private var firstName = ""
 
@@ -95,7 +96,7 @@ struct DictationView: View {
                 .font(.gsBold(25))
                 .foregroundStyle(Color.figTextPrimary)
 
-            if quoteBannerDismissedDay != Self.todayKey {
+            if showGradients && quoteBannerDismissedDay != Self.todayKey {
                 quoteBanner
             }
 
@@ -143,7 +144,7 @@ struct DictationView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Spacer()
                     Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
-                        .font(.gsMedium(26))
+                        .font(.instrumentSerifItalic(30))
                         .foregroundStyle(.white)
                         .shadow(color: .black.opacity(0.55), radius: 7, y: 1)
                         .fixedSize(horizontal: false, vertical: true)

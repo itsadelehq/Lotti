@@ -13,6 +13,8 @@ struct NotetakerView: View {
     @State private var autoGenerateOnOpen = false
     @State private var activeTab: Tab = .past
     @State private var hoveredRow: UUID?
+    @State private var bannerDismissed = false
+    @AppStorage("showGradients") private var showGradients = true
 
     private enum Tab: String, CaseIterable {
         case past = "Past notes"
@@ -57,7 +59,7 @@ struct NotetakerView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 header
-                heroCard
+                if showGradients && !bannerDismissed { heroCard }
                 todaySection
                 tabsRow
                 importRow
@@ -126,6 +128,9 @@ struct NotetakerView: View {
         }
         .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(alignment: .topTrailing) {
+            BannerDismissButton { bannerDismissed = true }
+        }
     }
 
     // MARK: - TODAY section (empty state)

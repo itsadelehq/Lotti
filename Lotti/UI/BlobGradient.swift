@@ -172,6 +172,29 @@ struct BlobGradient: View {
     }
 }
 
+/// Small circular "×" shown at the top-trailing of a gradient hero banner so
+/// the user can dismiss it (matches the Dictation quote banner's dismiss).
+struct BannerDismissButton: View {
+    var action: () -> Void
+    @State private var hovering = false
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 26, height: 26)
+                .background(Circle().fill(.black.opacity(hovering ? 0.55 : 0.4)))
+        }
+        .buttonStyle(.plain)
+        .padding(14)
+        .onHover { h in
+            hovering = h
+            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+        }
+        .help("Hide banner")
+    }
+}
+
 /// A pre-rendered, cached fine film-grain tile (grayscale Core Image noise),
 /// shown static behind the flowing gradient.
 private enum GrainTiles {

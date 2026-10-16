@@ -21,6 +21,10 @@ final class AppSettings: ObservableObject {
     @AppStorage("soundsEnabled") var soundsEnabled: Bool = true
     @AppStorage("muteMusicWhileDictating") var muteMusicWhileDictating: Bool = false
 
+    // Appearance. When off, the animated gradient hero banners are hidden
+    // app-wide (some people prefer a plain, distraction-free UI).
+    @AppStorage("showGradients") var showGradients: Bool = true
+
     // General
     @AppStorage("appLanguage") var appLanguage: String = "English"
     // Persistent UID of the chosen input device; empty = system default.

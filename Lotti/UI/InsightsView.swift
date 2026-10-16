@@ -5,12 +5,14 @@ struct InsightsView: View {
     // Computed once when the screen first appears (not on every render). See
     // `InsightsSnapshot`.
     @State private var snapshot: InsightsSnapshot?
+    @State private var bannerDismissed = false
+    @AppStorage("showGradients") private var showGradients = true
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 header
-                banner
+                if showGradients && !bannerDismissed { banner }
                 if let snapshot {
                     UsageTab(snapshot: snapshot)
                 }
@@ -51,6 +53,9 @@ struct InsightsView: View {
         }
         .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(alignment: .topTrailing) {
+            BannerDismissButton { bannerDismissed = true }
+        }
     }
 
     private var header: some View {

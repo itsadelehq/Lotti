@@ -248,6 +248,10 @@ struct SettingsView: View {
                 toggleRow(label: "Show app in Dock",
                           sub: "Keep the Lotti icon in your Dock",
                           isOn: $settings.showInDock)
+                hairline
+                toggleRow(label: "Show gradient banners",
+                          sub: "Animated gradient headers on each page. Turn off for a plain look.",
+                          isOn: $settings.showGradients)
             }
             sectionHeading("Dictation")
             card {

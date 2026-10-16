@@ -9,6 +9,8 @@ struct SnippetsView: View {
 
     @State private var items: [Snippet] = []
     @State private var hoveredRow: UUID?
+    @State private var bannerDismissed = false
+    @AppStorage("showGradients") private var showGradients = true
 
     // Add/Edit modal state.
     @State private var showEditor = false
@@ -23,7 +25,7 @@ struct SnippetsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     header
-                    promoCard
+                    if showGradients && !bannerDismissed { promoCard }
                     if !items.isEmpty {
                         list
                     }
@@ -124,6 +126,9 @@ struct SnippetsView: View {
         .frame(maxWidth: .infinity, minHeight: 220, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(red: 0.20, green: 0.20, blue: 0.18)))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(alignment: .topTrailing) {
+            BannerDismissButton { bannerDismissed = true }
+        }
     }
 
     private func exampleChip(name: String, expansion: String) -> some View {
