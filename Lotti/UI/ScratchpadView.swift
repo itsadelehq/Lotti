@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-/// Scratchpad — a notes surface for quick, personal thoughts. Mirrors the
+/// Scratchpad, a notes surface for quick, personal thoughts. Mirrors the
 /// Notetaker layout (hero banner + a Recents list) but backed by scratch notes
 /// (`isScratch == true`) and reusing the same `NoteEditorView`. Selecting or
 /// creating a note opens the shared editor; the back control returns here.
@@ -52,13 +52,6 @@ struct ScratchpadView: View {
             Text("Scratchpad")
                 .font(.gsBold(24))
                 .foregroundStyle(Color.figTextPrimary)
-            Text("Beta")
-                .font(.gsSemibold(11))
-                .foregroundStyle(Color.figTextGrey)
-                .padding(.horizontal, 8)
-                .frame(height: 20)
-                .background(Capsule().fill(Color.figCardFill))
-                .overlay(Capsule().stroke(Color.figBorder, lineWidth: 0.5))
             Spacer()
         }
     }
@@ -81,7 +74,7 @@ struct ScratchpadView: View {
                     .font(.loraRegular(23))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
-                Text("Drop a to-do list, polish a message before you send, brain-dump an idea \u{2014} your safe space to save, create, and explore.")
+                Text("Drop a to-do list, polish a message before you send, or brain-dump an idea. Your safe space to save, create, and explore.")
                     .font(.gsRegular(14))
                     .foregroundStyle(.white.opacity(0.9))
                     .shadow(color: .black.opacity(0.45), radius: 5, y: 1)

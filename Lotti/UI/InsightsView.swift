@@ -1,34 +1,21 @@
 import SwiftUI
 
-enum InsightsTab: String, CaseIterable, Identifiable {
-    case usage = "Your usage", voice = "Your voice", bests = "Personal bests"
-    var id: String { rawValue }
-}
-
 struct InsightsView: View {
     @EnvironmentObject var store: Store
-    @State private var tab: InsightsTab = .usage
-    // Computed once when the screen first appears (not on every render), so
-    // switching to/from Insights and between its tabs is instant. See
+    // Computed once when the screen first appears (not on every render). See
     // `InsightsSnapshot`.
     @State private var snapshot: InsightsSnapshot?
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
+            VStack(alignment: .leading, spacing: 24) {
                 header
                 banner
-                segmentedTabs
                 if let snapshot {
-                    switch tab {
-                    case .usage: UsageTab(snapshot: snapshot)
-                    case .voice: VoiceTab(snapshot: snapshot)
-                    case .bests: BestsTab(snapshot: snapshot)
-                    }
+                    UsageTab(snapshot: snapshot)
                 }
             }
-            .padding(28)
-            .frame(maxWidth: 980, alignment: .leading)
+            .padding(32)
         }
         .task {
             if snapshot == nil {
@@ -43,7 +30,7 @@ struct InsightsView: View {
     /// Small animated gradient hero, like the Notetaker banner.
     private var banner: some View {
         ZStack(alignment: .leading) {
-            BlobGradient(palette: .sunset)
+            BlobGradient(palette: .amethyst)
 
             // Soft left vignette; text uses a shadow for contrast.
             LinearGradient(colors: [.black.opacity(0.3), .clear],
@@ -75,26 +62,4 @@ struct InsightsView: View {
         }
     }
 
-    private var segmentedTabs: some View {
-        HStack(spacing: 28) {
-            ForEach(InsightsTab.allCases) { t in
-                let active = tab == t
-                VStack(spacing: 6) {
-                    Text(t.rawValue)
-                        .font(active ? .gsBold(15) : .gsMedium(15))
-                        .foregroundStyle(active ? Color.appTextPrimary : Color.appTextSecondary)
-                    Rectangle()
-                        .fill(active ? Color.appTextPrimary : .clear)
-                        .frame(height: 2)
-                }
-                .fixedSize()
-                .contentShape(Rectangle())
-                .onTapGesture { tab = t }
-            }
-            Spacer(minLength: 0)
-        }
-        .overlay(alignment: .bottom) {
-            Rectangle().fill(Color.appDivider).frame(height: 1)
-        }
-    }
 }

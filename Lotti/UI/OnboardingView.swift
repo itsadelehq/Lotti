@@ -5,7 +5,7 @@ import AppKit
 /// `RootView` while `onboardingComplete == false`. It collects the user's name,
 /// nudges them through the mic + Accessibility permissions, stores their own
 /// Deepgram / Anthropic keys in the Keychain, and lets them pick a push-to-talk
-/// trigger key — so the app is shareable: a friend installs it, onboards, and
+/// trigger key, so the app is shareable: a friend installs it, onboards, and
 /// sees their OWN name and uses their OWN keys.
 struct OnboardingView: View {
     /// Set true on the final step; `RootView` swaps in the main app (no relaunch).
@@ -100,7 +100,7 @@ struct OnboardingView: View {
                 Text("Welcome to Lotti")
                     .font(.loraMedium(34))
                     .foregroundStyle(Color.figTextPrimary)
-                Text("Private, fast voice-to-text — right on your Mac.")
+                Text("Private, fast voice-to-text, right on your Mac.")
                     .font(.gsRegular(15))
                     .foregroundStyle(Color.figTextGrey)
                     .multilineTextAlignment(.center)
@@ -211,16 +211,16 @@ struct OnboardingView: View {
                     keyField(label: "Deepgram API key", placeholder: "paste your key here", text: $deepgramKey)
                     deepgramHelp
                 }
-                keyField(label: "Anthropic API key (optional)", placeholder: "sk-ant-… — for AI cleanup", text: $anthropicKey)
+                keyField(label: "Anthropic API key (optional)", placeholder: "sk-ant-…, for AI cleanup", text: $anthropicKey)
             }
 
-            Text("Anthropic is optional — only for AI cleanup. Your keys stay in your Mac's Keychain and never leave your device.")
+            Text("Anthropic is optional, only for AI cleanup. Your keys stay in your Mac's Keychain and never leave your device.")
                 .font(.gsRegular(12))
                 .foregroundStyle(Color.figTextGrey)
                 .fixedSize(horizontal: false, vertical: true)
 
             if deepgramKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                warning("You'll need a Deepgram key to transcribe — you can add it later in Settings.")
+                warning("You'll need a Deepgram key to transcribe, you can add it later in Settings.")
             }
 
             navButtons(continueEnabled: true, skip: true) {
@@ -322,7 +322,7 @@ struct OnboardingView: View {
                     .font(.loraMedium(30))
                     .foregroundStyle(Color.figTextPrimary)
                     .multilineTextAlignment(.center)
-                Text("Hold \(KeyCodeNaming.name(for: triggerKeyCode)) anywhere and speak — your words appear wherever your cursor is.")
+                Text("Hold \(KeyCodeNaming.name(for: triggerKeyCode)) anywhere and speak, your words appear wherever your cursor is.")
                     .font(.gsRegular(15))
                     .foregroundStyle(Color.figTextGrey)
                     .multilineTextAlignment(.center)

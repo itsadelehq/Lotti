@@ -160,7 +160,7 @@ struct RootView: View {
     @ViewBuilder
     private func sidebarRow(_ s: Section) -> some View {
         navRow(id: s.id, icon: s.systemImage, title: s.title, isActive: selection == s) {
-            // Synchronous, unanimated selection change — instantaneous.
+            // Synchronous, unanimated selection change, instantaneous.
             selection = s
         }
     }

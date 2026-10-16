@@ -48,8 +48,8 @@ struct DictationView: View {
         // Cheap COUNT query first, so navigating to Dictation doesn't fetch
         // and materialise ~1700 objects just to check whether anything changed.
         // Keyed on `store.revision` (not just count) so an edit/delete that
-        // doesn't change the count — or a save that happens while this view is
-        // already on screen — still triggers a refresh.
+        // doesn't change the count, or a save that happens while this view is
+        // already on screen, still triggers a refresh.
         let count = store.count()
         guard count != cachedItemCount || store.revision != cachedRevision else { return }
         cachedItemCount = count
@@ -148,7 +148,7 @@ struct DictationView: View {
                         .shadow(color: .black.opacity(0.55), radius: 7, y: 1)
                         .fixedSize(horizontal: false, vertical: true)
                     if !Self.todaysQuote.author.isEmpty {
-                        Text("— \(Self.todaysQuote.author)")
+                        Text(Self.todaysQuote.author)
                             .font(.gsRegular(13))
                             .foregroundStyle(.white.opacity(0.9))
                             .shadow(color: .black.opacity(0.5), radius: 5, y: 1)
@@ -191,7 +191,7 @@ struct DictationView: View {
             if dayGroups.isEmpty {
                 sectionHeader("TODAY")
                 feedContainer {
-                    Text("No dictations yet — hold your key and speak to get started.")
+                    Text("Hold your key and speak to get started.")
                         .font(.gsRegular(14))
                         .foregroundStyle(Color.figTextGrey)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -329,7 +329,7 @@ let motivationalQuotes: [MotivationalQuote] = [
     .init(text: "You are never too old to set another goal or dream a new dream.", author: "C.S. Lewis"),
     .init(text: "Write it down. Say it out loud. Make it real.", author: "Unknown"),
     .init(text: "Clarity comes from engagement, not thought.", author: "Marie Forleo"),
-    .init(text: "Your voice is your instrument — use it deliberately.", author: "Unknown"),
+    .init(text: "Your voice is your instrument, so use it deliberately.", author: "Unknown"),
     .init(text: "Momentum builds one honest sentence at a time.", author: "Unknown"),
     .init(text: "You have to be aggressive for the life that you want."),
     .init(text: "Become the person you want to become."),
@@ -344,6 +344,7 @@ private struct FeedRow: View {
 
     @EnvironmentObject var store: Store
     @State private var hovering = false
+    @State private var menuHover = false
     @State private var copied = false
 
     var body: some View {
@@ -361,7 +362,7 @@ private struct FeedRow: View {
             // The action cluster is a real trailing column (not an overlay), so
             // it always reserves its gutter and the text wraps BEFORE it instead
             // of running underneath the icons. It's just hidden (opacity 0) until
-            // the row is hovered — reserving the space avoids any reflow jump.
+            // the row is hovered, reserving the space avoids any reflow jump.
             actions
                 .opacity(hovering ? 1 : 0)
                 .frame(width: 86, alignment: .trailing)
@@ -378,11 +379,10 @@ private struct FeedRow: View {
     }
 
     private var actions: some View {
-        HStack(spacing: 10) {
-            iconButton(copied ? "checkmark" : "doc.on.doc", help: copied ? "Copied!" : "Copy transcript") {
-                copy()
-            }
-            iconButton("flag", help: "Flag") {}
+        HStack(spacing: 4) {
+            HoverIcon(symbol: copied ? "checkmark" : "doc.on.doc",
+                      help: copied ? "Copied" : "Copy transcript") { copy() }
+            HoverIcon(symbol: "flag", help: "Flag") {}
             moreOptionsMenu
         }
     }
@@ -421,27 +421,48 @@ private struct FeedRow: View {
             }
         } label: {
             Image(systemName: "ellipsis")
+                .rotationEffect(.degrees(90)) // vertical three-dots
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.figTextGrey)
-                .frame(width: 26, height: 26)
+                .foregroundStyle(menuHover ? Color.figTextPrimary : Color.figTextGrey)
+                .frame(width: 28, height: 28)
+                .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(menuHover ? Color.black.opacity(0.08) : .clear))
                 .contentShape(Rectangle())
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .fixedSize()
+        .onHover { h in
+            menuHover = h
+            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+        }
         .help("More options")
     }
+}
 
-    private func iconButton(_ symbol: String, help: String, action: @escaping () -> Void) -> some View {
+/// A feed-row action icon that highlights (darker icon + soft rounded fill) on
+/// hover, matching the Wispr-style hover affordance.
+private struct HoverIcon: View {
+    let symbol: String
+    var help: String
+    var action: () -> Void = {}
+    @State private var hovering = false
+    var body: some View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.figTextGrey)
-                .frame(width: 26, height: 26)
+                .foregroundStyle(hovering ? Color.figTextPrimary : Color.figTextGrey)
+                .frame(width: 28, height: 28)
+                .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(hovering ? Color.black.opacity(0.08) : .clear))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .onHover { h in
+            hovering = h
+            if h { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+        }
         .help(help)
     }
 }

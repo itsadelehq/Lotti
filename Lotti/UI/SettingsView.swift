@@ -3,7 +3,7 @@ import AppKit
 
 /// Settings, rebuilt as a centered modal card (presented by `RootView`).
 ///
-/// This view renders only the *contents* of the card — a left sub-navigation
+/// This view renders only the *contents* of the card, a left sub-navigation
 /// column over `#F7F5F2` and a white right content pane. `RootView` supplies
 /// the surrounding white rounded card, its shadow, the dimmed scrim, and the
 /// centering. `onClose` dismisses the modal (used by the top-right close
@@ -139,7 +139,7 @@ struct SettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 Text(pane.rawValue)
-                    .font(.loraMedium(27))
+                    .font(.gsBold(26))
                     .foregroundStyle(Color.figTextPrimary)
 
                 switch pane {
@@ -184,7 +184,7 @@ struct SettingsView: View {
                     }
                     TriggerKeyRecorder(isRecording: $isRecordingKey) { code in
                         settings.triggerKeyCode = code
-                        // Take effect LIVE — the running HotkeyManager updates
+                        // Take effect LIVE, the running HotkeyManager updates
                         // its trigger key without a relaunch.
                         NotificationCenter.default.post(name: .triggerKeyChanged, object: code)
                         isRecordingKey = false
@@ -435,7 +435,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             card {
                 settingRow(label: "Microphone",
-                           sub: micAuthorized ? "Granted" : "Not granted — required to record speech") {
+                           sub: micAuthorized ? "Granted" : "Not granted, required to record speech") {
                     HStack(spacing: 10) {
                         statusDot(micAuthorized)
                         changeButton("Grant microphone") {
@@ -448,7 +448,7 @@ struct SettingsView: View {
                 }
                 hairline
                 settingRow(label: "Accessibility",
-                           sub: axTrusted ? "Granted" : "Not granted — required for the hotkey and paste") {
+                           sub: axTrusted ? "Granted" : "Not granted, required for the hotkey and paste") {
                     HStack(spacing: 10) {
                         statusDot(axTrusted)
                         changeButton("Open Accessibility settings") {

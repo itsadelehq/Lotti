@@ -67,7 +67,7 @@ final class PillModel: ObservableObject {
 
 /// Vertical equaliser: a stack of short HORIZONTAL bars whose widths/opacity
 /// visibly pulse with the live mic level, like Wispr's waveform. Each bar
-/// carries its own phase so they don't all move in lockstep — driven by a
+/// carries its own phase so they don't all move in lockstep, driven by a
 /// continuously-ticking `TimelineView` so the animation is lively even when
 /// `level` updates are relatively infrequent.
 struct WaveformView: View {

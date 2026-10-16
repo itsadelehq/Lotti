@@ -161,7 +161,7 @@ struct NoteEditorView: View {
         let key = Keychain.get("anthropic_api_key") ?? ""
         guard !key.isEmpty else {
             summaryMissingKey = true
-            AppLog.log("summary: no Anthropic key — open Settings → Keys.")
+            AppLog.log("summary: no Anthropic key, open Settings → Keys.")
             return
         }
         summaryMissingKey = false
@@ -175,7 +175,7 @@ struct NoteEditorView: View {
                 store.setSummary(note, summary: result)
                 AppLog.log("[Lotti] summary: generated (\(result.count) chars)")
             } catch {
-                AppLog.log("summary: error — \(error.localizedDescription)")
+                AppLog.log("summary: error, \(error.localizedDescription)")
             }
         }
     }
@@ -308,7 +308,7 @@ struct NoteEditorView: View {
                 } else {
                     HStack(spacing: 4) {
                         Text(recorder.isRecording
-                             ? "Recording — transcribing live into your note"
+                             ? "Recording, transcribing live into your note"
                              : "Always get consent when transcribing others")
                             .font(.gsMedium(11))
                         Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold))
@@ -365,7 +365,7 @@ struct NoteEditorView: View {
 
 /// Owns the mic capture + Deepgram engine for live transcription into a note.
 /// Reuses the exact same `AudioCapture` + `DeepgramEngine` pieces the dictation
-/// coordinator uses, but with no text injection — final transcripts are surfaced
+/// coordinator uses, but with no text injection, final transcripts are surfaced
 /// via `appendedText` for the editor to append to the note body.
 @MainActor final class NoteRecorder: ObservableObject {
     @Published var isRecording = false
@@ -387,7 +387,7 @@ struct NoteEditorView: View {
         let key = Keychain.get("deepgram_api_key") ?? ""
         guard !key.isEmpty else {
             missingKey = true
-            AppLog.log("note-record: no Deepgram key — open Settings → Keys. Not recording.")
+            AppLog.log("note-record: no Deepgram key, open Settings → Keys. Not recording.")
             Toaster.shared.error("Add your Deepgram key in Settings → Keys")
             return
         }
@@ -408,24 +408,24 @@ struct NoteEditorView: View {
         }
         Task {
             do { try await e.start() }
-            catch { AppLog.log("note-record: engine.start() error — \(error.localizedDescription)") }
+            catch { AppLog.log("note-record: engine.start() error, \(error.localizedDescription)") }
         }
 
         // Request mic access (prompts only if undetermined; returns immediately
-        // if already granted), then start capture — so a first-run permission
+        // if already granted), then start capture, so a first-run permission
         // prompt never leaves the button looking stuck with no audio.
         Task { @MainActor in
             let granted = await Permissions.requestMicrophone()
             if !granted {
-                AppLog.log("note-record: microphone not authorized — grant it in System Settings → Privacy → Microphone")
-                Toaster.shared.error("Microphone access is off — enable it in System Settings → Privacy.")
+                AppLog.log("note-record: microphone not authorized, grant it in System Settings → Privacy → Microphone")
+                Toaster.shared.error("Microphone access is off, enable it in System Settings → Privacy.")
             }
             guard self.isRecording else { return }
             let cap = AudioCapture()
             self.audio = cap
             cap.onPCM = { [weak self] d in Task { @MainActor in self?.engine?.send(d) } }
             do { try cap.start() }
-            catch { AppLog.log("note-record: AudioCapture.start() error — \(error.localizedDescription)") }
+            catch { AppLog.log("note-record: AudioCapture.start() error, \(error.localizedDescription)") }
         }
     }
 

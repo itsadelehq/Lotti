@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-/// Notetaker — the meeting/notes home. Shows either the home list of notes
+/// Notetaker, the meeting/notes home. Shows either the home list of notes
 /// (hero card, empty-state, day-grouped saved notes) or, when a note is
 /// selected, the full-screen `NoteEditorView`. Selection is local `@State`, so
 /// switching between list and editor is instant and keeps the sidebar visible.

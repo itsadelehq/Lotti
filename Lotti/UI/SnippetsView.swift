@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-/// Snippets — saved voice text-expansion shortcuts. A NAME (spoken trigger)
+/// Snippets, saved voice text-expansion shortcuts. A NAME (spoken trigger)
 /// expands to an EXPANSION (text / URL) that gets inserted into a dictation.
 /// Rendered inside the white content panel, matching the rest of the app.
 struct SnippetsView: View {
@@ -9,18 +9,12 @@ struct SnippetsView: View {
 
     @State private var items: [Snippet] = []
     @State private var hoveredRow: UUID?
-    @State private var activeTab: Tab = .all
 
     // Add/Edit modal state.
     @State private var showEditor = false
     @State private var editing: Snippet?          // nil == adding
     @State private var draftName = ""
     @State private var draftExpansion = ""
-
-    private enum Tab: String, CaseIterable {
-        case all = "All"
-        case personal = "Personal"
-    }
 
     private let darkButton = Color(red: 0.13, green: 0.13, blue: 0.13)
 
@@ -29,7 +23,6 @@ struct SnippetsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     header
-                    tabsRow
                     promoCard
                     if !items.isEmpty {
                         list
@@ -81,34 +74,6 @@ struct SnippetsView: View {
         }
     }
 
-    // MARK: - Tabs
-
-    private var tabsRow: some View {
-        HStack(spacing: 24) {
-            ForEach(Tab.allCases, id: \.self) { tab in
-                tabButton(tab)
-            }
-            Spacer()
-        }
-    }
-
-    private func tabButton(_ tab: Tab) -> some View {
-        let isActive = activeTab == tab
-        return Button(action: { activeTab = tab }) {
-            VStack(spacing: 8) {
-                Text(tab.rawValue)
-                    .font(.gsMedium(14))
-                    .foregroundStyle(isActive ? Color.figTextPrimary : Color.figTextGrey)
-                Rectangle()
-                    .fill(isActive ? Color.figTextPrimary : Color.clear)
-                    .frame(height: 2)
-            }
-        }
-        .buttonStyle(.plain)
-        .onHover { hovering in
-            if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-        }
-    }
 
     // MARK: - Empty state / hero promo card
 
@@ -120,10 +85,10 @@ struct SnippetsView: View {
 
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("The stuff you shouldn\u{2019}t have to re-type.")
-                        .font(.gsBold(22))
+                    Text("Save it once, say it anytime.")
+                        .font(.loraRegular(23))
                         .foregroundStyle(Color(hex: 0x3A2A2E))
-                    Text("Save phrases you use frequently — a link, an intro, a prompt — then say the snippet name to drop it in instantly.")
+                    Text("Save phrases you use often, like a link, an intro, or a prompt, then say the snippet name to drop it in instantly.")
                         .font(.gsRegular(15))
                         .foregroundStyle(Color(hex: 0x3A2A2E).opacity(0.78))
                         .fixedSize(horizontal: false, vertical: true)

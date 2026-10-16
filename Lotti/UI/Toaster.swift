@@ -17,7 +17,7 @@ final class Toaster: ObservableObject {
     private init() {}
 
     /// Show an error toast (dark capsule with a warning glyph). Safe to call from
-    /// any actor — it hops to the main actor.
+    /// any actor, it hops to the main actor.
     nonisolated func error(_ text: String) {
         Task { @MainActor in self.present(text, isError: true) }
     }

@@ -20,8 +20,8 @@ func gstop(_ hex: String, _ loc: Double, _ a: Double = 1) -> Gradient.Stop {
 }
 
 /// A colour scheme for `BlobGradient`: a base wash plus the per-blob fills.
-/// The blob GEOMETRY/motion is shared across palettes — only the colours
-/// differ — so every palette keeps the same soft, flowing composition.
+/// The blob GEOMETRY/motion is shared across palettes, only the colours
+/// differ, so every palette keeps the same soft, flowing composition.
 struct BlobPalette {
     let bg: String
     let base: [Gradient.Stop]
@@ -61,6 +61,21 @@ extension BlobPalette {
             [gstop("7F7BD8", 0), gstop("8A80DA", 0.32), gstop("7F77D6", 0.57), gstop("6A68DB", 0.80), gstop("6E6BE0", 1)],
             [gstop("D9C6D7", 0), gstop("E2CED9", 0.35), gstop("E6D0D7", 0.65), gstop("E5CCCF", 1)],
             [gstop("C6B7D8", 0), gstop("A49AD7", 0.35), gstop("8B83D4", 0.70), gstop("9389D5", 1)],
+        ]))
+
+    /// Violet → lavender → rose → periwinkle (the Insights hero).
+    static let amethyst = BlobPalette(
+        bg: "EDE6F2",
+        base: [gstop("D8CCEA", 0), gstop("D5C6E6", 0.45), gstop("CFC0E2", 1)],
+        specs: blobGeometry([
+            [gstop("A982D6", 0), gstop("8B5CC4", 0.35), gstop("6E3FA8", 0.65), gstop("A982D6", 1)],
+            [gstop("CDD4F0", 0), gstop("AEB8E8", 0.30), gstop("8E9AE0", 0.60), gstop("CDD4F0", 1)],
+            [gstop("A982D6", 0), gstop("8B5CC4", 0.5), gstop("6E3FA8", 1)],
+            [gstop("9B6FD0", 0), gstop("6E3FA8", 0.30), gstop("8B5CC4", 0.60), gstop("A982D6", 1)],
+            [gstop("DED3F0", 0), gstop("C9B8E8", 0.40), gstop("C9B8E8", 0.70, 0.4), gstop("C9B8E8", 1, 0)],
+            [gstop("EEC4D8", 0), gstop("E0A0C0", 0.45), gstop("D488AE", 1)],
+            [gstop("DED3F0", 0), gstop("EDE6F2", 0.5), gstop("E8DFF0", 1)],
+            [gstop("AEB8E8", 0), gstop("8E9AE0", 0.5), gstop("7A86D8", 1)],
         ]))
 
     /// Teal → mint/aqua → coral (the Scratchpad hero).
