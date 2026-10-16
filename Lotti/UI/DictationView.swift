@@ -186,12 +186,12 @@ struct DictationView: View {
         }
     }
 
-    /// Quote banner background: the bundled `banner-gradient.html` recreation of
-    /// the reference gradient (layered blurred blobs + grain, slowly drifting),
-    /// rendered in a transparent, non-interactive web view. Self-contained — no
-    /// CDN — so it renders identically everywhere.
+    /// Quote banner background: the reference gradient recreated natively as
+    /// layered, blurred, continuously-drifting colour blobs. Native (not a
+    /// WebView) so the motion keeps running whenever the window is visible —
+    /// WKWebView pauses CSS animation when the app isn't frontmost.
     private var quoteBannerBackground: some View {
-        BannerGradientView()
+        BlobGradient()
     }
 
     // MARK: - Feed
@@ -376,6 +376,89 @@ let motivationalQuotes: [MotivationalQuote] = [
 /// Low-opacity procedural noise that sits over the gradient so the banner
 /// reads as a grainy photograph rather than a flat fill, even before a real
 /// texture image is dropped in.
+/// One blurred colour blob, in fractions of the banner size, recreating the
+/// reference design spec. `amp*`/`speed`/`phase` drive a continuous sine-based
+/// drift so the composition always flows.
+private struct BlobSpec {
+    let x, y, w, h: Double            // fractions of banner width/height
+    let stops: [Gradient.Stop]
+    let blurVW: Double                // blur as % of banner width
+    let opacity: Double
+    let ampX, ampY: Double            // drift amplitude (fractions of w/h)
+    let speed: Double
+    let phase: Double
+}
+
+private func gstop(_ hex: String, _ loc: Double, _ a: Double = 1) -> Gradient.Stop {
+    .init(color: Color(hexString: hex, alpha: a), location: loc)
+}
+
+private let blobSpecs: [BlobSpec] = [
+    .init(x: -0.09, y: -0.15, w: 0.365, h: 0.945,
+          stops: [gstop("D39B87", 0), gstop("DF7139", 0.35), gstop("DC7541", 0.65), gstop("D49BA7", 1)],
+          blurVW: 2.1, opacity: 1, ampX: 0.06, ampY: 0.05, speed: 0.62, phase: 0),
+    .init(x: 0.79, y: -0.075, w: 0.41, h: 1.20,
+          stops: [gstop("E3CCCA", 0), gstop("E7AF94", 0.25), gstop("E7A181", 0.53), gstop("E8A58D", 1)],
+          blurVW: 3.8, opacity: 1, ampX: 0.07, ampY: 0.04, speed: 0.46, phase: 1.1),
+    .init(x: 0.175, y: 0.457, w: 0.15, h: 0.697,
+          stops: [gstop("BC9FC8", 0), gstop("A49BD7", 0.5), gstop("8884DA", 1)],
+          blurVW: 3.0, opacity: 0.78, ampX: 0.08, ampY: 0.09, speed: 0.74, phase: 2.0),
+    .init(x: 0.24, y: -0.1125, w: 0.63, h: 1.237,
+          stops: [gstop("8B87DC", 0), gstop("606AE2", 0.26), gstop("4C5CE2", 0.48), gstop("4C5BE5", 0.73), gstop("4E5EE5", 1)],
+          blurVW: 2.1, opacity: 1, ampX: 0.05, ampY: 0.05, speed: 0.52, phase: 3.3),
+    .init(x: 0.4075, y: -0.12, w: 0.35, h: 1.147,
+          stops: [gstop("D8C6DB", 0), gstop("DCC9DA", 0.35), gstop("D9C2D5", 0.52), gstop("D9C2D5", 0.70, 0.44), gstop("C1AFD7", 0.85, 0), gstop("C1AFD7", 1, 0)],
+          blurVW: 1.5, opacity: 1, ampX: 0.07, ampY: 0.04, speed: 0.68, phase: 0.6),
+    .init(x: 0.53, y: -0.1275, w: 0.30, h: 1.237,
+          stops: [gstop("7F7BD8", 0), gstop("8A80DA", 0.32), gstop("7F77D6", 0.57), gstop("6A68DB", 0.80), gstop("6E6BE0", 1)],
+          blurVW: 1.5, opacity: 1, ampX: 0.06, ampY: 0.05, speed: 0.58, phase: 4.2),
+    .init(x: 0.66, y: -0.1275, w: 0.23, h: 1.275,
+          stops: [gstop("D9C6D7", 0), gstop("E2CED9", 0.35), gstop("E6D0D7", 0.65), gstop("E5CCCF", 1)],
+          blurVW: 1.5, opacity: 1, ampX: 0.06, ampY: 0.05, speed: 0.5, phase: 5.0),
+    .init(x: 0.815, y: 0.45, w: 0.10, h: 0.705,
+          stops: [gstop("C6B7D8", 0), gstop("A49AD7", 0.35), gstop("8B83D4", 0.70), gstop("9389D5", 1)],
+          blurVW: 1.5, opacity: 0.88, ampX: 0.09, ampY: 0.08, speed: 0.8, phase: 1.7),
+]
+
+/// Native animated recreation of the reference gradient. A `TimelineView`
+/// drives continuous sine-based drift of each blurred blob, so it flows the
+/// whole time the window is visible (no WebView, no focus/occlusion pausing).
+private struct BlobGradient: View {
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            GeometryReader { geo in
+                let t = timeline.date.timeIntervalSinceReferenceDate
+                let W = geo.size.width, H = geo.size.height
+                ZStack(alignment: .topLeading) {
+                    Color(hexString: "E8D5D4")
+                    LinearGradient(gradient: Gradient(stops: [
+                        gstop("DCCCD9", 0), gstop("D9C4D7", 0.45), gstop("D3ACC3", 1),
+                    ]), startPoint: .leading, endPoint: .trailing)
+
+                    ForEach(blobSpecs.indices, id: \.self) { i in
+                        let b = blobSpecs[i]
+                        let dx = sin(t * b.speed + b.phase) * b.ampX * W
+                        let dy = cos(t * b.speed * 0.9 + b.phase) * b.ampY * H
+                        Rectangle()
+                            .fill(LinearGradient(gradient: Gradient(stops: b.stops),
+                                                 startPoint: .top, endPoint: .bottom))
+                            .frame(width: b.w * W, height: b.h * H)
+                            .blur(radius: b.blurVW / 100 * W)
+                            .opacity(b.opacity)
+                            .offset(x: b.x * W + dx, y: b.y * H + dy)
+                    }
+                }
+                .frame(width: W, height: H)
+                .saturation(1.45)
+                .brightness(0.02)
+                .contrast(1.03)
+                .overlay(GrainOverlay(intensity: 1.8).opacity(0.8))
+                .clipped()
+            }
+        }
+    }
+}
+
 private struct GrainOverlay: View {
     /// Higher = grainier. The quote banner uses a strong value to match the
     /// film-grain look of the reference gradients.
