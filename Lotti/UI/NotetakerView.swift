@@ -22,11 +22,6 @@ struct NotetakerView: View {
     private let darkButton = Color(red: 0.10, green: 0.10, blue: 0.10)
     private let editorBg = Color(hex: 0xFBFBF9)
 
-    /// A fixed, tasteful preset for the hero banner — reuses the same
-    /// `ShaderGradientView`/`ShaderPreset` machinery as the Dictation quote
-    /// banner and Snippets promo card.
-    private static let heroShaderPreset = shaderPresets[1]
-
     var body: some View {
         Group {
             if let note = selected {
@@ -105,14 +100,8 @@ struct NotetakerView: View {
 
     private var heroCard: some View {
         ZStack(alignment: .leading) {
-            // Animated ShaderGradient background (same mechanism as the
-            // Dictation quote banner / Snippets promo card), only rendered
-            // when the bundled shader page is available.
-            if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
-                ShaderGradientView(preset: Self.heroShaderPreset)
-            } else {
-                Color(red: 0.13, green: 0.12, blue: 0.12)
-            }
+            // Native animated gradient (periwinkle → sage → yellow → orange).
+            BlobGradient(palette: .meadow)
 
             // Dark scrim so the light serif title/subtitle stay legible over
             // the bright, high-contrast gradient.

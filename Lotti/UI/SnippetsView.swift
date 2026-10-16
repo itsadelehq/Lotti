@@ -62,11 +62,6 @@ struct SnippetsView: View {
 
     // MARK: - Promo card shader preset
 
-    /// A fixed, tasteful warm/rich preset — reuses the same
-    /// `ShaderGradientView`/`ShaderPreset` machinery as the Dictation quote
-    /// banner, but pinned rather than rotated daily.
-    private static let promoShaderPreset = shaderPresets[0]
-
     private func addButton(title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -123,11 +118,7 @@ struct SnippetsView: View {
             // Dictation quote banner), only rendered when the bundled shader
             // page is available. Non-interactive so it never steals clicks
             // from the buttons/chips layered on top.
-            if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
-                ShaderGradientView(preset: Self.promoShaderPreset)
-            } else {
-                Color(red: 0.20, green: 0.20, blue: 0.18)
-            }
+            BlobGradient()
 
             // Dark scrim so the light title/subtitle/chips stay legible over
             // the bright, high-contrast gradient.

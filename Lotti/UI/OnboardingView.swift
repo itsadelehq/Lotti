@@ -70,13 +70,10 @@ struct OnboardingView: View {
     private var background: some View {
         ZStack {
             Color.appBg.ignoresSafeArea()
-            if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
-                ShaderGradientView(preset: shaderPresets.first ?? .init(
-                    c1: "ff5005", c2: "dbba95", c3: "d0bce1", type: "plane"))
-                    .opacity(0.12)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-            }
+            BlobGradient()
+                .opacity(0.12)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
         }
     }
 

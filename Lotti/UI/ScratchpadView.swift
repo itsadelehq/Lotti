@@ -12,9 +12,6 @@ struct ScratchpadView: View {
     @State private var selected: Note?
     @State private var hoveredRow: UUID?
 
-    /// A fixed, tasteful preset for the hero banner — reuses the same
-    /// `ShaderGradientView`/`ShaderPreset` machinery as the Notetaker banner.
-    private static let heroShaderPreset = shaderPresets[2]
 
     var body: some View {
         Group {
@@ -70,11 +67,7 @@ struct ScratchpadView: View {
 
     private var heroCard: some View {
         ZStack(alignment: .leading) {
-            if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
-                ShaderGradientView(preset: Self.heroShaderPreset)
-            } else {
-                Color(red: 0.13, green: 0.12, blue: 0.12)
-            }
+            BlobGradient()
 
             LinearGradient(
                 colors: [.black.opacity(0.55), .black.opacity(0.3)],

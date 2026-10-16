@@ -1,7 +1,5 @@
 import SwiftUI
 import AppKit
-import WebKit
-import CoreImage
 
 struct DictationView: View {
     @EnvironmentObject var store: Store
@@ -121,15 +119,6 @@ struct DictationView: View {
         let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: .now) ?? 0
         let index = dayOfYear % motivationalQuotes.count
         return motivationalQuotes[index]
-    }
-
-    /// Same day-of-year source as `todaysQuote`, so the ShaderGradient
-    /// background rotates in lockstep with the quote — both change together
-    /// once a day.
-    private static var todaysShaderPreset: ShaderPreset {
-        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: .now) ?? 0
-        let index = dayOfYear % shaderPresets.count
-        return shaderPresets[index]
     }
 
     private var quoteBanner: some View {
@@ -310,33 +299,6 @@ struct MotivationalQuote {
     var author: String = ""
 }
 
-/// One ShaderGradient color/type configuration for the quote banner
-/// background. Colors are hex strings without the leading `#` (the shader
-/// HTML page adds it back).
-struct ShaderPreset {
-    let c1: String
-    let c2: String
-    let c3: String
-    let type: String
-
-    /// Stable identity used by `ShaderGradientView` to decide whether the
-    /// embedded web view needs to reload for a new preset.
-    var key: String { "\(c1)-\(c2)-\(c3)-\(type)" }
-}
-
-/// The rotating set of ShaderGradient presets for the daily quote banner.
-/// One is picked deterministically per calendar day (see
-/// `DictationView.todaysShaderPreset`), in lockstep with the daily quote.
-/// Add more presets here — one line each — to extend the rotation.
-let shaderPresets: [ShaderPreset] = [
-    // Curated, on-brand set — warm/teal/periwinkle tones that read well
-    // behind white serif text with the dark scrim.
-    .init(c1: "0E5A4F", c2: "5FB7A6", c3: "B6BEFF", type: "plane"),      // teal → periwinkle
-    .init(c1: "E29B7B", c2: "C77FA6", c3: "9AA6E8", type: "waterPlane"), // sunset → violet
-    .init(c1: "4D6FD1", c2: "6A7EFF", c3: "C7B8F5", type: "plane"),      // indigo → lilac
-    .init(c1: "C98F7A", c2: "7FB0C4", c3: "B6BEFF", type: "waterPlane")  // clay → sky
-]
-
 /// ~30 built-in quotes; the banner picks one deterministically per calendar day.
 let motivationalQuotes: [MotivationalQuote] = [
     .init(text: "Done is better than perfect.", author: "Sheryl Sandberg"),
@@ -374,120 +336,6 @@ let motivationalQuotes: [MotivationalQuote] = [
     .init(text: "The cost of discipline is that every day looks the same; the cost of indiscipline is that every year looks the same."),
 ]
 
-/// Low-opacity procedural noise that sits over the gradient so the banner
-/// reads as a grainy photograph rather than a flat fill, even before a real
-/// texture image is dropped in.
-/// One blurred colour blob, in fractions of the banner size, recreating the
-/// reference design spec. `amp*`/`speed`/`phase` drive a continuous sine-based
-/// drift so the composition always flows.
-private struct BlobSpec {
-    let x, y, w, h: Double            // fractions of banner width/height
-    let stops: [Gradient.Stop]
-    let blurVW: Double                // blur as % of banner width
-    let opacity: Double
-    let ampX, ampY: Double            // drift amplitude (fractions of w/h)
-    let speed: Double
-    let phase: Double
-}
-
-private func gstop(_ hex: String, _ loc: Double, _ a: Double = 1) -> Gradient.Stop {
-    .init(color: Color(hexString: hex, alpha: a), location: loc)
-}
-
-private let blobSpecs: [BlobSpec] = [
-    .init(x: -0.09, y: -0.15, w: 0.365, h: 0.945,
-          stops: [gstop("D39B87", 0), gstop("DF7139", 0.35), gstop("DC7541", 0.65), gstop("D49BA7", 1)],
-          blurVW: 2.1, opacity: 1, ampX: 0.06, ampY: 0.05, speed: 0.62, phase: 0),
-    .init(x: 0.79, y: -0.075, w: 0.41, h: 1.20,
-          stops: [gstop("E3CCCA", 0), gstop("E7AF94", 0.25), gstop("E7A181", 0.53), gstop("E8A58D", 1)],
-          blurVW: 3.8, opacity: 1, ampX: 0.07, ampY: 0.04, speed: 0.46, phase: 1.1),
-    .init(x: 0.175, y: 0.457, w: 0.15, h: 0.697,
-          stops: [gstop("BC9FC8", 0), gstop("A49BD7", 0.5), gstop("8884DA", 1)],
-          blurVW: 3.0, opacity: 0.78, ampX: 0.08, ampY: 0.09, speed: 0.74, phase: 2.0),
-    .init(x: 0.24, y: -0.1125, w: 0.63, h: 1.237,
-          stops: [gstop("8B87DC", 0), gstop("606AE2", 0.26), gstop("4C5CE2", 0.48), gstop("4C5BE5", 0.73), gstop("4E5EE5", 1)],
-          blurVW: 2.1, opacity: 1, ampX: 0.05, ampY: 0.05, speed: 0.52, phase: 3.3),
-    .init(x: 0.4075, y: -0.12, w: 0.35, h: 1.147,
-          stops: [gstop("D8C6DB", 0), gstop("DCC9DA", 0.35), gstop("D9C2D5", 0.52), gstop("D9C2D5", 0.70, 0.44), gstop("C1AFD7", 0.85, 0), gstop("C1AFD7", 1, 0)],
-          blurVW: 1.5, opacity: 1, ampX: 0.07, ampY: 0.04, speed: 0.68, phase: 0.6),
-    .init(x: 0.53, y: -0.1275, w: 0.30, h: 1.237,
-          stops: [gstop("7F7BD8", 0), gstop("8A80DA", 0.32), gstop("7F77D6", 0.57), gstop("6A68DB", 0.80), gstop("6E6BE0", 1)],
-          blurVW: 1.5, opacity: 1, ampX: 0.06, ampY: 0.05, speed: 0.58, phase: 4.2),
-    .init(x: 0.66, y: -0.1275, w: 0.23, h: 1.275,
-          stops: [gstop("D9C6D7", 0), gstop("E2CED9", 0.35), gstop("E6D0D7", 0.65), gstop("E5CCCF", 1)],
-          blurVW: 1.5, opacity: 1, ampX: 0.06, ampY: 0.05, speed: 0.5, phase: 5.0),
-    .init(x: 0.815, y: 0.45, w: 0.10, h: 0.705,
-          stops: [gstop("C6B7D8", 0), gstop("A49AD7", 0.35), gstop("8B83D4", 0.70), gstop("9389D5", 1)],
-          blurVW: 1.5, opacity: 0.88, ampX: 0.09, ampY: 0.08, speed: 0.8, phase: 1.7),
-]
-
-/// Native animated recreation of the reference gradient. A `TimelineView`
-/// drives continuous sine-based drift of each blurred blob, so it flows the
-/// whole time the window is visible (no WebView, no focus/occlusion pausing).
-private struct BlobGradient: View {
-    var body: some View {
-        TimelineView(.animation) { timeline in
-            GeometryReader { geo in
-                let t = timeline.date.timeIntervalSinceReferenceDate
-                let W = geo.size.width, H = geo.size.height
-                ZStack(alignment: .topLeading) {
-                    Color(hexString: "E8D5D4")
-                    LinearGradient(gradient: Gradient(stops: [
-                        gstop("DCCCD9", 0), gstop("D9C4D7", 0.45), gstop("D3ACC3", 1),
-                    ]), startPoint: .leading, endPoint: .trailing)
-
-                    ForEach(blobSpecs.indices, id: \.self) { i in
-                        let b = blobSpecs[i]
-                        let dx = sin(t * b.speed + b.phase) * b.ampX * W
-                        let dy = cos(t * b.speed * 0.9 + b.phase) * b.ampY * H
-                        Rectangle()
-                            .fill(LinearGradient(gradient: Gradient(stops: b.stops),
-                                                 startPoint: .top, endPoint: .bottom))
-                            .frame(width: b.w * W, height: b.h * H)
-                            .blur(radius: b.blurVW / 100 * W)
-                            .opacity(b.opacity)
-                            .offset(x: b.x * W + dx, y: b.y * H + dy)
-                    }
-                }
-                .frame(width: W, height: H)
-                .saturation(1.28)
-                .contrast(1.0)
-                .overlay(
-                    // STILL fine film grain (no shimmer) so it reads as texture
-                    // and is easy on the eyes while the colours flow underneath.
-                    Image(nsImage: GrainTiles.still)
-                        .resizable(resizingMode: .tile)
-                        .blendMode(.overlay)
-                        .opacity(0.3)
-                        .allowsHitTesting(false)
-                )
-                .clipped()
-            }
-        }
-    }
-}
-
-/// A pre-rendered, cached fine film-grain tile (grayscale Core Image noise),
-/// shown static behind the flowing gradient.
-private enum GrainTiles {
-    static let still: NSImage = make(shift: 7)
-    private static let ctx = CIContext(options: [.useSoftwareRenderer: false])
-    private static func make(shift: CGFloat) -> NSImage {
-        let size = CGSize(width: 256, height: 256)
-        let rect = CGRect(origin: .zero, size: size)
-        guard let gen = CIFilter(name: "CIRandomGenerator")?.outputImage else {
-            return NSImage(size: size)
-        }
-        // Grayscale, slightly boosted contrast; sample a different region per
-        // tile so each frame's noise is distinct (→ shimmer when cycled).
-        let mono = gen
-            .applyingFilter("CIColorControls",
-                            parameters: [kCIInputSaturationKey: 0.0, kCIInputContrastKey: 0.9])
-            .transformed(by: CGAffineTransform(translationX: shift, y: shift * 1.7))
-        guard let cg = ctx.createCGImage(mono, from: rect) else { return NSImage(size: size) }
-        return NSImage(cgImage: cg, size: size)
-    }
-}
 
 /// A single dictation row that reveals a trailing action cluster on hover.
 private struct FeedRow: View {
