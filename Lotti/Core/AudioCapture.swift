@@ -112,6 +112,10 @@ final class AudioCapture {
     private var didLogFirstBuffer = false
     private var isRunning = false
     private var configObserver: NSObjectProtocol?
+    private var configChangeWork: DispatchWorkItem?
+    /// Sample rate the engine is currently capturing at, so we can ignore
+    /// redundant configuration-change notifications (e.g. our own restart).
+    private var activeSampleRate: Double = 0
     private let targetFormat = AVAudioFormat(
         commonFormat: .pcmFormatInt16, sampleRate: 16000, channels: 1, interleaved: true)!
 
@@ -137,6 +141,7 @@ final class AudioCapture {
         do {
             try engine.start()
             isRunning = true
+            activeSampleRate = inFormat.sampleRate
             let deviceName = currentInputDeviceName()
             AppLog.log("[Lotti] AudioCapture: input device = \"\(deviceName)\" (\(Int(inFormat.sampleRate))Hz)")
             AppLog.log("AudioCapture: engine started (input \(Int(inFormat.sampleRate))Hz → 16k PCM)")
@@ -145,12 +150,22 @@ final class AudioCapture {
             throw error
         }
 
-        // Restart cleanly if a device appears/disappears mid-use so a config
-        // change doesn't wedge the tap.
+        // Restart cleanly if the input device/format changes mid-use. Bluetooth
+        // mics (AirPods) fire a BURST of these while switching from music mode
+        // (A2DP) to mic mode (HFP), so we debounce and only restart once things
+        // settle — restarting on each one loops forever and captures nothing.
         configObserver = NotificationCenter.default.addObserver(
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
-            self?.handleConfigurationChange()
+            self?.scheduleConfigurationRestart()
         }
+    }
+
+    private func scheduleConfigurationRestart() {
+        guard isRunning else { return }
+        configChangeWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.handleConfigurationChange() }
+        configChangeWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
     }
 
     /// Sets the chosen input device on the engine's input audio unit via
@@ -186,7 +201,13 @@ final class AudioCapture {
 
     private func handleConfigurationChange() {
         guard isRunning else { return }
-        AppLog.log("[Lotti] AudioCapture: configuration changed — restarting tap")
+        // Skip if the input format already matches what we're capturing and the
+        // engine is still running — avoids restart loops from our own restarts.
+        let settledRate = engine.inputNode.outputFormat(forBus: 0).sampleRate
+        if engine.isRunning && settledRate == activeSampleRate {
+            return
+        }
+        AppLog.log("[Lotti] AudioCapture: configuration settled — restarting tap")
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
         isRunning = false
@@ -195,6 +216,12 @@ final class AudioCapture {
         applySelectedInputDevice()
         let input = engine.inputNode
         let inFormat = input.outputFormat(forBus: 0)
+        // A zero sample rate means the device isn't ready yet; try again shortly.
+        guard inFormat.sampleRate > 0 else {
+            isRunning = true // keep the session alive so the retry runs
+            scheduleConfigurationRestart()
+            return
+        }
         converter = AVAudioConverter(from: inFormat, to: targetFormat)
         input.installTap(onBus: 0, bufferSize: 1024, format: inFormat) { [weak self] buf, _ in
             self?.process(buf)
@@ -203,6 +230,7 @@ final class AudioCapture {
         do {
             try engine.start()
             isRunning = true
+            activeSampleRate = inFormat.sampleRate
             AppLog.log("[Lotti] AudioCapture: input device = \"\(currentInputDeviceName())\" (\(Int(inFormat.sampleRate))Hz)")
         } catch {
             AppLog.log("AudioCapture: engine restart FAILED — \(error.localizedDescription)")
@@ -235,6 +263,8 @@ final class AudioCapture {
         }
     }
     func stop() {
+        configChangeWork?.cancel()
+        configChangeWork = nil
         if let configObserver {
             NotificationCenter.default.removeObserver(configObserver)
             self.configObserver = nil
