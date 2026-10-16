@@ -450,17 +450,15 @@ private struct BlobGradient: View {
                     }
                 }
                 .frame(width: W, height: H)
-                .saturation(1.45)
-                .brightness(0.02)
-                .contrast(1.03)
+                .saturation(1.28)
+                .contrast(1.0)
                 .overlay(
-                    // Fine film grain that SHIMMERS (cycles noise frames ~14/s)
-                    // so it reads as real grain and moves with the gradient,
-                    // instead of a frozen speckle layer.
-                    Image(nsImage: GrainTiles.tiles[Int(t * 14) % GrainTiles.tiles.count])
+                    // STILL fine film grain (no shimmer) so it reads as texture
+                    // and is easy on the eyes while the colours flow underneath.
+                    Image(nsImage: GrainTiles.still)
                         .resizable(resizingMode: .tile)
                         .blendMode(.overlay)
-                        .opacity(0.55)
+                        .opacity(0.3)
                         .allowsHitTesting(false)
                 )
                 .clipped()
@@ -469,11 +467,10 @@ private struct BlobGradient: View {
     }
 }
 
-/// Pre-rendered fine film-grain tiles (grayscale Core Image noise). The banner
-/// cycles through them over time for a shimmering grain that moves with the
-/// flowing gradient. Generated once and cached.
+/// A pre-rendered, cached fine film-grain tile (grayscale Core Image noise),
+/// shown static behind the flowing gradient.
 private enum GrainTiles {
-    static let tiles: [NSImage] = (0..<10).map { make(shift: CGFloat($0) * 211 + 7) }
+    static let still: NSImage = make(shift: 7)
     private static let ctx = CIContext(options: [.useSoftwareRenderer: false])
     private static func make(shift: CGFloat) -> NSImage {
         let size = CGSize(width: 256, height: 256)
@@ -485,23 +482,10 @@ private enum GrainTiles {
         // tile so each frame's noise is distinct (→ shimmer when cycled).
         let mono = gen
             .applyingFilter("CIColorControls",
-                            parameters: [kCIInputSaturationKey: 0.0, kCIInputContrastKey: 1.15])
+                            parameters: [kCIInputSaturationKey: 0.0, kCIInputContrastKey: 0.9])
             .transformed(by: CGAffineTransform(translationX: shift, y: shift * 1.7))
         guard let cg = ctx.createCGImage(mono, from: rect) else { return NSImage(size: size) }
         return NSImage(cgImage: cg, size: size)
-    }
-}
-
-/// Deterministic RNG so the grain pattern is stable across redraws instead of
-/// re-randomizing (and visibly shimmering) on every SwiftUI update pass.
-private struct SeededGenerator: RandomNumberGenerator {
-    private var state: UInt64
-    init(seed: UInt64) { state = seed &+ 0x9E3779B97F4A7C15 }
-    mutating func next() -> UInt64 {
-        state ^= state << 13
-        state ^= state >> 7
-        state ^= state << 17
-        return state
     }
 }
 
