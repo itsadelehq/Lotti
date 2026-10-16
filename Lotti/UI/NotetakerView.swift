@@ -103,21 +103,23 @@ struct NotetakerView: View {
             // Native animated gradient (periwinkle → sage → yellow → orange).
             BlobGradient(palette: .meadow)
 
-            // Dark scrim so the light serif title/subtitle stay legible over
-            // the bright, high-contrast gradient.
+            // Soft left vignette only, so the gradient stays vivid; the text
+            // relies on a shadow for contrast.
             LinearGradient(
-                colors: [.black.opacity(0.55), .black.opacity(0.3)],
+                colors: [.black.opacity(0.3), .clear],
                 startPoint: .leading,
-                endPoint: .trailing)
+                endPoint: UnitPoint(x: 0.6, y: 0.5))
             .allowsHitTesting(false)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Record your notes when you\u{2019}re on a call")
                     .font(.loraRegular(23))
                     .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                 Text("Transcript, summary, and action items for every meeting")
                     .font(.gsRegular(14))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.45), radius: 5, y: 1)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(20)
