@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import WebKit
+import CoreImage
 
 struct DictationView: View {
     @EnvironmentObject var store: Store
@@ -452,34 +453,42 @@ private struct BlobGradient: View {
                 .saturation(1.45)
                 .brightness(0.02)
                 .contrast(1.03)
-                .overlay(GrainOverlay(intensity: 1.8).opacity(0.8))
+                .overlay(
+                    // Fine film grain that SHIMMERS (cycles noise frames ~14/s)
+                    // so it reads as real grain and moves with the gradient,
+                    // instead of a frozen speckle layer.
+                    Image(nsImage: GrainTiles.tiles[Int(t * 14) % GrainTiles.tiles.count])
+                        .resizable(resizingMode: .tile)
+                        .blendMode(.overlay)
+                        .opacity(0.55)
+                        .allowsHitTesting(false)
+                )
                 .clipped()
             }
         }
     }
 }
 
-private struct GrainOverlay: View {
-    /// Higher = grainier. The quote banner uses a strong value to match the
-    /// film-grain look of the reference gradients.
-    var intensity: Double = 1.0
-    var body: some View {
-        Canvas { context, size in
-            var generator = SeededGenerator(seed: 42)
-            // Dense fine grain, with both light and dark specks so it reads like
-            // real film grain rather than only sparkle.
-            let speckCount = Int(size.width * size.height / 4 * intensity)
-            for _ in 0..<speckCount {
-                let x = CGFloat.random(in: 0..<size.width, using: &generator)
-                let y = CGFloat.random(in: 0..<size.height, using: &generator)
-                let light = Bool.random(using: &generator)
-                let opacity = Double.random(in: 0.03...0.16, using: &generator)
-                let rect = CGRect(x: x, y: y, width: 1, height: 1)
-                context.fill(Path(rect),
-                             with: .color((light ? Color.white : Color.black).opacity(opacity)))
-            }
+/// Pre-rendered fine film-grain tiles (grayscale Core Image noise). The banner
+/// cycles through them over time for a shimmering grain that moves with the
+/// flowing gradient. Generated once and cached.
+private enum GrainTiles {
+    static let tiles: [NSImage] = (0..<10).map { make(shift: CGFloat($0) * 211 + 7) }
+    private static let ctx = CIContext(options: [.useSoftwareRenderer: false])
+    private static func make(shift: CGFloat) -> NSImage {
+        let size = CGSize(width: 256, height: 256)
+        let rect = CGRect(origin: .zero, size: size)
+        guard let gen = CIFilter(name: "CIRandomGenerator")?.outputImage else {
+            return NSImage(size: size)
         }
-        .allowsHitTesting(false)
+        // Grayscale, slightly boosted contrast; sample a different region per
+        // tile so each frame's noise is distinct (→ shimmer when cycled).
+        let mono = gen
+            .applyingFilter("CIColorControls",
+                            parameters: [kCIInputSaturationKey: 0.0, kCIInputContrastKey: 1.15])
+            .transformed(by: CGAffineTransform(translationX: shift, y: shift * 1.7))
+        guard let cg = ctx.createCGImage(mono, from: rect) else { return NSImage(size: size) }
+        return NSImage(cgImage: cg, size: size)
     }
 }
 
