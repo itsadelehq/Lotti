@@ -3,10 +3,10 @@ import AppKit
 
 struct DictationView: View {
     @EnvironmentObject var store: Store
-    // Persists across navigation: stores the date-key ("2026-09-21") of the
-    // day the banner was dismissed, so it stays hidden for the rest of that
-    // calendar day but reappears (with a new quote) on the next day.
-    @AppStorage("quoteBannerDismissedDay") private var quoteBannerDismissedDay = ""
+    // Session-only dismiss (consistent with the other pages): the banner comes
+    // back on relaunch/navigation, and turning the Settings gradient toggle
+    // back on re-shows it immediately (see `.onChange` below).
+    @State private var bannerDismissed = false
     @AppStorage("showGradients") private var showGradients = true
     /// The user's own first name, set during onboarding / Settings. Empty until set.
     @AppStorage("firstName") private var firstName = ""
@@ -82,6 +82,7 @@ struct DictationView: View {
         }
         .task { refreshIfNeeded() }
         .onChange(of: store.revision) { _, _ in refreshIfNeeded() }
+        .onChange(of: showGradients) { _, on in if on { bannerDismissed = false } }
     }
 
     /// "Welcome back, <name>" once a name is set, otherwise just "Welcome back".
@@ -96,7 +97,7 @@ struct DictationView: View {
                 .font(.gsBold(25))
                 .foregroundStyle(Color.figTextPrimary)
 
-            if showGradients && quoteBannerDismissedDay != Self.todayKey {
+            if showGradients && !bannerDismissed {
                 quoteBanner
             }
 
@@ -105,14 +106,6 @@ struct DictationView: View {
     }
 
     // MARK: - Daily motivational quote banner
-
-    /// Date key like "2026-09-21", used both for the once-per-day quote
-    /// index and for the dismissal persistence check above.
-    private static var todayKey: String {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        return f.string(from: .now)
-    }
 
     /// Deterministic by calendar day: day-of-year mod the quote count, so the
     /// same quote shows all day and rotates the next day.
@@ -164,7 +157,7 @@ struct DictationView: View {
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             Button {
-                quoteBannerDismissedDay = Self.todayKey
+                bannerDismissed = true
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 11, weight: .bold))

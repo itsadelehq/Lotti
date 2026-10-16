@@ -27,6 +27,7 @@ struct InsightsView: View {
         .onChange(of: store.revision) { _, _ in
             snapshot = InsightsSnapshot.compute(from: store, now: .now)
         }
+        .onChange(of: showGradients) { _, on in if on { bannerDismissed = false } }
     }
 
     /// Small animated gradient hero, like the Notetaker banner.

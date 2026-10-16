@@ -4,6 +4,8 @@ A native macOS voice-to-text app — press-and-hold a key, speak, release, and y
 words are cleaned up and pasted into whatever app is focused. It's a personal,
 open-source take on apps like Wispr Flow, built in Swift + SwiftUI.
 
+![Lotti dashboard](docs/dashboard.png)
+
 - **Push-to-talk dictation** anywhere on your Mac (global hotkey, default Right ⌘)
 - **Live transcription** via Deepgram (nova-3) with your own vocabulary boosting
 - **Optional AI cleanup** via Claude Haiku — fixes punctuation, filler, homophones
@@ -66,6 +68,4 @@ hotkey, AVAudioEngine for capture, NSPasteboard + ⌘V for injection.
 ## License
 
 Source code: **MIT** (see [LICENSE](LICENSE)).
-Bundled fonts (Inter Tight, Lora, Instrument Serif) are under the SIL Open Font License —
-see [NOTICE.md](NOTICE.md). The commercial Aeonik Pro font used in the original
-private build is **not** included; the open build uses Inter Tight instead.
+Bundled fonts (Inter Tight, Lora, Instrument Serif) are under the SIL Open Font License (see [NOTICE.md](NOTICE.md)).

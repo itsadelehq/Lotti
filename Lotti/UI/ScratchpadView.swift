@@ -26,6 +26,7 @@ struct ScratchpadView: View {
         }
         .task { refresh() }
         .onChange(of: store.revision) { _, _ in refresh() }
+        .onChange(of: showGradients) { _, on in if on { bannerDismissed = false } }
     }
 
     private func refresh() { notes = store.notes(scratch: true) }
