@@ -57,6 +57,23 @@ struct ShaderGradientView: NSViewRepresentable {
     }
 }
 
+/// Renders the bundled `banner-gradient.html` — a faithful, self-contained
+/// (no CDN) recreation of the reference gradient as layered, blurred, slowly
+/// drifting colour blobs — as the quote banner background.
+struct BannerGradientView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NonInteractiveWebView {
+        let configuration = WKWebViewConfiguration()
+        let webView = NonInteractiveWebView(frame: .zero, configuration: configuration)
+        webView.setValue(false, forKey: "drawsBackground")
+        if #available(macOS 12.0, *) { webView.underPageBackgroundColor = .clear }
+        if let url = Bundle.main.url(forResource: "banner-gradient", withExtension: "html") {
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        }
+        return webView
+    }
+    func updateNSView(_ nsView: NonInteractiveWebView, context: Context) {}
+}
+
 /// `WKWebView` subclass that never intercepts mouse events, so it can be
 /// layered underneath interactive SwiftUI controls without stealing clicks.
 final class NonInteractiveWebView: WKWebView {
