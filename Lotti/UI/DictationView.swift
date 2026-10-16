@@ -186,24 +186,13 @@ struct DictationView: View {
         }
     }
 
-    /// Which mesh palette shows today — rotates once per calendar day in
-    /// lockstep with the quote.
-    private static var todaysMesh: MeshPalette {
-        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: .now) ?? 0
-        return bannerMeshes[dayOfYear % bannerMeshes.count]
-    }
-
     /// Native grainy gradient background for the quote banner, recreating the
-    /// reference look: a multi-stop `LinearGradient` whose colours flow left→
-    /// right in soft diagonal bands, finished with heavy film grain. No WebGL /
-    /// CDN. The stop list for the day comes from `todaysMesh`.
+    /// reference look as layered, heavily-blurred colour blobs over a base
+    /// gradient (faithful to the provided design spec), finished with film
+    /// grain. No WebGL / CDN.
     private var quoteBannerBackground: some View {
-        let stops = Self.todaysMesh.colors.map { Color(hexString: $0) }
-        return ZStack {
-            LinearGradient(
-                colors: stops,
-                startPoint: UnitPoint(x: 0.05, y: 0.12),
-                endPoint: UnitPoint(x: 0.95, y: 0.88))
+        ZStack {
+            BlobGradient()
             GrainOverlay(intensity: 1.4)
         }
     }
@@ -350,32 +339,6 @@ let shaderPresets: [ShaderPreset] = [
     .init(c1: "C98F7A", c2: "7FB0C4", c3: "B6BEFF", type: "waterPlane")  // clay → sky
 ]
 
-/// An ordered list of colour stops (left→right) for the quote banner's grainy
-/// `LinearGradient`. Hex strings without a leading `#`.
-struct MeshPalette {
-    let colors: [String]
-}
-
-/// The three reference gradients, recreated as native grainy gradients. One
-/// shows per calendar day (see `DictationView.todaysMesh`).
-let bannerMeshes: [MeshPalette] = [
-    // 1 — Pink → cream (soft rose with warm cream/yellow glows).
-    .init(colors: [
-        "F2679A", "F58CB0", "FBD9C0", "FFF0C6", "F5A9BE",
-        "F3789F", "FCEFCB", "F6C7A2", "F18BA4",
-    ]),
-    // 2 — Burnt orange → cornflower blue → lavender (the first reference).
-    .init(colors: [
-        "E8692C", "EC7B3C", "E78FA8", "5867E6", "4A5AE8",
-        "D7D0EF", "6E7EEE", "E8E1F3", "CEC2E9", "E9AC8C",
-    ]),
-    // 3 — Periwinkle → sky → pale yellow → orange.
-    .init(colors: [
-        "7D78E6", "9A93EC", "CFDBEE", "DCE7C8", "EFE7A6",
-        "E9E08C", "F0A24A", "E8632A", "D8C8EE",
-    ]),
-]
-
 /// ~30 built-in quotes; the banner picks one deterministically per calendar day.
 let motivationalQuotes: [MotivationalQuote] = [
     .init(text: "Done is better than perfect.", author: "Sheryl Sandberg"),
@@ -416,6 +379,92 @@ let motivationalQuotes: [MotivationalQuote] = [
 /// Low-opacity procedural noise that sits over the gradient so the banner
 /// reads as a grainy photograph rather than a flat fill, even before a real
 /// texture image is dropped in.
+/// One blurred colour blob in the banner composition, defined in the reference
+/// design's 4096×2731 canvas space so it can be scaled to any banner size.
+private struct BlobSpec {
+    let rect: CGRect            // position/size in canvas space
+    let stops: [Gradient.Stop] // vertical (top→bottom) fill
+    let blur: CGFloat          // blur radius in canvas px
+    let opacity: Double
+    let drift: CGSize          // how far it slowly flows (canvas px)
+    let duration: Double       // seconds for one drift cycle
+}
+
+private let blobCanvas = CGSize(width: 4096, height: 2731)
+
+private func stop(_ hex: String, _ loc: Double, _ a: Double = 1) -> Gradient.Stop {
+    .init(color: Color(hexString: hex, alpha: a), location: loc)
+}
+
+/// The reference gradient, recreated faithfully from the provided design spec:
+/// a base wash plus eight heavily-blurred, overlapping gradient blobs.
+private let blobSpecs: [BlobSpec] = [
+    .init(rect: CGRect(x: -368.64, y: -409.60, width: 1495.04, height: 2580.48),
+          stops: [stop("D39B87", 0), stop("DF7139", 0.35), stop("DC7541", 0.65), stop("D49BA7", 1)],
+          blur: 65, opacity: 1, drift: CGSize(width: 90, height: 60), duration: 13),
+    .init(rect: CGRect(x: 3235.84, y: -204.80, width: 1679.36, height: 3276.80),
+          stops: [stop("E3CCCA", 0), stop("E7AF94", 0.25), stop("E7A181", 0.53), stop("E8A58D", 1)],
+          blur: 120, opacity: 1, drift: CGSize(width: -110, height: 50), duration: 17),
+    .init(rect: CGRect(x: 716.80, y: 1249.28, width: 614.40, height: 1904.64),
+          stops: [stop("BC9FC8", 0), stop("A49BD7", 0.5), stop("8884DA", 1)],
+          blur: 95, opacity: 0.75, drift: CGSize(width: 70, height: -80), duration: 15),
+    .init(rect: CGRect(x: 983.04, y: -307.20, width: 2580.48, height: 3379.20),
+          stops: [stop("8B87DC", 0), stop("606AE2", 0.26), stop("4C5CE2", 0.48), stop("4C5BE5", 0.73), stop("4E5EE5", 1)],
+          blur: 65, opacity: 1, drift: CGSize(width: -80, height: 70), duration: 19),
+    .init(rect: CGRect(x: 1669.12, y: -327.68, width: 1433.60, height: 3133.44),
+          stops: [stop("D8C6DB", 0), stop("DCC9DA", 0.35), stop("D9C2D5", 0.52), stop("D9C2D5", 0.70, 0.44), stop("C1AFD7", 0.85, 0), stop("C1AFD7", 1, 0)],
+          blur: 47, opacity: 1, drift: CGSize(width: 100, height: 40), duration: 14),
+    .init(rect: CGRect(x: 2170.88, y: -348.16, width: 1228.80, height: 3379.20),
+          stops: [stop("7F7BD8", 0), stop("8A80DA", 0.32), stop("7F77D6", 0.57), stop("6A68DB", 0.80), stop("6E6BE0", 1)],
+          blur: 47, opacity: 1, drift: CGSize(width: -90, height: -50), duration: 16),
+    .init(rect: CGRect(x: 2703.36, y: -348.16, width: 942.08, height: 3481.60),
+          stops: [stop("D9C6D7", 0), stop("E2CED9", 0.35), stop("E6D0D7", 0.65), stop("E5CCCF", 1)],
+          blur: 47, opacity: 1, drift: CGSize(width: 80, height: 60), duration: 18),
+    .init(rect: CGRect(x: 3338.24, y: 1228.80, width: 409.60, height: 1925.12),
+          stops: [stop("C6B7D8", 0), stop("A49AD7", 0.35), stop("8B83D4", 0.70), stop("9389D5", 1)],
+          blur: 47, opacity: 0.85, drift: CGSize(width: -70, height: 80), duration: 15),
+]
+
+/// Animated recreation of the reference gradient: the blurred blobs slowly
+/// drift (transform-only, so it stays smooth) for a gentle flowing motion,
+/// like the previous animated banner.
+private struct BlobGradient: View {
+    @State private var flow = false
+    var body: some View {
+        GeometryReader { geo in
+            let sx = geo.size.width / blobCanvas.width
+            let sy = geo.size.height / blobCanvas.height
+            ZStack(alignment: .topLeading) {
+                Color(hexString: "E8D5D4")
+                LinearGradient(gradient: Gradient(stops: [
+                    stop("DCCCD9", 0), stop("D9C4D7", 0.45), stop("D3ACC3", 1),
+                ]), startPoint: .leading, endPoint: .trailing)
+
+                ForEach(blobSpecs.indices, id: \.self) { i in
+                    let b = blobSpecs[i]
+                    let dx = (flow ? b.drift.width : 0)
+                    let dy = (flow ? b.drift.height : 0)
+                    Rectangle()
+                        .fill(LinearGradient(gradient: Gradient(stops: b.stops),
+                                             startPoint: .top, endPoint: .bottom))
+                        .frame(width: b.rect.width * sx, height: b.rect.height * sy)
+                        .blur(radius: b.blur * sx)
+                        .opacity(b.opacity)
+                        .offset(x: (b.rect.minX + dx) * sx, y: (b.rect.minY + dy) * sy)
+                        .animation(.easeInOut(duration: b.duration).repeatForever(autoreverses: true),
+                                   value: flow)
+                }
+
+                // Reference's grey overlay (overlay blend) for a touch of contrast.
+                Color(hexString: "808080").opacity(0.5).blendMode(.overlay)
+            }
+            .frame(width: geo.size.width, height: geo.size.height)
+            .clipped()
+        }
+        .onAppear { flow = true }
+    }
+}
+
 private struct GrainOverlay: View {
     /// Higher = grainier. The quote banner uses a strong value to match the
     /// film-grain look of the reference gradients.
