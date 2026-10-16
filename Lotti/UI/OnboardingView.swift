@@ -210,11 +210,14 @@ struct OnboardingView: View {
                        sub: "Lotti transcribes with Deepgram and (optionally) cleans up with Anthropic.")
 
             VStack(alignment: .leading, spacing: 14) {
-                keyField(label: "Deepgram API key", placeholder: "dg_…", text: $deepgramKey)
+                VStack(alignment: .leading, spacing: 7) {
+                    keyField(label: "Deepgram API key", placeholder: "paste your key here", text: $deepgramKey)
+                    deepgramHelp
+                }
                 keyField(label: "Anthropic API key (optional)", placeholder: "sk-ant-… — for AI cleanup", text: $anthropicKey)
             }
 
-            Text("Get a Deepgram key free at deepgram.com (includes free credit). Anthropic is optional, only for AI cleanup. Your keys stay in your Mac's Keychain and never leave your device.")
+            Text("Anthropic is optional — only for AI cleanup. Your keys stay in your Mac's Keychain and never leave your device.")
                 .font(.gsRegular(12))
                 .foregroundStyle(Color.figTextGrey)
                 .fixedSize(horizontal: false, vertical: true)
@@ -227,6 +230,28 @@ struct OnboardingView: View {
                 saveKeys()
                 advance()
             }
+        }
+    }
+
+    /// Actionable how-to under the Deepgram field: a tappable link to where the
+    /// key is created, plus the exact steps. Important for the open-source build
+    /// where every user must bring their own free key.
+    private var deepgramHelp: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Link(destination: URL(string: "https://console.deepgram.com/signup")!) {
+                HStack(spacing: 4) {
+                    Text("Don't have a key? Create one free")
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 9, weight: .semibold))
+                }
+                .font(.gsSemibold(12))
+                .foregroundStyle(Color.appTeal)
+            }
+            .buttonStyle(.plain)
+            Text("Sign up (free credit) → open API Keys → Create a Key → copy it → paste above.")
+                .font(.gsRegular(11.5))
+                .foregroundStyle(Color.figTextGrey)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

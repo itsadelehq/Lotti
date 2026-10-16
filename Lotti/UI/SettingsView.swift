@@ -287,10 +287,31 @@ struct SettingsView: View {
 
     // MARK: - Keys
 
+    /// Link + steps to create a free Deepgram key, shown under the key field.
+    private var deepgramKeyHelp: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Link(destination: URL(string: "https://console.deepgram.com/signup")!) {
+                HStack(spacing: 4) {
+                    Text("Need a key? Create one free")
+                    Image(systemName: "arrow.up.right").font(.system(size: 9, weight: .semibold))
+                }
+                .font(.gsSemibold(12))
+                .foregroundStyle(Color.appTeal)
+            }
+            .buttonStyle(.plain)
+            Text("Sign up (free credit) → API Keys → Create a Key → paste above.")
+                .font(.gsRegular(11.5))
+                .foregroundStyle(Color.figTextGrey)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 2)
+    }
+
     private var keysContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             card {
                 KeyRow(title: "Deepgram API key", account: "deepgram_api_key")
+                deepgramKeyHelp
                 hairline
                 KeyRow(title: "Anthropic API key", account: "anthropic_api_key")
                 hairline
