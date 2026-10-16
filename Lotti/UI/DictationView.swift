@@ -143,21 +143,25 @@ struct DictationView: View {
                 // 0.45 leading opacity because some rotating presets (e.g.
                 // the light pink/blue waterPlane preset) are much lighter
                 // than the original orange/lilac default.
+                // Only a soft left vignette so the vivid gradient stays true to
+                // the reference; the quote relies on a text shadow for contrast.
                 LinearGradient(
-                    colors: [.black.opacity(0.6), .black.opacity(0.3)],
+                    colors: [.black.opacity(0.28), .clear],
                     startPoint: .leading,
-                    endPoint: .trailing)
+                    endPoint: UnitPoint(x: 0.55, y: 0.5))
 
                 VStack(alignment: .leading, spacing: 8) {
                     Spacer()
                     Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
                         .font(.instrumentSerifItalic(30))
                         .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.55), radius: 7, y: 1)
                         .fixedSize(horizontal: false, vertical: true)
                     if !Self.todaysQuote.author.isEmpty {
                         Text("— \(Self.todaysQuote.author)")
                             .font(.gsRegular(13))
-                            .foregroundStyle(.white.opacity(0.8))
+                            .foregroundStyle(.white.opacity(0.9))
+                            .shadow(color: .black.opacity(0.5), radius: 5, y: 1)
                     }
                     Spacer()
                 }
@@ -182,28 +186,25 @@ struct DictationView: View {
         }
     }
 
-    /// Animated ShaderGradient background (rendered via an embedded, fully
-    /// transparent, non-interactive `WKWebView`), falling back to a static
-    /// dark gradient + procedural grain if the bundled shader page is
-    /// missing — e.g. an image asset resource failure, or offline first run
-    /// before the CDN modules can load. Never renders a blank/white banner.
-    private var quoteBannerBackground: some View {
-        ZStack {
-            if let nsImage = NSImage(named: "QuoteBanner") {
-                Image(nsImage: nsImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } else {
-                LinearGradient(
-                    colors: [Color(hex: 0x1B1B2E), Color(hex: 0x12121A)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing)
-                GrainOverlay()
+    /// Which mesh palette shows today — rotates once per calendar day in
+    /// lockstep with the quote.
+    private static var todaysMesh: MeshPalette {
+        let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: .now) ?? 0
+        return bannerMeshes[dayOfYear % bannerMeshes.count]
+    }
 
-                if Bundle.main.url(forResource: "quote-shader", withExtension: "html") != nil {
-                    ShaderGradientView(preset: Self.todaysShaderPreset)
-                }
-            }
+    /// Native grainy gradient background for the quote banner, recreating the
+    /// reference look: a multi-stop `LinearGradient` whose colours flow left→
+    /// right in soft diagonal bands, finished with heavy film grain. No WebGL /
+    /// CDN. The stop list for the day comes from `todaysMesh`.
+    private var quoteBannerBackground: some View {
+        let stops = Self.todaysMesh.colors.map { Color(hexString: $0) }
+        return ZStack {
+            LinearGradient(
+                colors: stops,
+                startPoint: UnitPoint(x: 0.05, y: 0.12),
+                endPoint: UnitPoint(x: 0.95, y: 0.88))
+            GrainOverlay(intensity: 1.4)
         }
     }
 
@@ -349,6 +350,32 @@ let shaderPresets: [ShaderPreset] = [
     .init(c1: "C98F7A", c2: "7FB0C4", c3: "B6BEFF", type: "waterPlane")  // clay → sky
 ]
 
+/// An ordered list of colour stops (left→right) for the quote banner's grainy
+/// `LinearGradient`. Hex strings without a leading `#`.
+struct MeshPalette {
+    let colors: [String]
+}
+
+/// The three reference gradients, recreated as native grainy gradients. One
+/// shows per calendar day (see `DictationView.todaysMesh`).
+let bannerMeshes: [MeshPalette] = [
+    // 1 — Pink → cream (soft rose with warm cream/yellow glows).
+    .init(colors: [
+        "F2679A", "F58CB0", "FBD9C0", "FFF0C6", "F5A9BE",
+        "F3789F", "FCEFCB", "F6C7A2", "F18BA4",
+    ]),
+    // 2 — Burnt orange → cornflower blue → lavender (the first reference).
+    .init(colors: [
+        "E8692C", "EC7B3C", "E78FA8", "5867E6", "4A5AE8",
+        "D7D0EF", "6E7EEE", "E8E1F3", "CEC2E9", "E9AC8C",
+    ]),
+    // 3 — Periwinkle → sky → pale yellow → orange.
+    .init(colors: [
+        "7D78E6", "9A93EC", "CFDBEE", "DCE7C8", "EFE7A6",
+        "E9E08C", "F0A24A", "E8632A", "D8C8EE",
+    ]),
+]
+
 /// ~30 built-in quotes; the banner picks one deterministically per calendar day.
 let motivationalQuotes: [MotivationalQuote] = [
     .init(text: "Done is better than perfect.", author: "Sheryl Sandberg"),
@@ -390,16 +417,23 @@ let motivationalQuotes: [MotivationalQuote] = [
 /// reads as a grainy photograph rather than a flat fill, even before a real
 /// texture image is dropped in.
 private struct GrainOverlay: View {
+    /// Higher = grainier. The quote banner uses a strong value to match the
+    /// film-grain look of the reference gradients.
+    var intensity: Double = 1.0
     var body: some View {
         Canvas { context, size in
             var generator = SeededGenerator(seed: 42)
-            let speckCount = Int(size.width * size.height / 12)
+            // Dense fine grain, with both light and dark specks so it reads like
+            // real film grain rather than only sparkle.
+            let speckCount = Int(size.width * size.height / 4 * intensity)
             for _ in 0..<speckCount {
                 let x = CGFloat.random(in: 0..<size.width, using: &generator)
                 let y = CGFloat.random(in: 0..<size.height, using: &generator)
-                let opacity = Double.random(in: 0.02...0.08, using: &generator)
+                let light = Bool.random(using: &generator)
+                let opacity = Double.random(in: 0.03...0.16, using: &generator)
                 let rect = CGRect(x: x, y: y, width: 1, height: 1)
-                context.fill(Path(rect), with: .color(.white.opacity(opacity)))
+                context.fill(Path(rect),
+                             with: .color((light ? Color.white : Color.black).opacity(opacity)))
             }
         }
         .allowsHitTesting(false)

@@ -9,6 +9,13 @@ extension Color {
         self.init(.sRGB, red: r, green: g, blue: b, opacity: alpha)
     }
 
+    /// Hex string without a leading `#` (e.g. "6A7EFF"). Falls back to black
+    /// if the string isn't valid hex.
+    init(hexString: String, alpha: Double = 1) {
+        let cleaned = hexString.trimmingCharacters(in: CharacterSet(charactersIn: "# "))
+        self.init(hex: UInt32(cleaned, radix: 16) ?? 0, alpha: alpha)
+    }
+
     static let appBg = Color(hex: 0xF5F4F1)
     static let appSidebarBg = Color(hex: 0xF5F4F1)
     static let appBgNS = NSColor(red: 0xF5 / 255, green: 0xF4 / 255, blue: 0xF1 / 255, alpha: 1)
