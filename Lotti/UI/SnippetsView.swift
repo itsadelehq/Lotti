@@ -114,28 +114,18 @@ struct SnippetsView: View {
 
     private var promoCard: some View {
         ZStack(alignment: .topLeading) {
-            // Animated ShaderGradient background (same mechanism as the
-            // Dictation quote banner), only rendered when the bundled shader
-            // page is available. Non-interactive so it never steals clicks
-            // from the buttons/chips layered on top.
-            BlobGradient()
-
-            // Dark scrim so the light title/subtitle/chips stay legible over
-            // the bright, high-contrast gradient.
-            LinearGradient(
-                colors: [.black.opacity(0.55), .black.opacity(0.35)],
-                startPoint: .leading,
-                endPoint: .trailing)
-            .allowsHitTesting(false)
+            // Native animated gradient (dusty rose → warm sand). It's light, so
+            // the card uses dark text (no dark scrim needed).
+            BlobGradient(palette: .blush)
 
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("The stuff you shouldn\u{2019}t have to re-type.")
                         .font(.gsBold(22))
-                        .foregroundStyle(Color(red: 0.95, green: 0.94, blue: 0.92))
+                        .foregroundStyle(Color(hex: 0x3A2A2E))
                     Text("Save phrases you use frequently — a link, an intro, a prompt — then say the snippet name to drop it in instantly.")
                         .font(.gsRegular(15))
-                        .foregroundStyle(Color(red: 0.95, green: 0.94, blue: 0.92).opacity(0.8))
+                        .foregroundStyle(Color(hex: 0x3A2A2E).opacity(0.78))
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: 440, alignment: .leading)
                 }
@@ -175,18 +165,18 @@ struct SnippetsView: View {
         HStack(spacing: 8) {
             Text("\u{201C}\(name)\u{201D}")
                 .font(.gsSemibold(13))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color(hex: 0x3A2A2E))
             Text("→")
                 .font(.gsRegular(13))
-                .foregroundStyle(.white.opacity(0.55))
+                .foregroundStyle(Color(hex: 0x3A2A2E).opacity(0.5))
             Text(expansion)
                 .font(.gsRegular(13))
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(Color(hex: 0x3A2A2E).opacity(0.68))
                 .lineLimit(1)
         }
         .padding(.horizontal, 12)
         .frame(height: 34)
-        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.white.opacity(0.08)))
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.white.opacity(0.45)))
     }
 
     // MARK: - Populated list

@@ -63,6 +63,21 @@ extension BlobPalette {
             [gstop("C6B7D8", 0), gstop("A49AD7", 0.35), gstop("8B83D4", 0.70), gstop("9389D5", 1)],
         ]))
 
+    /// Dusty rose → warm sand (the Snippets promo card).
+    static let blush = BlobPalette(
+        bg: "F2E6D4",
+        base: [gstop("E9B7C0", 0), gstop("EAC9BE", 0.45), gstop("F0D6B2", 1)],
+        specs: blobGeometry([
+            [gstop("E6A2AF", 0), gstop("DB7E91", 0.35), gstop("C96B80", 0.65), gstop("E6A2AF", 1)],
+            [gstop("F7E7CF", 0), gstop("F0D5B1", 0.30), gstop("E7C599", 0.60), gstop("F3DFC0", 1)],
+            [gstop("E6A2AF", 0), gstop("DB7E91", 0.5), gstop("C96B80", 1)],
+            [gstop("DF8597", 0), gstop("C96B80", 0.30), gstop("D4738A", 0.60), gstop("E29CAA", 1)],
+            [gstop("F7E7CF", 0), gstop("F0D5B1", 0.40), gstop("F0D5B1", 0.70, 0.4), gstop("F0D5B1", 1, 0)],
+            [gstop("F7E7CF", 0), gstop("F0D5B1", 0.45), gstop("E7C599", 1)],
+            [gstop("F7E7CF", 0), gstop("F4E7D6", 0.5), gstop("F2E0C4", 1)],
+            [gstop("F0D5B1", 0), gstop("E7C599", 0.5), gstop("DEB783", 1)],
+        ]))
+
     /// Periwinkle → sage → pale yellow → burnt orange (the Notetaker banner).
     static let meadow = BlobPalette(
         bg: "E3EAD0",
