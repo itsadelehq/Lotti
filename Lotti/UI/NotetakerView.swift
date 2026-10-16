@@ -124,7 +124,7 @@ struct NotetakerView: View {
             }
             .padding(20)
         }
-        .frame(maxWidth: .infinity, minHeight: 125, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 

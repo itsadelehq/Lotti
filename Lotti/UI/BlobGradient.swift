@@ -63,6 +63,21 @@ extension BlobPalette {
             [gstop("C6B7D8", 0), gstop("A49AD7", 0.35), gstop("8B83D4", 0.70), gstop("9389D5", 1)],
         ]))
 
+    /// Teal → mint/aqua → coral (the Scratchpad hero).
+    static let lagoon = BlobPalette(
+        bg: "CBE6DA",
+        base: [gstop("CBE6DA", 0), gstop("C8E3DF", 0.45), gstop("E8D2C6", 1)],
+        specs: blobGeometry([
+            [gstop("5BB9A9", 0), gstop("2E9E8D", 0.35), gstop("1F7E70", 0.65), gstop("5BB9A9", 1)],
+            [gstop("F0BFAE", 0), gstop("E89E86", 0.30), gstop("D97E66", 0.60), gstop("F0BFAE", 1)],
+            [gstop("5BB9A9", 0), gstop("2E9E8D", 0.5), gstop("1F7E70", 1)],
+            [gstop("3DAE9C", 0), gstop("1F7E70", 0.30), gstop("2E9E8D", 0.60), gstop("5BB9A9", 1)],
+            [gstop("DCEEDF", 0), gstop("C3E3CE", 0.40), gstop("C3E3CE", 0.70, 0.4), gstop("C3E3CE", 1, 0)],
+            [gstop("C3E3EA", 0), gstop("9AD2DE", 0.45), gstop("7BBECD", 1)],
+            [gstop("DCEEDF", 0), gstop("E8F0E6", 0.5), gstop("F0E6D8", 1)],
+            [gstop("E89E86", 0), gstop("D97E66", 0.5), gstop("C96A52", 1)],
+        ]))
+
     /// Dusty rose → warm sand (the Snippets promo card).
     static let blush = BlobPalette(
         bg: "F2E6D4",

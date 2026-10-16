@@ -17,6 +17,7 @@ struct InsightsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 header
+                banner
                 segmentedTabs
                 if let snapshot {
                     switch tab {
@@ -37,6 +38,32 @@ struct InsightsView: View {
         .onChange(of: store.revision) { _, _ in
             snapshot = InsightsSnapshot.compute(from: store, now: .now)
         }
+    }
+
+    /// Small animated gradient hero, like the Notetaker banner.
+    private var banner: some View {
+        ZStack(alignment: .leading) {
+            BlobGradient(palette: .sunset)
+
+            // Soft left vignette; text uses a shadow for contrast.
+            LinearGradient(colors: [.black.opacity(0.3), .clear],
+                           startPoint: .leading, endPoint: UnitPoint(x: 0.6, y: 0.5))
+                .allowsHitTesting(false)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Your voice, by the numbers")
+                    .font(.loraRegular(22))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
+                Text("Words, speed, streaks, and how you dictate")
+                    .font(.gsRegular(13.5))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.45), radius: 5, y: 1)
+            }
+            .padding(.horizontal, 22)
+        }
+        .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private var header: some View {

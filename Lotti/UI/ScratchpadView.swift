@@ -67,21 +67,24 @@ struct ScratchpadView: View {
 
     private var heroCard: some View {
         ZStack(alignment: .leading) {
-            BlobGradient()
+            BlobGradient(palette: .lagoon)
 
+            // Soft left vignette; text uses a shadow for contrast.
             LinearGradient(
-                colors: [.black.opacity(0.55), .black.opacity(0.3)],
+                colors: [.black.opacity(0.34), .clear],
                 startPoint: .leading,
-                endPoint: .trailing)
+                endPoint: UnitPoint(x: 0.62, y: 0.5))
             .allowsHitTesting(false)
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("For quick thoughts you want to come back to")
                     .font(.loraRegular(23))
                     .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                 Text("Drop a to-do list, polish a message before you send, brain-dump an idea \u{2014} your safe space to save, create, and explore.")
                     .font(.gsRegular(14))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.45), radius: 5, y: 1)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: 460, alignment: .leading)
                 Button(action: openNewNote) {
