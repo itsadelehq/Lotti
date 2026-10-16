@@ -86,7 +86,7 @@ struct SnippetsView: View {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Save it once, say it anytime.")
-                        .font(.loraRegular(23))
+                        .font(.gsSemibold(23))
                         .foregroundStyle(Color(hex: 0x3A2A2E))
                     Text("Save phrases you use often, like a link, an intro, or a prompt, then say the snippet name to drop it in instantly.")
                         .font(.gsRegular(15))

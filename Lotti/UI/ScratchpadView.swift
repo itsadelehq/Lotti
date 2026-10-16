@@ -71,7 +71,7 @@ struct ScratchpadView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("For quick thoughts you want to come back to")
-                    .font(.loraRegular(23))
+                    .font(.gsSemibold(23))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                 Text("Drop a to-do list, polish a message before you send, or brain-dump an idea. Your safe space to save, create, and explore.")

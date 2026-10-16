@@ -113,7 +113,7 @@ struct NotetakerView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Record your notes when you\u{2019}re on a call")
-                    .font(.loraRegular(23))
+                    .font(.gsSemibold(23))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                 Text("Transcript, summary, and action items for every meeting")

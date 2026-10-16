@@ -98,7 +98,7 @@ struct OnboardingView: View {
             BrandMark(size: 52)
             VStack(spacing: 10) {
                 Text("Welcome to Lotti")
-                    .font(.loraMedium(34))
+                    .font(.gsBold(34))
                     .foregroundStyle(Color.figTextPrimary)
                 Text("Private, fast voice-to-text, right on your Mac.")
                     .font(.gsRegular(15))
@@ -319,7 +319,7 @@ struct OnboardingView: View {
                 Text(firstName.trimmingCharacters(in: .whitespaces).isEmpty
                      ? "You're all set!"
                      : "You're all set, \(firstName)!")
-                    .font(.loraMedium(30))
+                    .font(.gsBold(30))
                     .foregroundStyle(Color.figTextPrimary)
                     .multilineTextAlignment(.center)
                 Text("Hold \(KeyCodeNaming.name(for: triggerKeyCode)) anywhere and speak, your words appear wherever your cursor is.")
@@ -341,7 +341,7 @@ struct OnboardingView: View {
     private func stepHeader(_ title: String, sub: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.loraMedium(26))
+                .font(.gsBold(26))
                 .foregroundStyle(Color.figTextPrimary)
             Text(sub)
                 .font(.gsRegular(14.5))

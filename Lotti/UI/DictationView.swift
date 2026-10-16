@@ -143,7 +143,7 @@ struct DictationView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Spacer()
                     Text("\u{201C}\(Self.todaysQuote.text)\u{201D}")
-                        .font(.instrumentSerifItalic(30))
+                        .font(.gsMedium(26))
                         .foregroundStyle(.white)
                         .shadow(color: .black.opacity(0.55), radius: 7, y: 1)
                         .fixedSize(horizontal: false, vertical: true)
@@ -284,7 +284,7 @@ struct DictationView: View {
     private func statRow(value: String, label: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text(value)
-                .font(.loraRegular(27))
+                .font(.gsBold(27))
                 .foregroundStyle(Color.figTextPrimary)
             Text(label)
                 .font(.gsRegular(14))

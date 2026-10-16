@@ -224,12 +224,12 @@ struct NoteEditorView: View {
         ZStack(alignment: .leading) {
             if title.isEmpty {
                 Text("New note")
-                    .font(.loraRegular(25))
+                    .font(.gsSemibold(25))
                     .foregroundStyle(Color.figTextGrey)
             }
             TextField("", text: $title)
                 .textFieldStyle(.plain)
-                .font(.loraRegular(25))
+                .font(.gsSemibold(25))
                 .foregroundStyle(Color.figTextPrimary)
         }
     }

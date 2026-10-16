@@ -63,19 +63,20 @@ extension BlobPalette {
             [gstop("C6B7D8", 0), gstop("A49AD7", 0.35), gstop("8B83D4", 0.70), gstop("9389D5", 1)],
         ]))
 
-    /// Violet → lavender → rose → periwinkle (the Insights hero).
-    static let amethyst = BlobPalette(
-        bg: "EDE6F2",
-        base: [gstop("D8CCEA", 0), gstop("D5C6E6", 0.45), gstop("CFC0E2", 1)],
+    /// Periwinkle → lavender → butter yellow (the Insights hero), matching the
+    /// Insights page's periwinkle charts and butter-yellow accent chip.
+    static let iris = BlobPalette(
+        bg: "EDECF6",
+        base: [gstop("DCDEF2", 0), gstop("DFE0EC", 0.45), gstop("EFEAC6", 1)],
         specs: blobGeometry([
-            [gstop("A982D6", 0), gstop("8B5CC4", 0.35), gstop("6E3FA8", 0.65), gstop("A982D6", 1)],
-            [gstop("CDD4F0", 0), gstop("AEB8E8", 0.30), gstop("8E9AE0", 0.60), gstop("CDD4F0", 1)],
-            [gstop("A982D6", 0), gstop("8B5CC4", 0.5), gstop("6E3FA8", 1)],
-            [gstop("9B6FD0", 0), gstop("6E3FA8", 0.30), gstop("8B5CC4", 0.60), gstop("A982D6", 1)],
-            [gstop("DED3F0", 0), gstop("C9B8E8", 0.40), gstop("C9B8E8", 0.70, 0.4), gstop("C9B8E8", 1, 0)],
-            [gstop("EEC4D8", 0), gstop("E0A0C0", 0.45), gstop("D488AE", 1)],
-            [gstop("DED3F0", 0), gstop("EDE6F2", 0.5), gstop("E8DFF0", 1)],
-            [gstop("AEB8E8", 0), gstop("8E9AE0", 0.5), gstop("7A86D8", 1)],
+            [gstop("9AA6FF", 0), gstop("6A7EFF", 0.35), gstop("4D5FE0", 0.65), gstop("9AA6FF", 1)],
+            [gstop("F8EDBE", 0), gstop("F3E29A", 0.30), gstop("E9D278", 0.60), gstop("F8EDBE", 1)],
+            [gstop("9AA6FF", 0), gstop("6A7EFF", 0.5), gstop("4D5FE0", 1)],
+            [gstop("7E8CFF", 0), gstop("4D5FE0", 0.30), gstop("6A7EFF", 0.60), gstop("9AA6FF", 1)],
+            [gstop("DEE1FA", 0), gstop("C7CBF5", 0.40), gstop("C7CBF5", 0.70, 0.4), gstop("C7CBF5", 1, 0)],
+            [gstop("DEE1FA", 0), gstop("E6E2C0", 0.5), gstop("F3E29A", 1)],
+            [gstop("F8EDBE", 0), gstop("F3EFE6", 0.5), gstop("F6E8B0", 1)],
+            [gstop("F3E29A", 0), gstop("E9D278", 0.5), gstop("DCC45E", 1)],
         ]))
 
     /// Teal → mint/aqua → coral (the Scratchpad hero).

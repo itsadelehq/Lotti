@@ -30,7 +30,7 @@ struct InsightsView: View {
     /// Small animated gradient hero, like the Notetaker banner.
     private var banner: some View {
         ZStack(alignment: .leading) {
-            BlobGradient(palette: .amethyst)
+            BlobGradient(palette: .iris)
 
             // Soft left vignette; text uses a shadow for contrast.
             LinearGradient(colors: [.black.opacity(0.3), .clear],
@@ -39,7 +39,7 @@ struct InsightsView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Your voice, by the numbers")
-                    .font(.loraRegular(22))
+                    .font(.gsSemibold(22))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.5), radius: 6, y: 1)
                 Text("Words, speed, streaks, and how you dictate")
